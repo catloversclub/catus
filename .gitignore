@@ -1,0 +1,7 @@
+node_modules
+.pnpm-store
+**/.turbo
+**/dist
+**/.next
+.env*
+.DS_Store
