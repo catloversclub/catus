@@ -8,11 +8,37 @@ datasource db {
 }
 
 model User {
-  id              Int     @id @default(autoincrement())
-  kakaoId         String  @unique @map("kakao_id")
-  name            String
-  phone           String?
-  profileImageUrl String? @map("profile_image_url")
+  id               String  @id @default(uuid(7))
+  kakaoId          String  @unique @map("kakao_id")
+  nickname         String
+  hasAgreedToTerms Boolean @default(false) @map("has_agreed_to_term")
+  favoriteType     Int[]   @default([])
+  email            String? @unique
+  phone            String?
+  profileImageUrl  String? @map("profile_image_url")
+
+  Cat Cat[]
 
   @@map("user")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  UNKNOWN
+}
+
+model Cat {
+  id              String    @id @default(uuid(7))
+  name            String
+  gender          Gender    @default(UNKNOWN)
+  profileImageUrl String?   @map("profile_image_url")
+  birthDate       DateTime? @map("birth_date") @db.Date
+  breed           String?
+  type            Int?
+
+  butler   User   @relation(fields: [butlerId], references: [id])
+  butlerId String
+
+  @@map("cat")
 }
