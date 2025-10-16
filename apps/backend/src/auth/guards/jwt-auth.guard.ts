@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
   ForbiddenException,
 } from "@nestjs/common"
+import { Reflector } from "@nestjs/core"
 import { KakaoJwtVerifier } from "@auth/kakao-jwt.verifier"
 import { PrismaService } from "@app/prisma/prisma.service"
 
@@ -13,6 +14,7 @@ export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly verifier: KakaoJwtVerifier,
     private readonly prisma: PrismaService,
+    private readonly reflector: Reflector,
   ) {}
 
   async canActivate(ctx: ExecutionContext) {
@@ -26,14 +28,25 @@ export class JwtAuthGuard implements CanActivate {
     })
 
     const kakaoId = String(payload.sub)
+
+    const onboardingBypass = this.reflector.getAllAndOverride<boolean>("onboarding_bypass", [
+      ctx.getHandler(),
+      ctx.getClass(),
+    ])
     const user = await this.prisma.user.findUnique({
       where: { kakaoId },
       select: { id: true },
     })
 
-    if (!user) throw new ForbiddenException("Onboarding required")
+    if (!user) {
+      if (onboardingBypass) {
+        req.user = { id: null, kakaoId }
+        return true
+      }
+      throw new ForbiddenException("Onboarding required")
+    }
 
-    req.user = { id: user.id }
+    req.user = { id: user.id, kakaoId }
     return true
   }
 }
