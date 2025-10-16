@@ -52,7 +52,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
           source: "apps/backend/docker-compose.yml"
-          target: "/home/ubuntu/catus/"
+          target: "/home/ubuntu/catus/docker-compose.yml"
 
       - name: Deploy
         uses: appleboy/ssh-action@v1.1.0

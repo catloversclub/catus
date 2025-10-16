@@ -59,7 +59,7 @@ export class CatService {
     }
     const unique = Date.now().toString(36)
     const objectKey = `cats/${catId}/profile/${unique}.${ext}`
-    const bucket = this.config.get<string>("S3_BUCKET") ?? "media"
+    const bucket = this.config.get<string>("S3_BUCKET") ?? "catus-media"
     const url = await this.storage.getPresignedUploadUrl(bucket, objectKey, {
       contentType,
       expiresInSeconds: 60 * 2,
