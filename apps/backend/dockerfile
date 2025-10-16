@@ -28,8 +28,7 @@ COPY apps/backend/package.json ./package.json
 RUN pnpm install --prod --frozen-lockfile --filter ./apps/backend...
 
 COPY --from=builder /app/apps/backend/dist ./dist
-COPY --from=builder /app/apps/backend/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/apps/backend/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/.pnpm/@prisma+client@*/node_modules/@prisma ./node_modules/@prisma
 
 COPY apps/backend/entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh
