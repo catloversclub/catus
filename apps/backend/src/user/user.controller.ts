@@ -17,17 +17,17 @@ export class UserController {
     return this.userService.create(createUserDto, req.user.kakaoId)
   }
 
-  @Get("")
-  getMe(@Req() req: AuthenticatedRequest) {
-    return this.userService.getMe(req.user.id!)
-  }
-
   @Get(":id")
   getOne(@Param("id") id: string) {
     return this.userService.getOne(id)
   }
 
-  @Patch("")
+  @Get("/me")
+  getMe(@Req() req: AuthenticatedRequest) {
+    return this.userService.getMe(req.user.id!)
+  }
+
+  @Patch("/me")
   update(
     @Req() req: AuthenticatedRequest,
     @Body()
@@ -36,7 +36,7 @@ export class UserController {
     return this.userService.update(req.user.id!, updateUserDto)
   }
 
-  @Delete("")
+  @Delete("/me")
   remove(@Req() req: AuthenticatedRequest) {
     return this.userService.remove(req.user.id!)
   }
