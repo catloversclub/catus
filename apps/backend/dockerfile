@@ -23,7 +23,7 @@ ENV NODE_ENV=production
 RUN apk add --no-cache openssl libc6-compat
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-COPY pnpm-lock.yaml pnpm-workspace.yaml package.json /app/
+COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps/backend/package.json ./package.json
 COPY apps/backend/prisma ./prisma
 RUN pnpm install --prod --frozen-lockfile --filter ./apps/backend...
