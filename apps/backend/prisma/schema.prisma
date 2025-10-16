@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-  id               String  @id @default(uuid(7))
-  kakaoId          String  @unique @map("kakao_id")
-  nickname         String
-  hasAgreedToTerms Boolean @default(false) @map("has_agreed_to_term")
-  favoriteType     Int[]   @default([])
-  email            String? @unique
-  phone            String?
-  profileImageUrl  String? @map("profile_image_url")
+  id                  String  @id @default(uuid(7))
+  kakaoId             String  @unique @map("kakao_id")
+  nickname            String
+  hasAgreedToTerms    Boolean @default(false) @map("has_agreed_to_term")
+  favoriteAppearance  Int[]   @default([]) @map("favorite_appearance")
+  favoritePersonality Int[]   @default([]) @map("favorite_personality")
+  email               String? @unique
+  phone               String?
+  profileImageUrl     String? @map("profile_image_url")
 
   Cat Cat[]
 
@@ -33,6 +34,8 @@ model Cat {
   name            String
   gender          Gender    @default(UNKNOWN)
   profileImageUrl String?   @map("profile_image_url")
+  appearance      Int[]     @default([])
+  personality     Int[]     @default([])
   birthDate       DateTime? @map("birth_date") @db.Date
   breed           String?
   type            Int?
