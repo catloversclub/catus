@@ -1,11 +1,18 @@
-import { ForbiddenException, Injectable } from "@nestjs/common"
+import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common"
+import { getImageExtension } from "@app/storage/image-types.const"
+import { ConfigService } from "@nestjs/config"
 import { CreateCatDto } from "./dto/create-cat.dto"
 import { UpdateCatDto } from "./dto/update-cat.dto"
 import { PrismaService } from "@app/prisma/prisma.service"
+import type { StorageService } from "@app/storage/storage.service"
 
 @Injectable()
 export class CatService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly storage: StorageService,
+    private readonly config: ConfigService,
+  ) {}
 
   create(userId: string, createCatDto: CreateCatDto) {
     return this.prisma.cat.create({
@@ -39,5 +46,24 @@ export class CatService {
     if (cat?.butlerId !== userId) {
       throw new ForbiddenException("She's not your cat")
     }
+  }
+
+  async getProfileImageUploadUrl(catId: string, userId: string, contentType?: string) {
+    await this.isMyCat(catId, userId)
+    if (!contentType) {
+      throw new BadRequestException("contentType is required")
+    }
+    const ext = getImageExtension(contentType)
+    if (!ext) {
+      throw new BadRequestException("Only image content types are allowed: jpeg, png, webp, avif")
+    }
+    const unique = Date.now().toString(36)
+    const objectKey = `cats/${catId}/profile/${unique}.${ext}`
+    const bucket = this.config.get<string>("S3_BUCKET") ?? "media"
+    const url = await this.storage.getPresignedUploadUrl(bucket, objectKey, {
+      contentType,
+      expiresInSeconds: 60 * 2,
+    })
+    return { url, key: objectKey }
   }
 }

@@ -33,4 +33,13 @@ export class CatController {
   delete(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
     return this.catService.delete(id, req.user.id!)
   }
+
+  @Post(":id/image/upload-url")
+  getProfileImageUploadUrl(
+    @Req() req: AuthenticatedRequest,
+    @Param("id") id: string,
+    @Body("contentType") contentType?: string,
+  ) {
+    return this.catService.getProfileImageUploadUrl(id, req.user.id!, contentType)
+  }
 }

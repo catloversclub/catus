@@ -1,4 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from "@nestjs/common"
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
+  Header,
+} from "@nestjs/common"
 import { UserService } from "./user.service"
 import { CreateUserDto } from "./dto/create-user.dto"
 import { UpdateUserDto } from "./dto/update-user.dto"
@@ -39,5 +50,13 @@ export class UserController {
   @Delete("/me")
   remove(@Req() req: AuthenticatedRequest) {
     return this.userService.remove(req.user.id!)
+  }
+
+  @Post("/me/image/upload-url")
+  getProfileImageUploadUrl(
+    @Req() req: AuthenticatedRequest,
+    @Body("contentType") contentType?: string,
+  ) {
+    return this.userService.getProfileImageUploadUrl(req.user.id!, contentType)
   }
 }
