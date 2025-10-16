@@ -57,7 +57,7 @@ export class UserService {
     }
     const unique = Date.now().toString(36)
     const objectKey = `users/${userId}/profile/${unique}.${ext}`
-    const bucket = this.config.get<string>("S3_BUCKET") ?? "media"
+    const bucket = this.config.get<string>("S3_BUCKET") ?? "catus-media"
     return this.storage
       .getPresignedUploadUrl(bucket, objectKey, {
         contentType,
