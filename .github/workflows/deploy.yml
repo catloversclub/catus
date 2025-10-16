@@ -50,6 +50,6 @@ jobs:
             mkdir -p /home/ubuntu/catus
             echo "${{ secrets.ENV_FILE }}" > /home/ubuntu/catus/.env
             cd /home/ubuntu/catus
-            docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose pull api
             docker compose up -d --force-recreate --no-deps api
