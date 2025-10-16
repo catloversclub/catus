@@ -4,7 +4,7 @@ import { ConfigService } from "@nestjs/config"
 import type { CreateUserDto } from "./dto/create-user.dto"
 import type { UpdateUserDto } from "./dto/update-user.dto"
 import { PrismaService } from "@app/prisma/prisma.service"
-import type { StorageService } from "@app/storage/storage.service"
+import { StorageService } from "@app/storage/storage.service"
 
 @Injectable()
 export class UserService {

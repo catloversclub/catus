@@ -4,7 +4,7 @@ import { ConfigService } from "@nestjs/config"
 import { CreateCatDto } from "./dto/create-cat.dto"
 import { UpdateCatDto } from "./dto/update-cat.dto"
 import { PrismaService } from "@app/prisma/prisma.service"
-import type { StorageService } from "@app/storage/storage.service"
+import { StorageService } from "@app/storage/storage.service"
 
 @Injectable()
 export class CatService {
