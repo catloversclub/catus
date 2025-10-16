@@ -1,0 +1,46 @@
+# ---- build stage ----
+FROM node:22-alpine AS builder
+WORKDIR /app
+
+# 시스템 의존성 (Prisma 엔진/네이티브 모듈 대비)
+RUN apk add --no-cache openssl libc6-compat
+
+# pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# 의존성 설치
+COPY pnpm-lock.yaml package.json ./
+RUN pnpm install --frozen-lockfile
+
+# 소스 복사
+COPY . .
+
+# (중요) Prisma Client 생성
+# prisma 디렉터리가 프로젝트 루트에 있다고 가정
+# package.json에 "prisma": "prisma" devDep가 있어야 함
+RUN pnpm prisma generate
+
+# Nest 빌드
+RUN pnpm build
+
+# ---- run stage ----
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+RUN apk add --no-cache openssl libc6-compat
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+COPY pnpm-lock.yaml package.json ./
+RUN pnpm install --prod --frozen-lockfile
+
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+
+COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+EXPOSE 3000
+USER node
+ENTRYPOINT ["sh", "/app/entrypoint.sh"]
