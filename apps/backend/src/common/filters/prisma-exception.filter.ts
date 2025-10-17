@@ -1,4 +1,3 @@
-// prisma-exception.filter.ts
 import {
   ArgumentsHost,
   Catch,
@@ -16,6 +15,8 @@ type AnyPrismaErr =
   | Prisma.PrismaClientInitializationError
   | Prisma.PrismaClientRustPanicError
 
+const isProd = process.env.NODE_ENV === "production"
+
 @Injectable()
 @Catch(
   Prisma.PrismaClientKnownRequestError,
@@ -32,59 +33,73 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     const { httpAdapter } = this.adapterHost
     const ctx = host.switchToHttp()
 
-    const { status, message, details } = this.map(exception)
+    const mapped = this.map(exception)
 
-    const body = {
-      statusCode: status,
-      error: HttpStatus[status],
-      message,
-      details,
+    const body: Record<string, any> = {
+      statusCode: mapped.status,
+      error: HttpStatus[mapped.status],
+      message: mapped.message,
+    }
+    if (!isProd && mapped.details) body.details = mapped.details
+
+    if (mapped.status >= 500) {
+      this.logger.error(mapped.logMessage ?? mapped.message, (exception as any).stack)
+    } else {
+      this.logger.warn(mapped.logMessage ?? mapped.message)
     }
 
-    if (status >= 500) this.logger.error(message, (exception as any).stack)
-    else this.logger.warn(message)
-
-    httpAdapter.reply(ctx.getResponse(), body, status)
+    httpAdapter.reply(ctx.getResponse(), body, mapped.status)
   }
 
-  private map(e: AnyPrismaErr): { status: number; message: string; details?: any } {
+  private map(e: AnyPrismaErr): {
+    status: number
+    message: string
+    details?: any
+    logMessage?: string
+  } {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       switch (e.code) {
         case "P2002": // Unique constraint failed
           return {
             status: HttpStatus.CONFLICT,
-            message: "Unique constraint failed.",
-            details: { target: (e.meta as any)?.target },
+            message: "요청이 충돌했습니다.",
+            details: { code: e.code, target: (e.meta as any)?.target },
+            logMessage: `[P2002] Unique constraint failed: ${e.message}`,
           }
         case "P2025": // Record not found
           return {
             status: HttpStatus.NOT_FOUND,
-            message: "Record not found.",
-            details: { cause: e.message },
+            message: "요청한 리소스를 찾을 수 없습니다.",
+            details: { code: e.code },
+            logMessage: `[P2025] Record not found: ${e.message}`,
           }
         case "P2003": // FK constraint failed
           return {
             status: HttpStatus.CONFLICT,
-            message: "Foreign key constraint failed.",
-            details: { field: (e.meta as any)?.field_name },
+            message: "요청이 제약 조건과 충돌했습니다.",
+            details: { code: e.code },
+            logMessage: `[P2003] FK constraint failed: ${e.message}`,
           }
         case "P2000": // Value too long for column
           return {
             status: HttpStatus.BAD_REQUEST,
-            message: "Value too long for column.",
-            details: { column: (e.meta as any)?.column_name },
+            message: "요청 값이 유효하지 않습니다.",
+            details: { code: e.code },
+            logMessage: `[P2000] Value too long: ${e.message}`,
           }
         case "P2014": // Invalid relation
           return {
             status: HttpStatus.BAD_REQUEST,
-            message: "Invalid relation.",
-            details: { cause: e.message },
+            message: "요청이 유효하지 않습니다.",
+            details: { code: e.code },
+            logMessage: `[P2014] Invalid relation: ${e.message}`,
           }
         default:
           return {
             status: HttpStatus.BAD_REQUEST,
-            message: "Prisma request error.",
-            details: { code: e.code, cause: e.message },
+            message: "요청이 유효하지 않습니다.",
+            details: { code: e.code },
+            logMessage: `[${e.code}] Prisma request error: ${e.message}`,
           }
       }
     }
@@ -92,31 +107,35 @@ export class PrismaExceptionFilter implements ExceptionFilter {
     if (e instanceof Prisma.PrismaClientValidationError) {
       return {
         status: HttpStatus.BAD_REQUEST,
-        message: "Validation failed for Prisma query.",
-        details: e.message,
+        message: "요청이 유효하지 않습니다.",
+        details: { type: "ValidationError" },
+        logMessage: `[Validation] ${e.message}`,
       }
     }
 
     if (e instanceof Prisma.PrismaClientInitializationError) {
       return {
         status: HttpStatus.SERVICE_UNAVAILABLE,
-        message: "Database is unavailable.",
-        details: e.message,
+        message: "일시적으로 서비스를 이용할 수 없습니다.",
+        details: { type: "InitializationError" },
+        logMessage: `[Initialization] ${e.message}`,
       }
     }
 
     if (e instanceof Prisma.PrismaClientRustPanicError) {
       return {
         status: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: "Prisma engine panic.",
-        details: e.message,
+        message: "서버 내부 오류가 발생했습니다.",
+        details: { type: "RustPanic" },
+        logMessage: `[RustPanic] ${e.message}`,
       }
     }
 
     return {
       status: HttpStatus.INTERNAL_SERVER_ERROR,
-      message: "Unknown Prisma error.",
-      details: (e as any)?.message,
+      message: "서버 내부 오류가 발생했습니다.",
+      details: { type: "UnknownError" },
+      logMessage: `[Unknown] ${(e as any)?.message ?? "Unknown error"}`,
     }
   }
 }
