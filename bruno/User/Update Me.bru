@@ -1,0 +1,28 @@
+meta {
+  name: Update Me
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/user/me
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "nickname": "updated_nabi",
+    "favoritePersonality": [
+      2,
+      3
+    ],
+    "favoriteAppearance": [
+      1
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+meta {
+  name: Create User (onboarding)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/user
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "nickname": "nabi",
+    "hasAgreedToTerms": true,
+    "favoritePersonality": [
+      1,
+      2
+    ],
+    "favoriteAppearance": [
+      3
+    ],
+    "email": "nabi@example.com",
+    "phone": "010-1234-5678",
+    "profileImageUrl": null
+  }
+}

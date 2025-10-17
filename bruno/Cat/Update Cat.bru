@@ -1,0 +1,32 @@
+meta {
+  name: Update Cat
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/cat/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Updated Mimi",
+    "personality": [
+      2,
+      3
+    ],
+    "appearance": [
+      1
+    ]
+  }
+}

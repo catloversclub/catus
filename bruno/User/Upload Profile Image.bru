@@ -1,0 +1,27 @@
+meta {
+  name: Upload Profile Image (Step 2)
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{UPLOAD_URL}}
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Authorization: 
+}
+
+body:multipart-form {
+  Content-Type: {{CONTENT_TYPE}}
+  bucket: {{BUCKET}}
+  X-Amz-Algorithm: {{X_AMZ_ALGORITHM}}
+  X-Amz-Credential: {{X_AMZ_CREDENTIAL}}
+  X-Amz-Date: {{X_AMZ_DATE}}
+  key: {{KEY}}
+  Policy: {{POLICY}}
+  X-Amz-Signature: {{X_AMZ_SIGNATURE}}
+  file: @file()
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Get Cat by Id
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/cat/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id: 
+}

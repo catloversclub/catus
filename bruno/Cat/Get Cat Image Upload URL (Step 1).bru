@@ -1,0 +1,35 @@
+meta {
+  name: Get Cat Image Upload URL (Step 1)
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/cat/:id/image/upload-url
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id: 0199f110-f177-7bb3-82fd-146d5585c40a
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "contentType": "image/png"
+  }
+}
+
+vars:post-response {
+  : 
+  : 
+  : 
+}
+
+script:post-response {
+  await require("./presigned-url").savePresignEnv(res);
+}

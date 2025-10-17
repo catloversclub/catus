@@ -1,0 +1,25 @@
+meta {
+  name: Get Profile Image Upload URL (Step 1)
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/user/me/image/upload-url
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "contentType": "image/png"
+  }
+}
+
+script:post-response {
+  await require("./presigned-url").savePresignEnv(res);
+}
