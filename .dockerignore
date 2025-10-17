@@ -1,0 +1,12 @@
+node_modules
+**/node_modules
+**/.turbo
+**/.next
+**/dist
+**/build
+**/coverage
+.git
+.DS_Store
+*.log
+apps/frontend/
+bruno
