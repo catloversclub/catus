@@ -28,14 +28,14 @@ export class UserController {
     return this.userService.create(createUserDto, req.user.kakaoId)
   }
 
-  @Get(":id")
-  getOne(@Param("id") id: string) {
-    return this.userService.getOne(id)
-  }
-
   @Get("/me")
   getMe(@Req() req: AuthenticatedRequest) {
     return this.userService.getMe(req.user.id!)
+  }
+
+  @Get(":id")
+  getOne(@Param("id") id: string) {
+    return this.userService.getOne(id)
   }
 
   @Patch("/me")
