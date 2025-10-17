@@ -47,4 +47,4 @@ jobs:
             cd /home/ubuntu/catus
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose pull api
-            docker compose up -d --force-recreate --no-deps api
+            docker compose up -d --no-deps --force-recreate --scale api=2 api

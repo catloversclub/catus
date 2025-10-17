@@ -7,6 +7,7 @@ import {
   PutBucketPolicyCommand,
   S3Client,
 } from "@aws-sdk/client-s3"
+import { NextFunction, Request, Response } from "express"
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule)
@@ -55,6 +56,10 @@ async function bootstrap() {
     }
   }
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }))
+  app.use((req: Request, res: Response, next: NextFunction) => {
+    res.setHeader("X-Instance-Id", process.env.HOSTNAME || "unknown")
+    next()
+  })
   await app.listen(process.env.PORT ?? 3000)
 }
 bootstrap()
