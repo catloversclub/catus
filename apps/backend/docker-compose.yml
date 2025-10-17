@@ -14,6 +14,9 @@ services:
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:8080
       - --api.dashboard=true
+      - --accesslog=true
+      - --accesslog.format=json
+      - --log.level=INFO
     ports:
       - "127.0.0.1:8080:8080"
     volumes:
