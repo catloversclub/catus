@@ -5,6 +5,7 @@ import type { CreateUserDto } from "./dto/create-user.dto"
 import type { UpdateUserDto } from "./dto/update-user.dto"
 import { PrismaService } from "@app/prisma/prisma.service"
 import { StorageService } from "@app/storage/storage.service"
+import { uuidv7 } from "uuidv7"
 
 @Injectable()
 export class UserService {
@@ -24,13 +25,13 @@ export class UserService {
   }
 
   getMe(userId: string) {
-    return this.prisma.user.findUnique({
+    return this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
     })
   }
 
   getOne(userId: string) {
-    return this.prisma.user.findUnique({
+    return this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
       select: {
         nickname: true,
@@ -47,7 +48,7 @@ export class UserService {
     return this.prisma.user.delete({ where: { id: userId } })
   }
 
-  getProfileImageUploadUrl(userId: string, contentType?: string) {
+  async getProfileImageUploadUrl(userId: string, contentType?: string) {
     if (!contentType) {
       throw new BadRequestException("contentType is required")
     }
@@ -55,14 +56,16 @@ export class UserService {
     if (!ext) {
       throw new BadRequestException("Only image content types are allowed: jpeg, png, webp, avif")
     }
-    const unique = Date.now().toString(36)
+    const unique = uuidv7()
     const objectKey = `users/${userId}/profile/${unique}.${ext}`
     const bucket = this.config.get<string>("S3_BUCKET") ?? "catus-media"
-    return this.storage
-      .getPresignedUploadUrl(bucket, objectKey, {
-        contentType,
-        expiresInSeconds: 60 * 2,
-      })
-      .then((url) => ({ url, key: objectKey }))
+
+    const { url, fields } = await this.storage.getPresignedUploadUrl(bucket, objectKey, {
+      contentType,
+      expiresInSeconds: 60 * 2,
+      maxSizeBytes: 5 * 1024 * 1024,
+    })
+
+    return { url, fields }
   }
 }

@@ -1,11 +1,17 @@
 import { Injectable } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3"
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
+import { S3Client } from "@aws-sdk/client-s3"
+import { createPresignedPost } from "@aws-sdk/s3-presigned-post"
 
 export interface PresignedUrlOptions {
   contentType?: string
   expiresInSeconds?: number
+  maxSizeBytes?: number
+}
+
+export interface PresignedPostResponse {
+  url: string
+  fields: Record<string, string>
 }
 
 @Injectable()
@@ -28,14 +34,25 @@ export class StorageService {
     bucket: string,
     objectKey: string,
     options?: PresignedUrlOptions,
-  ): Promise<string> {
-    const expiresIn = options?.expiresInSeconds ?? 60 * 5
+  ): Promise<PresignedPostResponse> {
+    const expiresIn = options?.expiresInSeconds ?? 60 * 2
     const contentType = options?.contentType
-    const command = new PutObjectCommand({
+    const maxSizeBytes = options?.maxSizeBytes ?? 10 * 1024 * 1024
+
+    const conditions: any[] = [["content-length-range", 0, maxSizeBytes]]
+
+    if (contentType) {
+      conditions.push(["eq", "$Content-Type", contentType])
+    }
+
+    const { url, fields } = await createPresignedPost(this.client, {
       Bucket: bucket,
       Key: objectKey,
-      ContentType: contentType,
+      Conditions: conditions,
+      Fields: contentType ? { "Content-Type": contentType } : {},
+      Expires: expiresIn,
     })
-    return getSignedUrl(this.client, command, { expiresIn })
+
+    return { url, fields }
   }
 }

@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.911.0",
+    "@aws-sdk/s3-presigned-post": "^3.911.0",
     "@aws-sdk/s3-request-presigner": "^3.911.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
@@ -34,7 +35,8 @@
     "class-validator": "^0.14.2",
     "jose": "^6.1.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "uuidv7": "^1.0.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

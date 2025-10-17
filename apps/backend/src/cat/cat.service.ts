@@ -5,6 +5,7 @@ import { CreateCatDto } from "./dto/create-cat.dto"
 import { UpdateCatDto } from "./dto/update-cat.dto"
 import { PrismaService } from "@app/prisma/prisma.service"
 import { StorageService } from "@app/storage/storage.service"
+import { uuidv7 } from "uuidv7"
 
 @Injectable()
 export class CatService {
@@ -24,7 +25,7 @@ export class CatService {
   }
 
   findOne(id: string) {
-    return this.prisma.cat.findUnique({ where: { id } })
+    return this.prisma.cat.findUniqueOrThrow({ where: { id } })
   }
 
   async update(id: string, userId: string, updateCatDto: UpdateCatDto) {
@@ -57,13 +58,16 @@ export class CatService {
     if (!ext) {
       throw new BadRequestException("Only image content types are allowed: jpeg, png, webp, avif")
     }
-    const unique = Date.now().toString(36)
+    const unique = uuidv7()
     const objectKey = `cats/${catId}/profile/${unique}.${ext}`
     const bucket = this.config.get<string>("S3_BUCKET") ?? "catus-media"
-    const url = await this.storage.getPresignedUploadUrl(bucket, objectKey, {
+
+    const { url, fields } = await this.storage.getPresignedUploadUrl(bucket, objectKey, {
       contentType,
       expiresInSeconds: 60 * 2,
+      maxSizeBytes: 5 * 1024 * 1024,
     })
-    return { url, key: objectKey }
+
+    return { url, fields, key: objectKey }
   }
 }
