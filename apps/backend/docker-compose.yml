@@ -55,18 +55,18 @@ services:
     environment:
       - MINIO_ROOT_USER=${MINIO_ROOT_USER}
       - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+      - MINIO_SERVER_URL=${MINIO_SERVER_URL}
     volumes:
       - catus-miniodata:/data
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.minio.rule=Host(`${MINIO_HOST}`)"
-      - "traefik.http.routers.minio.entrypoints=web"
-      - "traefik.http.services.minio.loadbalancer.server.port=9000"
-      - "traefik.http.services.minio.loadbalancer.sticky.cookie=true"
-      - "traefik.http.services.minio.loadbalancer.passhostheader=true"
-      - "traefik.http.services.minio-console.loadbalancer.passhostheader=true"
+      - "traefik.http.routers.minio-api.rule=Host(`${MINIO_HOST}`)"
+      - "traefik.http.routers.minio-api.entrypoints=web"
+      - "traefik.http.routers.minio-api.service=minio-api"
+      - "traefik.http.services.minio-api.loadbalancer.server.port=9000"
       - "traefik.http.routers.minio-console.rule=Host(`${MINIO_CONSOLE_HOST}`)"
       - "traefik.http.routers.minio-console.entrypoints=web"
+      - "traefik.http.routers.minio-console.service=minio-console"
       - "traefik.http.services.minio-console.loadbalancer.server.port=9001"
     networks: [edge, backend]
     restart: unless-stopped
