@@ -24,6 +24,10 @@ export class CatService {
     })
   }
 
+  getMyCats(userId: string) {
+    return this.prisma.cat.findMany({ where: { butlerId: userId } })
+  }
+
   findOne(id: string) {
     return this.prisma.cat.findUniqueOrThrow({ where: { id } })
   }

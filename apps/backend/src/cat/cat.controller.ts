@@ -15,6 +15,11 @@ export class CatController {
     return this.catService.create(req.user.id!, createCatDto)
   }
 
+  @Get("my")
+  getMyCats(@Req() req: AuthenticatedRequest) {
+    return this.catService.getMyCats(req.user.id!)
+  }
+
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.catService.findOne(id)
