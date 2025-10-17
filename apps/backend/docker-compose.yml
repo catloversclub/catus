@@ -26,7 +26,6 @@ services:
     env_file: [.env]
     environment:
       - NODE_ENV=production
-      - HOSTNAME
     depends_on:
       - postgres
       - minio
