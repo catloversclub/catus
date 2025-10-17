@@ -31,6 +31,7 @@ services:
       - minio
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=edge"
       - "traefik.http.routers.api.rule=Host(`${API_HOST}`)"
       - "traefik.http.routers.api.entrypoints=web"
       - "traefik.http.services.api.loadbalancer.server.port=3000"
@@ -60,6 +61,7 @@ services:
       - catus-miniodata:/data
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=edge"
       - "traefik.http.routers.minio-api.rule=Host(`${MINIO_HOST}`)"
       - "traefik.http.routers.minio-api.entrypoints=web"
       - "traefik.http.routers.minio-api.service=minio-api"
