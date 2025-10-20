@@ -1,7 +1,6 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Heart } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
 
@@ -123,9 +122,6 @@ export default function DesignSystemPage() {
                     {button.name}
                   </Button>
                 ))}
-                <Button variant="icon">
-                  <Heart className="w-5 h-5" />
-                </Button>
               </div>
             </div>
 
