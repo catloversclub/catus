@@ -13,6 +13,7 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedbydefault=false
       - --entrypoints.web.address=:8080
+      - --entrypoints.web.forwardedHeaders.trustedIPs=172.19.0.0/16
       - --api.dashboard=true
       - --accesslog=true
       - --accesslog.format=json
