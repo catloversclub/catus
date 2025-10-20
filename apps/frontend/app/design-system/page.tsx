@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { useState } from "react"
+import { FaPencil } from "react-icons/fa6"
 
 // Design System Data
 const designSystemData = {
@@ -137,17 +138,15 @@ export default function DesignSystemPage() {
                 {designSystemData.buttons.variants.map((button, index) => (
                   <Button
                     key={index}
-                    variant={
-                      button.variant as
-                        | "default"
-                        | "outline"
-                        | "ghost"
-                    }
+                    variant={button.variant as "default" | "outline" | "ghost"}
                     className="w-full"
                   >
                     {button.name}
                   </Button>
                 ))}
+                <Button variant="outline" size="icon">
+                  <FaPencil className="w-4 h-4" />
+                </Button>
               </div>
             </div>
 
