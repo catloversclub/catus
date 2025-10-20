@@ -1,26 +1,26 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { MobileWrapper } from "@/components/mobile-wrapper";
-import { AuthProvider } from "@/components/providers/session-provider";
+import type { Metadata } from "next"
+import "./globals.css"
+import { MobileWrapper } from "@/components/mobile-wrapper"
+import { AuthProvider } from "@/components/providers/session-provider"
 
-import localFont from "next/font/local";
+import localFont from "next/font/local"
 
 const pretendard = localFont({
   src: "../fonts/PretendardVariable.woff2",
   display: "swap",
   weight: "100 900",
   variable: "--font-pretendard",
-});
+})
 
 export const metadata: Metadata = {
   title: "Catus",
   description: "Catus",
-};
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en">
@@ -30,5 +30,5 @@ export default function RootLayout({
         </AuthProvider>
       </body>
     </html>
-  );
+  )
 }

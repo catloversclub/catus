@@ -1,9 +1,9 @@
-import { cn } from "@/lib/utils";
-import { ReactNode } from "react";
+import { cn } from "@/lib/utils"
+import { ReactNode } from "react"
 
 interface MobileWrapperProps {
-  children: ReactNode;
-  className?: string;
+  children: ReactNode
+  className?: string
 }
 
 export function MobileWrapper({ children, className = "" }: MobileWrapperProps) {
@@ -11,10 +11,8 @@ export function MobileWrapper({ children, className = "" }: MobileWrapperProps) 
     <div className="min-h-screen bg-background">
       {/* Mobile container with fixed width */}
       <div className="mx-auto max-w-[360px] min-h-screen bg-background">
-        <div className={cn("w-full min-h-screen", className)}>
-          {children}
-        </div>
+        <div className={cn("w-full min-h-screen", className)}>{children}</div>
       </div>
     </div>
-  );
+  )
 }

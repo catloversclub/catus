@@ -1,6 +1,6 @@
-import { KakaoLoginButton } from "@/components/auth/kakao-login-button";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { KakaoLoginButton } from "@/components/auth/kakao-login-button"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export default function Login() {
   return (
@@ -14,5 +14,5 @@ export default function Login() {
         </div>
       </main>
     </div>
-  );
+  )
 }

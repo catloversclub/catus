@@ -1,9 +1,9 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { Button } from "@/components/ui/button"
+import { Heart } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { useState } from "react"
 
 // Design System Data
 const designSystemData = {
@@ -43,15 +43,15 @@ const designSystemData = {
       { name: "Disabled", disabled: true },
     ],
   },
-};
+}
 
 export default function DesignSystemPage() {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(false)
 
   const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle("dark");
-  };
+    setIsDark(!isDark)
+    document.documentElement.classList.toggle("dark")
+  }
 
   return (
     <div className={cn("font-sans min-h-screen p-4 transition-colors", isDark ? "dark" : "light")}>
@@ -150,5 +150,5 @@ export default function DesignSystemPage() {
         </section>
       </div>
     </div>
-  );
+  )
 }
