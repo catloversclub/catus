@@ -94,8 +94,8 @@
   --color-sidebar-ring: var(--sidebar-ring);
   
   /* Fonts */
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-pretendard), -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  --font-mono: var(--font-pretendard), 'SF Mono', Monaco, Inconsolata, 'Roboto Mono', 'Source Code Pro', monospace;
   
   /* Radius */
   --radius-sm: calc(var(--radius) - 4px);
@@ -306,5 +306,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-pretendard), -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
   }
 }
