@@ -20,7 +20,7 @@ const buttonVariants = cva(
           "text-ghost-foreground font-normal hover:bg-ghost-pressed hover:text-ghost-pressed-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         icon:
-          "rounded-full border border-border bg-background text-outline-foreground hover:bg-outline-pressed hover:text-outline-pressed-foreground disabled:text-outline-disabled justify-self-center",
+          "w-[50px] h-[50px] rounded-full border border-border bg-background text-outline-foreground hover:bg-outline-pressed hover:text-outline-pressed-foreground disabled:text-outline-disabled justify-self-center",
       },
       size: {
         default: "h-[50px] px-4 py-2 has-[>svg]:px-3",

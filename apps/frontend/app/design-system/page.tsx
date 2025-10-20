@@ -123,7 +123,7 @@ export default function DesignSystemPage() {
                     {button.name}
                   </Button>
                 ))}
-                <Button variant="icon" className="icon-button-fixed">
+                <Button variant="icon">
                   <Heart className="w-5 h-5" />
                 </Button>
               </div>
