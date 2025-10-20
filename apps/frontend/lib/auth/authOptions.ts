@@ -36,16 +36,6 @@ export const authOptions: NextAuthOptions = {
         },
       },
       profile(profile: KakaoProfile) {
-        console.log("=== 카카오 프로필 데이터 ===")
-        console.log("전체 profile:", JSON.stringify(profile, null, 2))
-        console.log("profile.id:", profile.id)
-        console.log("profile.kakao_account:", profile.kakao_account)
-        console.log(
-          "profile.kakao_account?.profile?.nickname:",
-          profile.kakao_account?.profile?.nickname,
-        )
-        console.log("profile.kakao_account?.profile:", profile.kakao_account?.profile)
-        console.log("================================")
         return {
           id: profile.id.toString(),
           name: profile.kakao_account.profile.nickname,
