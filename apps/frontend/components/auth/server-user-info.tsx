@@ -1,20 +1,12 @@
-import { Button } from "@/components/ui/button";
 import { getServerSession } from "@/lib/auth/getServerSession";
-import Link from "next/link";
 import Image from "next/image";
+import { redirect } from "next/navigation";
 
 export async function ServerUserInfo() {
   const session = await getServerSession();
 
   if (!session) {
-    return (
-      <div className="text-center">
-        <p className="text-text-secondary mb-4">로그인이 필요합니다</p>
-        <Button asChild>
-          <Link href="/login">로그인하기</Link>
-        </Button>
-      </div>
-    );
+    redirect("/login");
   }
 
   return (
