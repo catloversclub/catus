@@ -1,26 +1,311 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  /* Base Colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background-secondary: var(--background-secondary);
+  
+  /* Text Colors */
+  --color-text-primary: var(--foreground);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-text-success: var(--text-success);
+  --color-text-error: var(--text-error);
+  
+  /* Icon Colors */
+  --color-icon-primary: var(--icon-primary);
+  --color-icon-secondary: var(--icon-secondary);
+  --color-icon-tertiary: var(--icon-tertiary);
+  --color-icon-minor: var(--icon-minor);
+  --color-icon-accent: var(--icon-accent);
+  --color-icon-success: var(--icon-success);
+  --color-icon-error: var(--icon-error);
+  
+  /* Border Colors */
+  --color-border: var(--border);
+  --color-border-secondary: var(--border-secondary);
+  --color-border-disabled: var(--border-disabled);
+  --color-border-error: var(--border-error);
+  
+  /* Button Colors */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-pressed: var(--primary-pressed);
+  --color-primary-disabled: var(--primary-disabled);
+  --color-primary-disabled-foreground: var(--primary-disabled-foreground);
+  
+  /* Ghost Button Colors */
+  --color-ghost-foreground: var(--ghost-foreground);
+  --color-ghost-pressed: var(--ghost-pressed);
+  --color-ghost-pressed-foreground: var(--ghost-pressed-foreground);
+  
+  /* Outline Button Colors */
+  --color-outline-foreground: var(--outline-foreground);
+  --color-outline-pressed: var(--outline-pressed);
+  --color-outline-pressed-foreground: var(--outline-pressed-foreground);
+  --color-outline-disabled: var(--outline-disabled);
+  
+  /* Chips Colors */
+  --color-chips-background: var(--chips-background);
+  --color-chips-foreground: var(--chips-foreground);
+  --color-chips-pressed: var(--chips-pressed);
+  --color-chips-pressed-foreground: var(--chips-pressed-foreground);
+  --color-chips-selected: var(--chips-selected);
+  --color-chips-selected-foreground: var(--chips-selected-foreground);
+  
+  /* Dimmed */
+  --color-dimmed: var(--dimmed);
+  
+  /* Standard shadcn/ui colors */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  
+  /* Charts */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  
+  /* Sidebar */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  
+  /* Fonts */
+  --font-sans: var(--font-pretendard), -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  --font-mono: var(--font-pretendard), 'SF Mono', Monaco, Inconsolata, 'Roboto Mono', 'Source Code Pro', monospace;
+  
+  /* Radius */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --radius: 0.625rem;
+  
+  /* Light Mode - Background */
+  --background: #FDFDFD;
+  --background-secondary: #F6F6F6;
+  
+  /* Light Mode - Text */
+  --foreground: #1B1B1B;
+  --text-secondary: #444444;
+  --text-tertiary: #595959;
+  --text-success: #0274B6;
+  --text-error: #EA0137;
+  
+  /* Light Mode - Icons */
+  --icon-primary: #1B1B1B;
+  --icon-secondary: #6D6D6D;
+  --icon-tertiary: #AAAAAA;
+  --icon-minor: #D3D3D3;
+  --icon-accent: #FECF16;
+  --icon-success: #0194E9;
+  --icon-error: #EA0137;
+  
+  /* Light Mode - Borders */
+  --border: #E7E7E7;
+  --border-secondary: #F6F6F6;
+  --border-disabled: #E7E7E7;
+  --border-error: #EA0137;
+  
+  /* Light Mode - Buttons */
+  --primary: #FECF16;
+  --primary-foreground: #1B1B1B;
+  --primary-pressed: #F4C301;
+  --primary-disabled: #E7E7E7;
+  --primary-disabled-foreground: #AAAAAA;
+  
+  /* Light Mode - Ghost Button */
+  --ghost-foreground: #6D6D6D;
+  --ghost-pressed: #F6F6F6;
+  
+  /* Light Mode - Outline Button */
+  --outline-foreground: #444444;
+  --outline-pressed: #F6F6F6;
+  --outline-pressed-foreground: #6D6D6D;
+  --outline-disabled: #AAAAAA;
+  
+  /* Light Mode - Chips */
+  --chips-background: #F6F6F6;
+  --chips-foreground: #444444;
+  --chips-pressed: #E7E7E7;
+  --chips-selected: #FECF16;
+  --chips-selected-foreground: #1B1B1B;
+  
+  /* Light Mode - Dimmed */
+  --dimmed: rgba(27, 27, 27, 0.2);
+  
+  /* Card and Popover */
+  --card: #FDFDFD;
+  --card-foreground: #1B1B1B;
+  --popover: #FDFDFD;
+  --popover-foreground: #1B1B1B;
+  
+  /* Secondary and Muted */
+  --secondary: #F6F6F6;
+  --secondary-foreground: #444444;
+  --muted: #F6F6F6;
+  --muted-foreground: #6D6D6D;
+  
+  /* Accent */
+  --accent: #F6F6F6;
+  --accent-foreground: #1B1B1B;
+  
+  /* Destructive */
+  --destructive: #EA0137;
+  --destructive-foreground: #FDFDFD;
+  
+  /* Input */
+  --input: #E7E7E7;
+  --ring: #6D6D6D;
+  
+  /* Charts */
+  --chart-1: #FECF16;
+  --chart-2: #0194E9;
+  --chart-3: #0274B6;
+  --chart-4: #EA0137;
+  --chart-5: #6D6D6D;
+  
+  /* Sidebar */
+  --sidebar: #FDFDFD;
+  --sidebar-foreground: #1B1B1B;
+  --sidebar-primary: #FECF16;
+  --sidebar-primary-foreground: #1B1B1B;
+  --sidebar-accent: #F6F6F6;
+  --sidebar-accent-foreground: #1B1B1B;
+  --sidebar-border: #E7E7E7;
+  --sidebar-ring: #6D6D6D;
+}
+
+.dark {
+  /* Dark Mode - Background */
+  --background: #1B1B1B;
+  --background-secondary: #303030;
+  
+  /* Dark Mode - Text */
+  --foreground: #FDFDFD;
+  --text-secondary: #E7E7E7;
+  --text-tertiary: #BFBFBF;
+  --text-success: #0194E9;
+  --text-error: #FE527B;
+  
+  /* Dark Mode - Icons */
+  --icon-primary: #FDFDFD;
+  --icon-secondary: #BFBFBF;
+  --icon-tertiary: #818181;
+  --icon-minor: #595959;
+  --icon-accent: #FECF16;
+  --icon-success: #2AB0FE;
+  --icon-error: #FE527B;
+  
+  /* Dark Mode - Borders */
+  --border: #444444;
+  --border-secondary: #303030;
+  --border-disabled: #444444;
+  --border-error: #FE527B;
+  
+  /* Dark Mode - Buttons */
+  --primary: #FECF16;
+  --primary-foreground: #1B1B1B;
+  --primary-pressed: #DFB301;
+  --primary-disabled: #444444;
+  --primary-disabled-foreground: #969696;
+  
+  /* Dark Mode - Ghost Button */
+  --ghost-foreground: #BFBFBF;
+  --ghost-pressed: #303030;
+  --ghost-pressed-foreground: #AAAAAA;
+  
+  /* Dark Mode - Outline Button */
+  --outline-foreground: #E7E7E7;
+  --outline-pressed: #303030;
+  --outline-pressed-foreground: #BFBFBF;
+  --outline-disabled: #969696;
+  
+  /* Dark Mode - Chips */
+  --chips-background: #303030;
+  --chips-foreground: #E7E7E7;
+  --chips-pressed: #595959;
+  --chips-pressed-foreground: #E7E7E7;
+  --chips-selected: #FECF16;
+  --chips-selected-foreground: #1B1B1B;
+  
+  /* Dark Mode - Dimmed */
+  --dimmed: rgba(27, 27, 27, 0.5);
+  
+  /* Card and Popover */
+  --card: #1B1B1B;
+  --card-foreground: #FDFDFD;
+  --popover: #1B1B1B;
+  --popover-foreground: #FDFDFD;
+  
+  /* Secondary and Muted */
+  --secondary: #303030;
+  --secondary-foreground: #E7E7E7;
+  --muted: #303030;
+  --muted-foreground: #BFBFBF;
+  
+  /* Accent */
+  --accent: #303030;
+  --accent-foreground: #FDFDFD;
+  
+  /* Destructive */
+  --destructive: #FE527B;
+  --destructive-foreground: #FDFDFD;
+  
+  /* Input */
+  --input: #444444;
+  --ring: #BFBFBF;
+  
+  /* Charts */
+  --chart-1: #FECF16;
+  --chart-2: #2AB0FE;
+  --chart-3: #0194E9;
+  --chart-4: #FE527B;
+  --chart-5: #BFBFBF;
+  
+  /* Sidebar */
+  --sidebar: #1B1B1B;
+  --sidebar-foreground: #FDFDFD;
+  --sidebar-primary: #FECF16;
+  --sidebar-primary-foreground: #1B1B1B;
+  --sidebar-accent: #303030;
+  --sidebar-accent-foreground: #FDFDFD;
+  --sidebar-border: #444444;
+  --sidebar-ring: #BFBFBF;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-pretendard), -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  }
 }
