@@ -121,7 +121,7 @@ export default function DesignSystemPage() {
               <h3 className="text-lg font-medium text-foreground mb-3">Button Variants</h3>
               <div className="grid grid-cols-2 gap-2">
                 {designSystemData.buttons.variants.map((button, index) => (
-                  <Button key={index} variant={button.variant as any} className="w-full">
+                  <Button key={index} variant={button.variant as "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"} className="w-full">
                     {button.name}
                   </Button>
                 ))}
@@ -133,7 +133,7 @@ export default function DesignSystemPage() {
               <h3 className="text-lg font-medium text-foreground mb-3">Button Sizes</h3>
               <div className="space-y-2">
                 {designSystemData.buttons.sizes.map((button, index) => (
-                  <Button key={index} size={button.size as any} className="w-full">
+                  <Button key={index} size={button.size as "default" | "sm" | "lg" | "icon"} className="w-full">
                     {button.name}
                   </Button>
                 ))}

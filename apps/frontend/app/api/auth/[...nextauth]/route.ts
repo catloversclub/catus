@@ -82,7 +82,7 @@ const authOptions: NextAuthOptions = {
   },
 }
 
-async function refreshAccessToken(token: any) {
+async function refreshAccessToken(token: Record<string, unknown>) {
   try {
     const response = await fetch("https://kauth.kakao.com/oauth/token", {
       method: "POST",
@@ -93,7 +93,7 @@ async function refreshAccessToken(token: any) {
         grant_type: "refresh_token",
         client_id: process.env.KAKAO_CLIENT_ID!,
         client_secret: process.env.KAKAO_CLIENT_SECRET!,
-        refresh_token: token.refreshToken,
+        refresh_token: token.refreshToken as string,
       }),
     })
 
@@ -107,7 +107,7 @@ async function refreshAccessToken(token: any) {
       ...token,
       accessToken: refreshedTokens.access_token,
       accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
-      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken, // Fall back to old refresh token
+      refreshToken: refreshedTokens.refresh_token ?? (token.refreshToken as string), // Fall back to old refresh token
     }
   } catch (error) {
     console.error("Error refreshing access token:", error)
