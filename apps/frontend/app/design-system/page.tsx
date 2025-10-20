@@ -12,7 +12,7 @@ const designSystemData = {
       { name: "Background Secondary", value: "#F6F6F6", bg: "bg-background-secondary" },
       { name: "Primary", value: "#FECF16", bg: "bg-primary", text: "text-primary-foreground" },
       {
-        name: "Error",
+        name: "Destructive",
         value: "#EA0137",
         bg: "bg-destructive",
         text: "text-destructive-foreground",
@@ -29,8 +29,11 @@ const designSystemData = {
   buttons: {
     variants: [
       { name: "Primary", variant: "default" },
+      { name: "Secondary", variant: "secondary" },
       { name: "Outline", variant: "outline" },
       { name: "Ghost", variant: "ghost" },
+      { name: "Destructive", variant: "destructive" },
+      { name: "Link", variant: "link" },
     ],
     sizes: [
       { name: "Small", size: "sm" },
@@ -42,6 +45,32 @@ const designSystemData = {
       { name: "Disabled", disabled: true },
     ],
   },
+  cards: [
+    {
+      title: "Card Title",
+      description: "Basic card component with default styling.",
+      bg: "bg-card",
+      text: "text-card-foreground",
+    },
+    {
+      title: "Secondary Card",
+      description: "Card with secondary background color.",
+      bg: "bg-background-secondary",
+      text: "text-foreground",
+    },
+    {
+      title: "Primary Card",
+      description: "Card with primary background color.",
+      bg: "bg-primary",
+      text: "text-primary-foreground",
+    },
+  ],
+  radius: [
+    { name: "Small", className: "rounded-sm", value: "2px" },
+    { name: "Medium", className: "rounded-md", value: "6px" },
+    { name: "Large", className: "rounded-lg", value: "10px" },
+    { name: "Extra Large", className: "rounded-xl", value: "14px" },
+  ],
 }
 
 export default function DesignSystemPage() {
@@ -116,12 +145,41 @@ export default function DesignSystemPage() {
                 {designSystemData.buttons.variants.map((button, index) => (
                   <Button
                     key={index}
-                    variant={button.variant as "default" | "outline" | "ghost"}
+                    variant={
+                      button.variant as
+                        | "default"
+                        | "destructive"
+                        | "outline"
+                        | "secondary"
+                        | "ghost"
+                        | "link"
+                    }
                     className="w-full"
                   >
                     {button.name}
                   </Button>
                 ))}
+              </div>
+            </div>
+
+            {/* Button Sizes */}
+            <div>
+              <h3 className="text-lg font-medium text-foreground mb-3">Button Sizes</h3>
+              <div className="space-y-2">
+                {designSystemData.buttons.sizes.map((button, index) => (
+                  <Button
+                    key={index}
+                    size={button.size as "default" | "sm" | "lg" | "icon"}
+                    className="w-full"
+                  >
+                    {button.name}
+                  </Button>
+                ))}
+                <div className="flex gap-2">
+                  <Button size="icon">🎨</Button>
+                  <Button size="icon-sm">📝</Button>
+                  <Button size="icon-lg">⚙️</Button>
+                </div>
               </div>
             </div>
 
@@ -142,6 +200,44 @@ export default function DesignSystemPage() {
                 </Button>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* Cards */}
+        <section>
+          <h2 className="text-xl font-semibold text-foreground mb-4">Cards</h2>
+
+          <div className="space-y-3">
+            {designSystemData.cards.map((card, index) => (
+              <div key={index} className={cn("p-4 border border-border rounded-lg", card.bg)}>
+                <h3 className={cn("text-base font-semibold mb-2", card.text)}>{card.title}</h3>
+                <p
+                  className={cn(
+                    "text-sm",
+                    card.text === "text-primary-foreground"
+                      ? "text-primary-foreground/80"
+                      : "text-text-secondary",
+                  )}
+                >
+                  {card.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Border Radius */}
+        <section>
+          <h2 className="text-xl font-semibold text-foreground mb-4">Border Radius</h2>
+
+          <div className="grid grid-cols-2 gap-3">
+            {designSystemData.radius.map((radius, index) => (
+              <div key={index} className="p-3 border border-border rounded-sm">
+                <div className={cn("w-full h-12 bg-primary mb-2", radius.className)}></div>
+                <p className="text-xs text-foreground">{radius.name}</p>
+                <p className="text-xs text-text-tertiary">{radius.value}</p>
+              </div>
+            ))}
           </div>
         </section>
       </div>
