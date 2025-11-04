@@ -1,0 +1,164 @@
+"use client"
+
+import React, { useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { valibotResolver } from "@hookform/resolvers/valibot"
+import * as v from "valibot"
+import { OnboardingProgress } from "@/components/onboarding/progress"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { FaArrowLeft, FaXmark } from "react-icons/fa6"
+import { useRouter } from "next/navigation"
+import { useOnboarding } from "@/components/onboarding/onboarding-context"
+import { cn } from "@/lib/utils"
+import { NICKNAME_MAX_LEN, nicknameSchema } from "../_libs/schemas"
+
+type NicknameFormData = v.InferInput<typeof nicknameSchema>
+
+export default function NicknamePage() {
+  const router = useRouter()
+  const { setNickname, draft } = useOnboarding()
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isValid, touchedFields },
+  } = useForm<NicknameFormData>({
+    resolver: valibotResolver(nicknameSchema),
+    mode: "onBlur",
+    defaultValues: {
+      nickname: draft.nickname || "",
+    },
+  })
+
+  const nickname = watch("nickname")
+
+  useEffect(() => {
+    if (nickname === (draft.nickname || "")) {
+      return
+    }
+    setNickname(nickname || undefined)
+  }, [nickname, setNickname, draft.nickname])
+
+  const onSubmit = (data: NicknameFormData) => {
+    // TODO: 다음 단계로 이동
+  }
+
+  const handleClear = () => {
+    setValue("nickname", "", { shouldValidate: false })
+  }
+
+  const isTouched = touchedFields.nickname
+  const hasError = !!errors.nickname
+  const isValidNickname = isValid && nickname.length > 0
+
+  const status: "idle" | "invalid" | "ok" = !isTouched
+    ? "idle"
+    : hasError
+      ? "invalid"
+      : isValidNickname
+        ? "ok"
+        : "idle"
+
+  const borderClass =
+    !isTouched || !nickname
+      ? ""
+      : hasError
+        ? "border-border-error focus-visible:ring-ring-error"
+        : "border-border-success focus-visible:ring-ring-success"
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-screen px-3 pb-16">
+      <div className="flex-1">
+        <Header onBack={() => router.back()} />
+        <p className="text-lg font-bold text-foreground leading-7 mb-6">
+          닉네임을 입력해주세요
+        </p>
+        <NicknameField
+          {...register("nickname")}
+          onClear={handleClear}
+          borderClass={borderClass}
+        />
+        <FeedbackText status={status} />
+      </div>
+
+      <Button
+        type="submit"
+        disabled={!isValidNickname}
+        className="w-full mt-auto mb-16"
+      >
+        다음
+      </Button>
+    </form>
+  )
+}
+
+
+interface HeaderProps {
+  onBack: () => void
+}
+
+function Header({ onBack }: HeaderProps) {
+  return (
+    <div className="flex flex-col gap-6 mt-8">
+      <FaArrowLeft className="size-5 cursor-pointer" onClick={onBack} />
+      <OnboardingProgress currentStep={1} className="mb-10" />
+    </div>
+  )
+}
+
+interface NicknameFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  onClear: () => void
+  borderClass: string
+}
+
+function NicknameField({ onClear, borderClass, ...inputProps }: NicknameFieldProps) {
+  const value = inputProps.value as string
+
+  return (
+    <div className="relative">
+      <Input
+        {...inputProps}
+        placeholder="닉네임"
+        maxLength={NICKNAME_MAX_LEN}
+        className={cn("h-12 pr-10", borderClass)}
+      />
+      {value && (
+        <Button
+          type="button"
+          aria-label="입력 초기화"
+          onClick={onClear}
+          variant="ghost"
+          size="icon"
+          className="absolute right-2 top-1/2 -translate-y-1/2 size-8 p-0"
+        >
+          <FaXmark className="size-4" />
+        </Button>
+      )}
+    </div>
+  )
+}
+
+interface FeedbackTextProps {
+  status: "idle" | "invalid" | "ok"
+}
+
+function FeedbackText({ status }: FeedbackTextProps) {
+  const helpText =
+    status === "ok"
+      ? "사용할 수 있는 닉네임이에요"
+      : status === "invalid"
+        ? "사용할 수 없는 닉네임이에요"
+        : "최대 16자, 한글/영문/숫자만 입력 가능"
+
+  const colorClass =
+    status === "ok"
+      ? "text-text-success"
+      : status === "invalid"
+        ? "text-text-error"
+        : "text-text-tertiary"
+
+  return <p className={cn("text-[10px] mt-1.5", colorClass)}>{helpText}</p>
+}
