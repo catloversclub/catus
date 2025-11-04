@@ -59,7 +59,7 @@ const OnboardingContext = createContext<OnboardingContextValue | null>(null)
 export function OnboardingProvider({ children }: { children: React.ReactNode }) {
   const [draft, dispatch] = useReducer(reducer, {
     nickname: undefined,
-    hasCat: undefined,
+    hasCat: true,
     userType: undefined,
     catProfile: undefined,
     catTags: [],
