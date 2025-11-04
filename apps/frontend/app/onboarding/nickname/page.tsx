@@ -4,10 +4,10 @@ import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { valibotResolver } from "@hookform/resolvers/valibot"
 import * as v from "valibot"
-import { OnboardingProgress } from "@/components/onboarding/progress"
+import { OnboardingHeader } from "@/components/onboarding/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { FaArrowLeft, FaXmark } from "react-icons/fa6"
+import { FaXmark } from "react-icons/fa6"
 import { useRouter } from "next/navigation"
 import { useOnboarding } from "@/components/onboarding/onboarding-context"
 import { cn } from "@/lib/utils"
@@ -24,10 +24,11 @@ export default function NicknamePage() {
     handleSubmit,
     watch,
     setValue,
+    trigger,
     formState: { errors, isValid, touchedFields },
   } = useForm<NicknameFormData>({
     resolver: valibotResolver(nicknameSchema),
-    mode: "onBlur",
+    mode: "onChange",
     defaultValues: {
       nickname: draft.nickname || "",
     },
@@ -42,6 +43,13 @@ export default function NicknamePage() {
     setNickname(nickname || undefined)
   }, [nickname, setNickname, draft.nickname])
 
+  // 실시간 validation
+  useEffect(() => {
+    if (nickname) {
+      trigger("nickname")
+    }
+  }, [nickname, trigger])
+
   const onSubmit = (data: NicknameFormData) => {
     router.push("/onboarding/has-cat")
   }
@@ -52,7 +60,7 @@ export default function NicknamePage() {
 
   const isTouched = touchedFields.nickname
   const hasError = !!errors.nickname
-  const isValidNickname = isValid && nickname.length > 0
+  const isValidNickname = isValid && nickname && nickname.length > 0
 
   const status: "idle" | "invalid" | "ok" = !isTouched
     ? "idle"
@@ -72,7 +80,7 @@ export default function NicknamePage() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-screen px-3 pb-16">
       <div className="flex-1">
-        <Header onBack={() => router.back()} />
+        <OnboardingHeader currentStep={1} onBack={() => router.back()} />
         <p className="text-lg font-bold text-foreground leading-7 mb-6">
           닉네임을 입력해주세요
         </p>
@@ -92,20 +100,6 @@ export default function NicknamePage() {
         다음
       </Button>
     </form>
-  )
-}
-
-
-interface HeaderProps {
-  onBack: () => void
-}
-
-function Header({ onBack }: HeaderProps) {
-  return (
-    <div className="flex flex-col gap-6 mt-8">
-      <FaArrowLeft className="size-5 cursor-pointer" onClick={onBack} />
-      <OnboardingProgress currentStep={1} className="mb-10" />
-    </div>
   )
 }
 
