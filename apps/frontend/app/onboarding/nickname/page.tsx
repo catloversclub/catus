@@ -43,8 +43,7 @@ export default function NicknamePage() {
   }, [nickname, setNickname, draft.nickname])
 
   const onSubmit = (data: NicknameFormData) => {
-    console.log(data)
-    // TODO: 다음 단계로 이동
+    router.push("/onboarding/has-cat")
   }
 
   const handleClear = () => {

@@ -6,6 +6,7 @@ type UserType = "owner" | "rescuer" | "etc" | undefined
 
 export type OnboardingDraft = {
   nickname?: string
+  hasCat?: boolean
   userType?: UserType
   catProfile?: { name?: string; age?: number; imageUrl?: string }
   catTags?: string[]
@@ -14,6 +15,7 @@ export type OnboardingDraft = {
 
 type Action =
   | { type: "set_nickname"; nickname?: string }
+  | { type: "set_has_cat"; hasCat?: boolean }
   | { type: "set_user_type"; userType?: UserType }
   | { type: "set_cat_profile"; catProfile?: OnboardingDraft["catProfile"] }
   | { type: "set_cat_tags"; catTags?: string[] }
@@ -24,6 +26,8 @@ function reducer(state: OnboardingDraft, action: Action): OnboardingDraft {
   switch (action.type) {
     case "set_nickname":
       return { ...state, nickname: action.nickname }
+    case "set_has_cat":
+      return { ...state, hasCat: action.hasCat }
     case "set_user_type":
       return { ...state, userType: action.userType }
     case "set_cat_profile":
@@ -33,7 +37,7 @@ function reducer(state: OnboardingDraft, action: Action): OnboardingDraft {
     case "set_interests":
       return { ...state, interests: action.interests }
     case "reset":
-      return { nickname: undefined, userType: undefined, catProfile: undefined, catTags: [], interests: [] }
+      return { nickname: undefined, hasCat: undefined, userType: undefined, catProfile: undefined, catTags: [], interests: [] }
     default:
       return state
   }
@@ -42,6 +46,7 @@ function reducer(state: OnboardingDraft, action: Action): OnboardingDraft {
 type OnboardingContextValue = {
   draft: OnboardingDraft
   setNickname: (nickname?: string) => void
+  setHasCat: (hasCat?: boolean) => void
   setUserType: (userType?: UserType) => void
   setCatProfile: (catProfile?: OnboardingDraft["catProfile"]) => void
   setCatTags: (catTags?: string[]) => void
@@ -54,6 +59,7 @@ const OnboardingContext = createContext<OnboardingContextValue | null>(null)
 export function OnboardingProvider({ children }: { children: React.ReactNode }) {
   const [draft, dispatch] = useReducer(reducer, {
     nickname: undefined,
+    hasCat: undefined,
     userType: undefined,
     catProfile: undefined,
     catTags: [],
@@ -64,6 +70,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
     () => ({
       draft,
       setNickname: (nickname) => dispatch({ type: "set_nickname", nickname }),
+      setHasCat: (hasCat) => dispatch({ type: "set_has_cat", hasCat }),
       setUserType: (userType) => dispatch({ type: "set_user_type", userType }),
       setCatProfile: (catProfile) => dispatch({ type: "set_cat_profile", catProfile }),
       setCatTags: (catTags) => dispatch({ type: "set_cat_tags", catTags }),
