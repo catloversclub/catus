@@ -4,11 +4,19 @@ import React, { createContext, useContext, useMemo, useReducer } from "react"
 
 type UserType = "owner" | "rescuer" | "etc" | undefined
 
+export type CatGender = "female" | "male" | "unknown"
+
 export type OnboardingDraft = {
   nickname?: string
   hasCat?: boolean
   userType?: UserType
-  catProfile?: { name?: string; age?: number; imageUrl?: string }
+  catProfile?: {
+    name?: string
+    gender?: CatGender
+    birthDate?: string // YYYY-MM-DD 형식
+    breed?: string
+    imageUrl?: string
+  }
   catTags?: string[]
   interests?: string[]
 }

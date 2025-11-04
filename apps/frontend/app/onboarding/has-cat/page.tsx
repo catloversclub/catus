@@ -39,8 +39,7 @@ export default function HasCatPage() {
   }, [hasCat, setHasCat, draft.hasCat])
 
   const onSubmit = (data: HasCatFormData) => {
-    console.log(data)
-    // TODO: 다음 단계로 이동
+    router.push("/onboarding/cat-profile")
   }
 
   const handleSelect = (value: boolean) => {
