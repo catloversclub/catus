@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   build-and-deploy:
-    runs-on: [self-hosted, Linux, ARM64]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Login GHCR
