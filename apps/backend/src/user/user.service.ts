@@ -24,6 +24,15 @@ export class UserService {
     })
   }
 
+  async checkNickname(nickname: string) {
+    const nicknameTaken = await this.prisma.user.findUnique({
+      where: { nickname },
+      select: { hasAgreedToTerms: true },
+    })
+
+    return { available: !nicknameTaken }
+  }
+
   getMe(userId: string) {
     return this.prisma.user.findUniqueOrThrow({
       where: { id: userId },

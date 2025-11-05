@@ -9,6 +9,7 @@ import {
   UseGuards,
   Req,
   Header,
+  Query,
 } from "@nestjs/common"
 import { UserService } from "./user.service"
 import { CreateUserDto } from "./dto/create-user.dto"
@@ -26,6 +27,12 @@ export class UserController {
   @OnboardingBypass()
   create(@Req() req: AuthenticatedRequest, @Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto, req.user.kakaoId)
+  }
+
+  @Get("/check-nickname")
+  @OnboardingBypass()
+  checkNickname(@Query("nickname") nickname: string) {
+    return this.userService.checkNickname(nickname)
   }
 
   @Get("/me")
