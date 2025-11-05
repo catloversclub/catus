@@ -11,6 +11,7 @@ model User {
   id                  String  @id @default(uuid(7))
   kakaoId             String  @unique @map("kakao_id")
   nickname            String
+  isLivingWithCat     Boolean @default(false) @map("is_living_with_cat")
   hasAgreedToTerms    Boolean @default(false) @map("has_agreed_to_term")
   favoriteAppearance  Int[]   @default([]) @map("favorite_appearance")
   favoritePersonality Int[]   @default([]) @map("favorite_personality")
