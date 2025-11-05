@@ -18,6 +18,10 @@ export class CreateUserDto {
 
   @IsBoolean()
   @IsOptional()
+  isLivingWithCat?: boolean
+
+  @IsBoolean()
+  @IsOptional()
   hasAgreedToTerms?: boolean
 
   @IsArray()

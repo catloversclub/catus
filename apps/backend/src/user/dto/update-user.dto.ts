@@ -17,6 +17,10 @@ export class UpdateUserDto {
 
   @IsBoolean()
   @IsOptional()
+  isLivingWithCat?: boolean
+
+  @IsBoolean()
+  @IsOptional()
   hasAgreedToTerms?: boolean
 
   @IsArray()
