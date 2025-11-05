@@ -1,12 +1,12 @@
-import { getServerSession } from "@/lib/auth/getServerSession";
-import Image from "next/image";
-import { redirect } from "next/navigation";
+import { getServerSession } from "@/lib/auth/getServerSession"
+import Image from "next/image"
+import { redirect } from "next/navigation"
 
 export async function ServerUserInfo() {
-  const session = await getServerSession();
+  const session = await getServerSession()
 
   if (!session) {
-    redirect("/login");
+    redirect("/login")
   }
 
   return (
@@ -24,5 +24,5 @@ export async function ServerUserInfo() {
         <h3 className="font-semibold text-foreground">{session.user?.name || "사용자"}</h3>
       </div>
     </div>
-  );
+  )
 }

@@ -1,7 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { KakaoLogoutButton } from "@/components/auth/kakao-logout-button";
-import { ServerUserInfo } from "@/components/auth/server-user-info";
-import Link from "next/link";
+import { Button } from "@/components/ui/button"
+import { KakaoLogoutButton } from "@/components/auth/kakao-logout-button"
+import { ServerUserInfo } from "@/components/auth/server-user-info"
+import Link from "next/link"
 
 export default function Home() {
   return (
@@ -14,5 +14,5 @@ export default function Home() {
         <KakaoLogoutButton />
       </main>
     </div>
-  );
+  )
 }

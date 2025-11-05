@@ -36,13 +36,6 @@ export const authOptions: NextAuthOptions = {
         },
       },
       profile(profile: KakaoProfile) {
-        console.log("=== 카카오 프로필 데이터 ===")
-        console.log("전체 profile:", JSON.stringify(profile, null, 2))
-        console.log("profile.id:", profile.id)
-        console.log("profile.kakao_account:", profile.kakao_account)
-        console.log("profile.kakao_account?.profile?.nickname:", profile.kakao_account?.profile?.nickname)
-        console.log("profile.kakao_account?.profile:", profile.kakao_account?.profile)
-        console.log("================================")
         return {
           id: profile.id.toString(),
           name: profile.kakao_account.profile.nickname,
@@ -64,7 +57,9 @@ export const authOptions: NextAuthOptions = {
       if (account && profile) {
         token.accessToken = account.access_token
         token.refreshToken = account.refresh_token
-        token.accessTokenExpires = account.expires_at ? account.expires_at * 1000 : Date.now() + 60 * 60 * 1000
+        token.accessTokenExpires = account.expires_at
+          ? account.expires_at * 1000
+          : Date.now() + 60 * 60 * 1000
         token.userId = (profile as KakaoProfile).id.toString()
       }
 

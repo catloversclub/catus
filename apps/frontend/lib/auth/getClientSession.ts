@@ -7,10 +7,10 @@ export const getClientSession = () => {
 
   return async () => {
     const extendedSession = session as ExtendedSession
-    const isExpired = extendedSession.token?.accessTokenExpires 
+    const isExpired = extendedSession.token?.accessTokenExpires
       ? extendedSession.token.accessTokenExpires < Date.now()
       : true
-    
+
     if (!session || isExpired) {
       session = await getSession()
     }

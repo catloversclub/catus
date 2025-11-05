@@ -1,9 +1,9 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import { useState } from "react"
+import { FaPencil } from "react-icons/fa6"
 
 // Design System Data
 const designSystemData = {
@@ -33,25 +33,46 @@ const designSystemData = {
       { name: "Outline", variant: "outline" },
       { name: "Ghost", variant: "ghost" },
     ],
-    sizes: [
-      { name: "Small", size: "sm" },
-      { name: "Default", size: "default" },
-      { name: "Large", size: "lg" },
-    ],
     states: [
       { name: "Normal", disabled: false },
       { name: "Disabled", disabled: true },
     ],
   },
-};
+  cards: [
+    {
+      title: "Card Title",
+      description: "Basic card component with default styling.",
+      bg: "bg-card",
+      text: "text-card-foreground",
+    },
+    {
+      title: "Secondary Card",
+      description: "Card with secondary background color.",
+      bg: "bg-background-secondary",
+      text: "text-foreground",
+    },
+    {
+      title: "Primary Card",
+      description: "Card with primary background color.",
+      bg: "bg-primary",
+      text: "text-primary-foreground",
+    },
+  ],
+  radius: [
+    { name: "Small", className: "rounded-sm", value: "2px" },
+    { name: "Medium", className: "rounded-md", value: "6px" },
+    { name: "Large", className: "rounded-lg", value: "10px" },
+    { name: "Extra Large", className: "rounded-xl", value: "14px" },
+  ],
+}
 
 export default function DesignSystemPage() {
-  const [isDark, setIsDark] = useState(false);
+  const [isDark, setIsDark] = useState(false)
 
   const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle("dark");
-  };
+    setIsDark(!isDark)
+    document.documentElement.classList.toggle("dark")
+  }
 
   return (
     <div className={cn("font-sans min-h-screen p-4 transition-colors", isDark ? "dark" : "light")}>
@@ -123,8 +144,8 @@ export default function DesignSystemPage() {
                     {button.name}
                   </Button>
                 ))}
-                <Button variant="icon">
-                  <Heart className="w-5 h-5" />
+                <Button variant="outline" size="icon">
+                  <FaPencil className="w-4 h-4" />
                 </Button>
               </div>
             </div>
@@ -150,5 +171,5 @@ export default function DesignSystemPage() {
         </section>
       </div>
     </div>
-  );
+  )
 }
