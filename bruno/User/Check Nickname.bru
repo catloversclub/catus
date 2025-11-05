@@ -1,0 +1,15 @@
+meta {
+  name: Check Nickname
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/user/check-nickname?nickname=nabi
+  body: none
+  auth: inherit
+}
+
+params:query {
+  nickname: nabi
+}
