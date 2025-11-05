@@ -59,7 +59,7 @@ export class UserService {
 
   async getProfileImageUploadUrl(userId: string, contentType?: string) {
     if (!contentType) {
-      throw new BadRequestException("contentType is required")
+      throw new BadRequestException("contentType required")
     }
     const ext = getImageExtension(contentType)
     if (!ext) {
