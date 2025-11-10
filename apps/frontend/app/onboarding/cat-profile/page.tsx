@@ -200,14 +200,14 @@ function SkipButton() {
           건너뛰기
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="max-w-[320px]">
+      <AlertDialogContent className="w-[328px]">
         <AlertDialogHeader>
           <AlertDialogTitle>
             건너뛰면 지금까지 작성한 내용이 사라져요.
             <br />
             프로필을 이어서 작성할까요?
           </AlertDialogTitle>
-          <AlertDialogDescription className="space-y-2 text-left">
+          <AlertDialogDescription className="mb-6">
             지금 작성한 내용은 마이페이지에서 수정할 수 있어요.
           </AlertDialogDescription>
         </AlertDialogHeader>
