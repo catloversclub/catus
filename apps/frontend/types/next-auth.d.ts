@@ -17,6 +17,8 @@ declare module "next-auth" {
     idToken?: string
     accessTokenExpires?: number
     userId?: string
+    userName?: string
+    userImage?: string
     error?: string
   }
 }

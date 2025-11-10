@@ -1,8 +1,14 @@
 import { KakaoLoginButton } from "@/components/auth/kakao-login-button"
 import { Button } from "@/components/ui/button"
+import { getServerSession } from "@/lib/auth/getServerSession"
 import Link from "next/link"
+import { redirect } from "next/navigation"
 
-export default function Login() {
+export default async function Login() {
+  const session = await getServerSession()
+  if (session) {
+    redirect("/")
+  }
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4">
       <main className="flex flex-col items-center text-center max-w-[336px] w-full">

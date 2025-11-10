@@ -1,33 +1,15 @@
 import { NextAuthOptions } from "next-auth"
 import KakaoProvider from "next-auth/providers/kakao"
 
-interface KakaoProfile {
-  id: number
-  connected_at: string
-  properties: {
-    nickname: string
-    profile_image: string
-    thumbnail_image: string
-  }
-  kakao_account: {
-    profile_nickname_needs_agreement: boolean
-    profile_image_needs_agreement: boolean
-    profile: {
-      nickname: string
-      thumbnail_image_url: string
-      profile_image_url: string
-      is_default_image: boolean
-      is_default_nickname: boolean
-    }
-  }
-}
-
 export const authOptions: NextAuthOptions = {
   providers: [
     KakaoProvider({
       clientId: process.env.KAKAO_CLIENT_ID!,
       clientSecret: process.env.KAKAO_CLIENT_SECRET!,
+      issuer: "https://kauth.kakao.com",
+      wellKnown: "https://kauth.kakao.com/.well-known/openid-configuration",
       idToken: true,
+      checks: ["nonce"],
       authorization: {
         params: {
           scope: "openid profile_nickname profile_image",
@@ -36,12 +18,19 @@ export const authOptions: NextAuthOptions = {
           force_login: "true",
         },
       },
-      profile(profile: KakaoProfile) {
-        return {
-          id: profile.id.toString(),
-          name: profile.kakao_account.profile.nickname,
-          image: profile.kakao_account.profile.profile_image_url,
-        }
+      profile(profile: any) {
+        const id = (profile?.sub ?? profile?.id)?.toString()
+        const name =
+          profile?.name ??
+          profile?.nickname ??
+          profile?.kakao_account?.profile?.nickname ??
+          null
+        const image =
+          profile?.picture ??
+          profile?.image ??
+          profile?.kakao_account?.profile?.profile_image_url ??
+          null
+        return { id, name, image }
       },
     }),
   ],
@@ -55,14 +44,37 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, account, profile }) {
       // Initial sign in
-      if (account && profile) {
-        token.accessToken = account.access_token
-        token.refreshToken = account.refresh_token
-        token.idToken = account.id_token // 카카오 OpenID Connect에서 받은 id_token
+      if (account) {
+        token.accessToken = account.access_token ?? (token.accessToken as string | undefined)
+        token.refreshToken = account.refresh_token ?? (token.refreshToken as string | undefined)
+        token.idToken = account.id_token ?? (token.idToken as string | undefined)
         token.accessTokenExpires = account.expires_at
           ? account.expires_at * 1000
-          : Date.now() + 60 * 60 * 1000
-        token.userId = (profile as KakaoProfile).id.toString()
+          : (token.accessTokenExpires as number | undefined) ?? Date.now() + 60 * 60 * 1000
+
+        const profileData = profile as Record<string, unknown> | undefined
+        const profileId =
+          (profileData?.id as string | number | undefined) ??
+          (profileData?.sub as string | number | undefined) ??
+          account.providerAccountId
+        if (profileId) {
+          token.userId = profileId.toString()
+        }
+
+        const name =
+          (profileData?.name as string | undefined) ??
+          (profileData?.nickname as string | undefined)
+        if (name) {
+          token.userName = name
+        }
+
+        const image =
+          (profileData?.image as string | undefined) ??
+          (profileData?.picture as string | undefined) ??
+          (profileData?.kakao_account as any)?.profile?.profile_image_url
+        if (image) {
+          token.userImage = image
+        }
       }
 
       // Return previous token if the access token has not expired yet
@@ -74,9 +86,20 @@ export const authOptions: NextAuthOptions = {
       return await refreshAccessToken(token)
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string
-      session.idToken = token.idToken as string
-      session.user.id = token.userId as string
+      session.accessToken = token.accessToken as string | undefined
+      session.idToken = token.idToken as string | undefined
+
+      session.user = session.user ?? { id: "" }
+      if (token.userId) {
+        session.user.id = token.userId as string
+      }
+      if (token.userName) {
+        session.user.name = token.userName as string
+      }
+      if (token.userImage) {
+        session.user.image = token.userImage as string
+      }
+
       return session
     },
   },

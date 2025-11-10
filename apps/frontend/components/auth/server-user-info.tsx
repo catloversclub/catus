@@ -1,30 +1,29 @@
 import { getServerSession } from "@/lib/auth/getServerSession"
-import { apiFetch } from "@/lib/api"
 import Image from "next/image"
-import { redirect } from "next/navigation"
 
 export async function ServerUserInfo() {
   const session = await getServerSession()
 
-  if (!session) {
-    redirect("/login")
-  }
+  // if (!session || !session.user) {
+  //   redirect("/login")
+  // }
 
-  const idToken = session.idToken
-  console.log("[ServerUserInfo] session:", JSON.stringify(session))
-  if (!idToken) {
-    redirect("/onboarding/nickname")
-  }
+  // const idToken = (session as any).idToken as string | undefined
 
-  // TODO: 이 코드가 유효할지는 회원가입 구현 후 확인 필요
-  if (idToken) {
-    try {
-      const user = await apiFetch("/user/me", { authToken: idToken })
-      console.log(user)
-    } catch (error) {
-      console.error(error)
-      redirect("/onboarding/nickname")
-    }
+  // if (!idToken) {
+  //   redirect("/onboarding/nickname")
+  // }
+
+  // try {
+  //   await apiFetch("/user/me", { authToken: idToken })
+  // } catch {
+  //   redirect("/onboarding/nickname")
+  // }
+
+  console.log(session)
+
+  if(!session) {
+    return null
   }
 
   return (
