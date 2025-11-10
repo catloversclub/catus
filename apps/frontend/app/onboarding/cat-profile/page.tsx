@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { valibotResolver } from "@hookform/resolvers/valibot"
 import * as v from "valibot"
-import { OnboardingHeader } from "@/components/onboarding/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Chip } from "@/components/ui/chip"
@@ -106,81 +105,78 @@ export default function CatProfilePage() {
   const isFormValid = isValid && name && gender
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-screen px-3 pb-16">
-      <div className="flex-1">
-        <OnboardingHeader currentStep={3} onBack={() => router.back()} />
-        <p className="text-lg font-bold text-text-primary leading-7 mb-3">
-          고양이의 프로필을 완성해 주세요!
-        </p>
-        <p className="text-text-secondary font-semibold text-base mb-10">
-          여러 마리의 고양이가 있다면
-          <br />
-          다음 화면에서 ‘더 추가하기’를 클릭해주세요.
-        </p>
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1">
+      <p className="text-lg font-bold text-text-primary leading-7 mb-3">
+        고양이의 프로필을 완성해 주세요!
+      </p>
+      <p className="text-text-secondary font-semibold text-base mb-10">
+        여러 마리의 고양이가 있다면
+        <br />
+        다음 화면에서 ‘더 추가하기’를 클릭해주세요.
+      </p>
 
-        <div className="flex flex-col gap-10">
-          <CatImageUpload value={draft.catProfile?.imageUrl} onChange={handleImageChange} />
+      <div className="flex flex-col gap-10 flex-1">
+        <CatImageUpload value={draft.catProfile?.imageUrl} onChange={handleImageChange} />
 
-          <div>
-            <label className="block text-xs font-normal text-foreground">이름</label>
-            <Input
-              {...register("name")}
-              placeholder="고양이 이름을 입력해주세요"
-              maxLength={12}
-              className="h-12"
-            />
-            {errors.name && (
-              <p className="text-text-error text-[10px] mt-1.5">{errors.name.message}</p>
-            )}
-          </div>
+        <div>
+          <label className="block text-xs font-normal text-foreground">이름</label>
+          <Input
+            {...register("name")}
+            placeholder="고양이 이름을 입력해주세요"
+            maxLength={12}
+            className="h-12"
+          />
+          {errors.name && (
+            <p className="text-text-error text-[10px] mt-1.5">{errors.name.message}</p>
+          )}
+        </div>
 
-          <div>
-            <label className="block text-xs font-normal text-foreground mb-2">성별</label>
-            <div className="flex gap-3">
-              {catGenderOptions.map(({ value, label }) => (
-                <Chip
-                  key={value}
-                  variant={gender === value ? "selected" : "default"}
-                  onClick={() => handleGenderSelect(value)}
-                  className="flex-1"
-                >
-                  {label}
-                </Chip>
-              ))}
-            </div>
+        <div>
+          <label className="block text-xs font-normal text-foreground mb-2">성별</label>
+          <div className="flex gap-3">
+            {catGenderOptions.map(({ value, label }) => (
+              <Chip
+                key={value}
+                variant={gender === value ? "selected" : "default"}
+                onClick={() => handleGenderSelect(value)}
+                className="flex-1"
+              >
+                {label}
+              </Chip>
+            ))}
           </div>
+        </div>
 
-          <div>
-            <label className="block text-xs font-normal text-foreground mb-2">생일 (선택)</label>
-            <button
-              type="button"
-              onClick={() => setDatePickerOpen(true)}
-              className="w-full h-12 px-3 text-left rounded bg-background-secondary transition-colors text-foreground"
-            >
-              {formatDate(birthDate)}
-            </button>
-            <DatePickerSheet
-              open={datePickerOpen}
-              onOpenChange={setDatePickerOpen}
-              value={birthDate}
-              onChange={handleDateChange}
-            />
-          </div>
+        <div>
+          <label className="block text-xs font-normal text-foreground mb-2">생일 (선택)</label>
+          <button
+            type="button"
+            onClick={() => setDatePickerOpen(true)}
+            className="w-full h-12 px-3 text-left rounded bg-background-secondary transition-colors text-foreground"
+          >
+            {formatDate(birthDate)}
+          </button>
+          <DatePickerSheet
+            open={datePickerOpen}
+            onOpenChange={setDatePickerOpen}
+            value={birthDate}
+            onChange={handleDateChange}
+          />
+        </div>
 
-          <div>
-            <label className="block text-xs font-normal text-foreground mb-2">품종 (선택)</label>
-            <BreedAutocomplete
-              value={breed}
-              onChange={handleBreedChange}
-              placeholder="품종을 검색해주세요"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Button type="submit" disabled={!isFormValid} className="w-full">
-              다음으로
-            </Button>
-            <SkipButton />
-          </div>
+        <div>
+          <label className="block text-xs font-normal text-foreground mb-2">품종 (선택)</label>
+          <BreedAutocomplete
+            value={breed}
+            onChange={handleBreedChange}
+            placeholder="품종을 검색해주세요"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Button type="submit" disabled={!isFormValid} className="w-full">
+            다음으로
+          </Button>
+          <SkipButton />
         </div>
       </div>
     </form>

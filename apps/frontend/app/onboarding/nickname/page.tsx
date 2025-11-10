@@ -4,7 +4,6 @@ import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { valibotResolver } from "@hookform/resolvers/valibot"
 import * as v from "valibot"
-import { OnboardingHeader } from "@/components/onboarding/header"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { FaXmark } from "react-icons/fa6"
@@ -78,9 +77,8 @@ export default function NicknamePage() {
         : "border-border-success focus-visible:ring-ring-success"
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col min-h-screen px-3 pb-16">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col">
       <div className="flex-1">
-        <OnboardingHeader currentStep={1} onBack={() => router.back()} />
         <p className="text-lg font-bold text-foreground leading-7 mb-6">
           닉네임을 입력해주세요
         </p>
@@ -92,11 +90,7 @@ export default function NicknamePage() {
         <FeedbackText status={status} />
       </div>
 
-      <Button
-        type="submit"
-        disabled={!isValidNickname}
-        className="w-full mt-auto mb-16"
-      >
+      <Button type="submit" disabled={!isValidNickname} className="w-full mt-auto">
         다음
       </Button>
     </form>
