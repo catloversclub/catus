@@ -14,6 +14,16 @@ import { catProfileSchema, type CatGender } from "../_libs/schemas"
 import { CatImageUpload } from "@/components/onboarding/cat-image-upload"
 import { DatePickerSheet } from "@/components/onboarding/date-picker-sheet"
 import { BreedAutocomplete } from "@/components/onboarding/breed-autocomplete"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 type CatProfileFormData = v.InferInput<typeof catProfileSchema>
 
@@ -21,7 +31,7 @@ export default function CatProfilePage() {
   const router = useRouter()
   const { setCatProfile, draft } = useOnboarding()
   const [datePickerOpen, setDatePickerOpen] = useState(false)
-  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [_imageFile, setImageFile] = useState<File | null>(null)
 
   const {
     register,
@@ -180,12 +190,51 @@ export default function CatProfilePage() {
             <Button type="submit" disabled={!isFormValid} className="w-full">
               다음으로
             </Button>
-            <Button variant="ghost" className="w-full">
-              건너뛰기
-            </Button>
+            <SkipButton />
           </div>
         </div>
       </div>
     </form>
+  )
+}
+
+function SkipButton() {
+  const router = useRouter()
+  const { setCatProfile, setCatTags } = useOnboarding()
+
+  const handleConfirmSkip = () => {
+    setCatProfile(undefined)
+    setCatTags([])
+    router.push("/onboarding/interests")
+  }
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button type="button" variant="ghost" className="w-full">
+          건너뛰기
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent className="max-w-[320px]">
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            건너뛰면 지금까지 작성한 내용이 사라져요.
+            <br />
+            프로필을 이어서 작성할까요?
+          </AlertDialogTitle>
+          <AlertDialogDescription className="space-y-2 text-left">
+            지금 작성한 내용은 마이페이지에서 수정할 수 있어요.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="grid grid-cols-2 gap-2">
+          <Button variant="outline" className="h-12" onClick={handleConfirmSkip}>
+            건너뛰기
+          </Button>
+          <AlertDialogAction asChild>
+            <Button className="h-12">작성하기</Button>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
