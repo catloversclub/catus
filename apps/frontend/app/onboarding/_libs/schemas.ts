@@ -21,6 +21,12 @@ export const hasCatSchema = v.object({
 
 export type CatGender = "female" | "male" | "unknown"
 
+export const catGenderOptions = [
+  { value: "female" as CatGender, label: "여자" },
+  { value: "male" as CatGender, label: "남자" },
+  { value: "unknown" as CatGender, label: "선택 안 함" },
+]
+
 export const catProfileSchema = v.object({
   name: v.pipe(
     v.string(),

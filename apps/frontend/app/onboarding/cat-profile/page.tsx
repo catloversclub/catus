@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Chip } from "@/components/ui/chip"
 import { useRouter } from "next/navigation"
 import { useOnboarding } from "@/components/onboarding/onboarding-context"
-import { catProfileSchema, type CatGender } from "../_libs/schemas"
+import { catGenderOptions, catProfileSchema, type CatGender } from "../_libs/schemas"
 import { CatImageUpload } from "@/components/onboarding/cat-image-upload"
 import { DatePickerSheet } from "@/components/onboarding/date-picker-sheet"
 import { BreedAutocomplete } from "@/components/onboarding/breed-autocomplete"
@@ -137,27 +137,16 @@ export default function CatProfilePage() {
           <div>
             <label className="block text-xs font-normal text-foreground mb-2">성별</label>
             <div className="flex gap-3">
-              <Chip
-                variant={gender === "female" ? "selected" : "default"}
-                onClick={() => handleGenderSelect("female")}
-                className="flex-1"
-              >
-                여자
-              </Chip>
-              <Chip
-                variant={gender === "male" ? "selected" : "default"}
-                onClick={() => handleGenderSelect("male")}
-                className="flex-1"
-              >
-                남자
-              </Chip>
-              <Chip
-                variant={gender === "unknown" ? "selected" : "default"}
-                onClick={() => handleGenderSelect("unknown")}
-                className="flex-1"
-              >
-                선택 안 함
-              </Chip>
+              {catGenderOptions.map(({ value, label }) => (
+                <Chip
+                  key={value}
+                  variant={gender === value ? "selected" : "default"}
+                  onClick={() => handleGenderSelect(value)}
+                  className="flex-1"
+                >
+                  {label}
+                </Chip>
+              ))}
             </div>
           </div>
 
