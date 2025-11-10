@@ -27,9 +27,10 @@ export const authOptions: NextAuthOptions = {
     KakaoProvider({
       clientId: process.env.KAKAO_CLIENT_ID!,
       clientSecret: process.env.KAKAO_CLIENT_SECRET!,
+      idToken: true,
       authorization: {
         params: {
-          scope: "profile_nickname profile_image",
+          scope: "openid profile_nickname profile_image",
           prompt: "login",
           response_type: "code",
           force_login: "true",
@@ -57,6 +58,7 @@ export const authOptions: NextAuthOptions = {
       if (account && profile) {
         token.accessToken = account.access_token
         token.refreshToken = account.refresh_token
+        token.idToken = account.id_token // 카카오 OpenID Connect에서 받은 id_token
         token.accessTokenExpires = account.expires_at
           ? account.expires_at * 1000
           : Date.now() + 60 * 60 * 1000
@@ -73,6 +75,7 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken as string
+      session.idToken = token.idToken as string
       session.user.id = token.userId as string
       return session
     },
