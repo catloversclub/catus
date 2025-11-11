@@ -38,10 +38,6 @@ export class CreateUserDto {
   @ArrayMaxSize(2)
   favoriteAppearance?: number[]
 
-  @IsEmail()
-  @IsOptional()
-  email?: string | null
-
   @IsString()
   @IsOptional()
   phone?: string | null
