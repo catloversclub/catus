@@ -21,6 +21,7 @@
     "@types/react-datepicker": "^7.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "ky": "^1.14.0",
     "lucide-react": "^0.552.0",
     "next": "15.5.4",
     "next-auth": "^4.24.11",
