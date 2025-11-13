@@ -15,7 +15,7 @@ const chipVariants = cva(
       },
       size: {
         default: "p-3 font-semibold",
-        sm: "px-3 py-1.5 font-normal",
+        sm: "px-[10px] py-1 text-xs font-normal",
         lg: "p-3 font-semibold",
       },
     },
