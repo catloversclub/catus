@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Chip } from "@/components/ui/chip"
@@ -11,7 +10,6 @@ import { appearanceTagOptions, personalityTagOptions } from "../_libs/schemas"
 
 export default function OnboardingInterestsPage() {
   const router = useRouter()
-  const { data: session } = useSession()
   const { draft, setInterests } = useOnboarding()
 
   const renderRows = (
@@ -67,7 +65,14 @@ export default function OnboardingInterestsPage() {
     const hasSelection = selectedPersonality.length + selectedAppearance.length > 0
     if (!hasSelection) return
 
-    // TODO: API 요청
+    setIsSubmitting(true)
+    try {
+      const combined = [...selectedPersonality, ...selectedAppearance].map(String)
+      setInterests(combined)
+      router.push("/onboarding/complete")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const hasSelection = selectedPersonality.length + selectedAppearance.length > 0
