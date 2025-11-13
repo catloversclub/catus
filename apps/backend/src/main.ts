@@ -60,6 +60,14 @@ async function bootstrap() {
     res.setHeader("X-Instance-Id", process.env.HOSTNAME || "unknown")
     next()
   })
+
+  app.enableCors({
+    origin: ["http://localhost:3000", "https://catus.app"],
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+
   await app.listen(process.env.PORT ?? 3000)
 }
 bootstrap()

@@ -7,6 +7,7 @@ import { CatModule } from "./cat/cat.module"
 import { StorageModule } from "./storage/storage.module"
 import { APP_FILTER } from "@nestjs/core"
 import { PrismaExceptionFilter } from "./common/filters/prisma-exception.filter"
+import { PostModule } from "./post/post.module"
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PrismaExceptionFilter } from "./common/filters/prisma-exception.filter"
     StorageModule,
     UserModule,
     CatModule,
+    PostModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: PrismaExceptionFilter }],
 })

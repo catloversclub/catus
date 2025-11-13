@@ -24,6 +24,15 @@ export class UserService {
     })
   }
 
+  async checkNickname(nickname: string) {
+    const nicknameTaken = await this.prisma.user.findUnique({
+      where: { nickname },
+      select: { hasAgreedToTerms: true },
+    })
+
+    return { available: !nicknameTaken }
+  }
+
   getMe(userId: string) {
     return this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
@@ -50,7 +59,7 @@ export class UserService {
 
   async getProfileImageUploadUrl(userId: string, contentType?: string) {
     if (!contentType) {
-      throw new BadRequestException("contentType is required")
+      throw new BadRequestException("contentType required")
     }
     const ext = getImageExtension(contentType)
     if (!ext) {

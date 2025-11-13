@@ -18,6 +18,10 @@ export class CreateUserDto {
 
   @IsBoolean()
   @IsOptional()
+  isLivingWithCat?: boolean
+
+  @IsBoolean()
+  @IsOptional()
   hasAgreedToTerms?: boolean
 
   @IsArray()
@@ -33,10 +37,6 @@ export class CreateUserDto {
   @IsOptional()
   @ArrayMaxSize(2)
   favoriteAppearance?: number[]
-
-  @IsEmail()
-  @IsOptional()
-  email?: string | null
 
   @IsString()
   @IsOptional()
