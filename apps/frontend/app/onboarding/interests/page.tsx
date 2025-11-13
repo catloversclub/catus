@@ -2,20 +2,20 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Chip } from "@/components/ui/chip"
 import { useOnboarding } from "@/components/onboarding/onboarding-context"
 import { appearanceTagOptions, personalityTagOptions } from "../_libs/schemas"
+import { fetcherWithAuth } from "@/lib/utils"
 
 export default function OnboardingInterestsPage() {
   const router = useRouter()
   const { draft, setInterests } = useOnboarding()
+  const { data: session } = useSession()
 
-  const renderRows = (
-    items: ReadonlyArray<{ id: number; label: string }>,
-    chunkSize: number,
-  ) => {
+  const renderRows = (items: ReadonlyArray<{ id: number; label: string }>, chunkSize: number) => {
     return items.reduce<{ id: number; label: string }[][]>((rows, item, index) => {
       const rowIndex = Math.floor(index / chunkSize)
       if (!rows[rowIndex]) rows[rowIndex] = []
@@ -65,11 +65,42 @@ export default function OnboardingInterestsPage() {
     const hasSelection = selectedPersonality.length + selectedAppearance.length > 0
     if (!hasSelection) return
 
+    if (!draft.nickname) {
+      toast.error("닉네임 정보를 찾을 수 없어요. 처음 단계부터 다시 진행해주세요.")
+      return
+    }
+
+    if (!session?.idToken) {
+      toast.error("세션 정보가 만료되었어요. 다시 로그인 해주세요.")
+      return
+    }
+
     setIsSubmitting(true)
     try {
+      const payload = {
+        nickname: draft.nickname,
+        hasAgreedToTerms: true,
+        favoritePersonality: selectedPersonality,
+        favoriteAppearance: selectedAppearance,
+        phone: null,
+        profileImageUrl: draft.catProfile?.imageUrl ?? null,
+      }
+
+      const response = await fetcherWithAuth.post("user", {
+        json: payload,
+      })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(errorText || response.statusText)
+      }
+
       const combined = [...selectedPersonality, ...selectedAppearance].map(String)
       setInterests(combined)
       router.push("/onboarding/complete")
+    } catch (error) {
+      console.error(error)
+      toast.error("관심 태그 저장에 실패했어요. 잠시 후 다시 시도해 주세요.")
     } finally {
       setIsSubmitting(false)
     }
