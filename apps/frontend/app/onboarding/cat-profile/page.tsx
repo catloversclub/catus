@@ -27,7 +27,6 @@ import {
 type CatProfileFormData = v.InferInput<typeof catProfileSchema>
 
 export default function CatProfilePage() {
-  const router = useRouter()
   const { setCatProfile, draft } = useOnboarding()
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const [_imageFile, setImageFile] = useState<File | null>(null)

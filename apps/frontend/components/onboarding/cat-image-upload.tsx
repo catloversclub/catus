@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useRef, useState } from "react"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import catAvatar from "@/public/cat-avatar.svg"
@@ -51,14 +50,6 @@ export function CatImageUpload({ value, onChange, className }: CatImageUploadPro
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null
     handleFileSelect(file)
-  }
-
-  const handleRemove = () => {
-    setPreview(null)
-    onChange(null)
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""
-    }
   }
 
   return (

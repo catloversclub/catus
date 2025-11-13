@@ -1,5 +1,6 @@
-import { NextAuthOptions } from "next-auth"
+import type { NextAuthOptions} from "next-auth"
 import KakaoProvider from "next-auth/providers/kakao"
+import type { KakaoProfile, RefreshableToken } from "./types"
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -18,8 +19,8 @@ export const authOptions: NextAuthOptions = {
           force_login: "true",
         },
       },
-      profile(profile: any) {
-        const id = (profile?.sub ?? profile?.id)?.toString()
+      profile(profile: KakaoProfile) {
+        const id = (profile?.sub ?? profile?.id ?? "").toString()
         const name =
           profile?.name ??
           profile?.nickname ??
@@ -52,7 +53,7 @@ export const authOptions: NextAuthOptions = {
           ? account.expires_at * 1000
           : (token.accessTokenExpires as number | undefined) ?? Date.now() + 60 * 60 * 1000
 
-        const profileData = profile as Record<string, unknown> | undefined
+        const profileData = profile as KakaoProfile | undefined
         const profileId =
           (profileData?.id as string | number | undefined) ??
           (profileData?.sub as string | number | undefined) ??
@@ -71,7 +72,7 @@ export const authOptions: NextAuthOptions = {
         const image =
           (profileData?.image as string | undefined) ??
           (profileData?.picture as string | undefined) ??
-          (profileData?.kakao_account as any)?.profile?.profile_image_url
+          profileData?.kakao_account?.profile?.profile_image_url
         if (image) {
           token.userImage = image
         }
@@ -109,7 +110,7 @@ export const authOptions: NextAuthOptions = {
   },
 }
 
-async function refreshAccessToken(token: Record<string, unknown>) {
+async function refreshAccessToken(token: RefreshableToken) {
   try {
     const response = await fetch("https://kauth.kakao.com/oauth/token", {
       method: "POST",

@@ -49,7 +49,7 @@ export default function NicknamePage() {
     }
   }, [nickname, trigger])
 
-  const onSubmit = (data: NicknameFormData) => {
+  const onSubmit = () => {
     router.push("/onboarding/has-cat")
   }
 

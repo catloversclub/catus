@@ -37,7 +37,7 @@ export default function HasCatPage() {
     setHasCat(hasCat)
   }, [hasCat, setHasCat, draft.hasCat])
 
-  const onSubmit = (data: HasCatFormData) => {
+  const onSubmit = () => {
     router.push("/onboarding/cat-profile")
   }
 
