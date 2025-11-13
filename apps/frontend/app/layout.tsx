@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import "./globals.css"
 import { MobileWrapper } from "@/components/mobile-wrapper"
 import { AuthProvider } from "@/components/providers/session-provider"
+import { Toaster } from "@/components/ui/sonner"
 
 import localFont from "next/font/local"
 
@@ -27,6 +28,7 @@ export default function RootLayout({
       <body className={`antialiased ${pretendard.variable}`}>
         <AuthProvider>
           <MobileWrapper>{children}</MobileWrapper>
+          <Toaster />
         </AuthProvider>
       </body>
     </html>
