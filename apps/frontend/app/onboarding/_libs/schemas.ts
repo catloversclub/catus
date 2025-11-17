@@ -11,7 +11,7 @@ export const nicknameSchema = v.object({
     v.string(),
     v.minLength(1, "닉네임을 입력해주세요"),
     v.maxLength(NICKNAME_MAX_LEN, `최대 ${NICKNAME_MAX_LEN}자까지 입력 가능합니다`),
-    v.regex(NICKNAME_REGEX, "한글/영문/숫자만 입력 가능합니다"),
+    v.regex(NICKNAME_REGEX, "한글/영문/숫자만 입력 가능합니다")
   ),
 })
 
@@ -65,7 +65,7 @@ export const catProfileSchema = v.object({
     v.string(),
     v.minLength(1, "이름을 입력해주세요"),
     v.maxLength(CAT_NAME_MAX_LEN, `최대 ${CAT_NAME_MAX_LEN}자까지 입력 가능합니다`),
-    v.regex(CAT_NAME_REGEX, "한글/영문/숫자만 입력 가능합니다"),
+    v.regex(CAT_NAME_REGEX, "한글/영문/숫자만 입력 가능합니다")
   ),
   gender: v.picklist(["female", "male", "unknown"], "성별을 선택해주세요"),
   birthDate: v.optional(v.string()),

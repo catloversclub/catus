@@ -10,9 +10,9 @@ export default async function Login() {
     redirect("/")
   }
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      <main className="flex flex-col items-center text-center max-w-[336px] w-full">
-        <div className="flex flex-col gap-1.5 w-full">
+    <div className="flex min-h-screen flex-col items-center justify-center p-4">
+      <main className="flex w-full max-w-[336px] flex-col items-center text-center">
+        <div className="flex w-full flex-col gap-1.5">
           <KakaoLoginButton />
           <Button asChild variant="ghost" className="w-full underline">
             <Link href="/support">로그인 과정에 문제가 있나요?</Link>

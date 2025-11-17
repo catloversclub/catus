@@ -19,14 +19,10 @@ export function OnboardingProgress({
           key={step}
           className={cn(
             "h-2 flex-1 rounded-xs",
-            step <= currentStep
-              ? "bg-icon-accent"
-              : "bg-background-secondary",
+            step <= currentStep ? "bg-icon-accent" : "bg-background-secondary"
           )}
         />
       ))}
     </div>
   )
 }
-
-

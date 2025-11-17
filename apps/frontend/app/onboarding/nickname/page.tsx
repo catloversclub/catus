@@ -79,18 +79,12 @@ export default function NicknamePage() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col">
       <div className="flex-1">
-        <p className="text-lg font-bold text-foreground leading-7 mb-6">
-          닉네임을 입력해주세요
-        </p>
-        <NicknameField
-          {...register("nickname")}
-          onClear={handleClear}
-          borderClass={borderClass}
-        />
+        <p className="text-foreground mb-6 text-lg leading-7 font-bold">닉네임을 입력해주세요</p>
+        <NicknameField {...register("nickname")} onClear={handleClear} borderClass={borderClass} />
         <FeedbackText status={status} />
       </div>
 
-      <Button type="submit" disabled={!isValidNickname} className="w-full mt-auto">
+      <Button type="submit" disabled={!isValidNickname} className="mt-auto w-full">
         다음
       </Button>
     </form>
@@ -120,7 +114,7 @@ function NicknameField({ onClear, borderClass, ...inputProps }: NicknameFieldPro
           onClick={onClear}
           variant="ghost"
           size="icon"
-          className="absolute right-2 top-1/2 -translate-y-1/2 size-8 p-0"
+          className="absolute top-1/2 right-2 size-8 -translate-y-1/2 p-0"
         >
           <FaXmark className="size-4" />
         </Button>
@@ -148,5 +142,5 @@ function FeedbackText({ status }: FeedbackTextProps) {
         ? "text-text-error"
         : "text-text-tertiary"
 
-  return <p className={cn("text-[10px] mt-1.5", colorClass)}>{helpText}</p>
+  return <p className={cn("mt-1.5 text-[10px]", colorClass)}>{helpText}</p>
 }

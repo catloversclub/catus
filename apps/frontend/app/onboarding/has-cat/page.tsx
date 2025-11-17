@@ -48,7 +48,7 @@ export default function HasCatPage() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col">
       <div className="flex-1">
-        <p className="text-lg font-bold text-foreground leading-7 mb-6">
+        <p className="text-foreground mb-6 text-lg leading-7 font-bold">
           지금 고양이와 살고 있나요?
         </p>
         <div className="flex gap-3">
@@ -69,14 +69,9 @@ export default function HasCatPage() {
         </div>
       </div>
 
-      <Button
-        type="submit"
-        disabled={!isValid || hasCat === undefined}
-        className="w-full mt-auto"
-      >
+      <Button type="submit" disabled={!isValid || hasCat === undefined} className="mt-auto w-full">
         다음
       </Button>
     </form>
   )
 }
-

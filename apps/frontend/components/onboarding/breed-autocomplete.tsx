@@ -111,13 +111,13 @@ export function BreedAutocomplete({
         className="h-12"
       />
       {isOpen && filteredBreeds.length > 0 && (
-        <div className="absolute z-50 w-full mt-1 bg-chips-background p-1.5 rounded max-h-60 overflow-y-auto">
+        <div className="bg-chips-background absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded p-1.5">
           {filteredBreeds.map((breed, index) => (
             <button
               key={`${breed}-${index}`}
               type="button"
               onClick={() => handleSelectBreed(breed)}
-              className="text-sm font-normal w-full px-4 py-3 rounded text-left hover:bg-primary transition-colors"
+              className="hover:bg-primary w-full rounded px-4 py-3 text-left text-sm font-normal transition-colors"
             >
               {breed}
             </button>

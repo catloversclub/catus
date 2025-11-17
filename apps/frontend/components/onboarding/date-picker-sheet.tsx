@@ -19,7 +19,7 @@ export function DatePickerSheet({ open, onOpenChange, value, onChange }: DatePic
   const [year, setYear] = useState<number>(new Date().getFullYear())
   const [month, setMonth] = useState<number>(new Date().getMonth() + 1)
   const [day, setDay] = useState<number>(new Date().getDate())
-  
+
   const yearRef = useRef<HTMLDivElement>(null)
   const monthRef = useRef<HTMLDivElement>(null)
   const dayRef = useRef<HTMLDivElement>(null)
@@ -68,20 +68,26 @@ export function DatePickerSheet({ open, onOpenChange, value, onChange }: DatePic
   const currentYear = new Date().getFullYear()
   // 앞뒤에 더미 항목을 추가하여 처음/끝 항목도 중앙에 올 수 있도록
   const years = [
-    null, null, // 앞쪽 더미 2개
+    null,
+    null, // 앞쪽 더미 2개
     ...Array.from({ length: 30 }, (_, i) => currentYear - i),
-    null, null // 뒤쪽 더미 2개
+    null,
+    null, // 뒤쪽 더미 2개
   ]
   const months = [
-    null, null, // 앞쪽 더미 2개
+    null,
+    null, // 앞쪽 더미 2개
     ...Array.from({ length: 12 }, (_, i) => i + 1),
-    null, null // 뒤쪽 더미 2개
+    null,
+    null, // 뒤쪽 더미 2개
   ]
   const daysInMonth = new Date(year, month, 0).getDate()
   const days = [
-    null, null, // 앞쪽 더미 2개
+    null,
+    null, // 앞쪽 더미 2개
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
-    null, null // 뒤쪽 더미 2개
+    null,
+    null, // 뒤쪽 더미 2개
   ]
 
   // 일이 변경될 때 유효한 날짜인지 확인
@@ -111,7 +117,7 @@ export function DatePickerSheet({ open, onOpenChange, value, onChange }: DatePic
   const handleScroll = (type: "year" | "month" | "day", scrollTop: number) => {
     // 프로그래밍 방식으로 스크롤을 설정하는 중이면 무시
     if (isScrollingRef.current) return
-    
+
     // scrollTop이 0이면 인덱스 2 (중앙), scrollTop이 ITEM_HEIGHT * 2면 인덱스 4
     // 따라서 인덱스 = (scrollTop / ITEM_HEIGHT) + 2
     const index = Math.round(scrollTop / ITEM_HEIGHT) + 2
@@ -139,18 +145,18 @@ export function DatePickerSheet({ open, onOpenChange, value, onChange }: DatePic
         <div className="relative overflow-hidden" style={{ height: `${PICKER_HEIGHT}px` }}>
           {/* 선택 표시 오버레이 */}
           <div
-            className="absolute left-0 right-0 pointer-events-none z-10"
-            style={{ 
+            className="pointer-events-none absolute right-0 left-0 z-10"
+            style={{
               top: `${ITEM_HEIGHT * 2}px`,
-              height: `${ITEM_HEIGHT}px`
+              height: `${ITEM_HEIGHT}px`,
             }}
           />
-          
+
           <div className="flex h-full">
             {/* Year Picker */}
             <div
               ref={yearRef}
-              className="flex-1 overflow-y-auto scroll-smooth snap-y snap-mandatory scrollbar-hide"
+              className="scrollbar-hide flex-1 snap-y snap-mandatory overflow-y-auto scroll-smooth"
               style={{ scrollSnapType: "y mandatory", height: `${PICKER_HEIGHT}px` }}
               onScroll={(e) => handleScroll("year", e.currentTarget.scrollTop)}
             >
@@ -158,12 +164,15 @@ export function DatePickerSheet({ open, onOpenChange, value, onChange }: DatePic
                 {years.map((y, index) => (
                   <div
                     key={y !== null ? y : `year-dummy-${index}`}
-                    className="h-[26px] flex items-center justify-center text-sm snap-start"
+                    className="flex h-[26px] snap-start items-center justify-center text-sm"
                     onClick={() => {
                       if (y === null || y === undefined || y === year) return
                       isScrollingRef.current = true
                       // 선택된 항목을 중앙에 오려면 scrollTop이 (인덱스 - 2) * ITEM_HEIGHT
-                      yearRef.current?.scrollTo({ top: (index - 2) * ITEM_HEIGHT, behavior: "smooth" })
+                      yearRef.current?.scrollTo({
+                        top: (index - 2) * ITEM_HEIGHT,
+                        behavior: "smooth",
+                      })
                       setYear(y)
                       setTimeout(() => {
                         isScrollingRef.current = false
@@ -171,10 +180,14 @@ export function DatePickerSheet({ open, onOpenChange, value, onChange }: DatePic
                     }}
                   >
                     {y !== null && y !== undefined && (
-                      <span className={cn(
-                        "transition-all",
-                        year === y ? "text-text-primary font-semibold text-base" : "text-text-primary"
-                      )}>
+                      <span
+                        className={cn(
+                          "transition-all",
+                          year === y
+                            ? "text-text-primary text-base font-semibold"
+                            : "text-text-primary"
+                        )}
+                      >
                         {y}년
                       </span>
                     )}
@@ -186,7 +199,7 @@ export function DatePickerSheet({ open, onOpenChange, value, onChange }: DatePic
             {/* Month Picker */}
             <div
               ref={monthRef}
-              className="flex-1 overflow-y-auto scroll-smooth snap-y snap-mandatory scrollbar-hide"
+              className="scrollbar-hide flex-1 snap-y snap-mandatory overflow-y-auto scroll-smooth"
               style={{ scrollSnapType: "y mandatory", height: `${PICKER_HEIGHT}px` }}
               onScroll={(e) => handleScroll("month", e.currentTarget.scrollTop)}
             >
@@ -194,12 +207,15 @@ export function DatePickerSheet({ open, onOpenChange, value, onChange }: DatePic
                 {months.map((m, index) => (
                   <div
                     key={m !== null ? m : `month-dummy-${index}`}
-                    className="h-[26px] flex items-center justify-center text-base snap-start"
+                    className="flex h-[26px] snap-start items-center justify-center text-base"
                     onClick={() => {
                       if (m === null || m === undefined || m === month) return
                       isScrollingRef.current = true
                       // 선택된 항목을 중앙에 오려면 scrollTop이 (인덱스 - 2) * ITEM_HEIGHT
-                      monthRef.current?.scrollTo({ top: (index - 2) * ITEM_HEIGHT, behavior: "smooth" })
+                      monthRef.current?.scrollTo({
+                        top: (index - 2) * ITEM_HEIGHT,
+                        behavior: "smooth",
+                      })
                       setMonth(m)
                       setTimeout(() => {
                         isScrollingRef.current = false
@@ -207,10 +223,14 @@ export function DatePickerSheet({ open, onOpenChange, value, onChange }: DatePic
                     }}
                   >
                     {m !== null && m !== undefined && (
-                      <span className={cn(
-                        "transition-all",
-                        month === m ? "text-text-primary font-semibold text-base" : "text-text-primary"
-                      )}>
+                      <span
+                        className={cn(
+                          "transition-all",
+                          month === m
+                            ? "text-text-primary text-base font-semibold"
+                            : "text-text-primary"
+                        )}
+                      >
                         {m}월
                       </span>
                     )}
@@ -222,7 +242,7 @@ export function DatePickerSheet({ open, onOpenChange, value, onChange }: DatePic
             {/* Day Picker */}
             <div
               ref={dayRef}
-              className="flex-1 overflow-y-auto scroll-smooth snap-y snap-mandatory scrollbar-hide"
+              className="scrollbar-hide flex-1 snap-y snap-mandatory overflow-y-auto scroll-smooth"
               style={{ scrollSnapType: "y mandatory", height: `${PICKER_HEIGHT}px` }}
               onScroll={(e) => handleScroll("day", e.currentTarget.scrollTop)}
             >
@@ -230,12 +250,15 @@ export function DatePickerSheet({ open, onOpenChange, value, onChange }: DatePic
                 {days.map((d, index) => (
                   <div
                     key={d !== null ? d : `day-dummy-${index}`}
-                    className="h-[26px] flex items-center justify-center text-base snap-start"
+                    className="flex h-[26px] snap-start items-center justify-center text-base"
                     onClick={() => {
                       if (d === null || d === undefined || d === day) return
                       isScrollingRef.current = true
                       // 선택된 항목을 중앙에 오려면 scrollTop이 (인덱스 - 2) * ITEM_HEIGHT
-                      dayRef.current?.scrollTo({ top: (index - 2) * ITEM_HEIGHT, behavior: "smooth" })
+                      dayRef.current?.scrollTo({
+                        top: (index - 2) * ITEM_HEIGHT,
+                        behavior: "smooth",
+                      })
                       setDay(d)
                       setTimeout(() => {
                         isScrollingRef.current = false
@@ -243,10 +266,14 @@ export function DatePickerSheet({ open, onOpenChange, value, onChange }: DatePic
                     }}
                   >
                     {d !== null && d !== undefined && (
-                      <span className={cn(
-                        "transition-all",
-                        day === d ? "text-text-primary font-semibold text-base" : "text-text-primary"
-                      )}>
+                      <span
+                        className={cn(
+                          "transition-all",
+                          day === d
+                            ? "text-text-primary text-base font-semibold"
+                            : "text-text-primary"
+                        )}
+                      >
                         {d}일
                       </span>
                     )}
@@ -260,4 +287,3 @@ export function DatePickerSheet({ open, onOpenChange, value, onChange }: DatePic
     </Sheet>
   )
 }
-

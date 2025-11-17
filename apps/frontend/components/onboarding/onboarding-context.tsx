@@ -45,7 +45,14 @@ function reducer(state: OnboardingDraft, action: Action): OnboardingDraft {
     case "set_interests":
       return { ...state, interests: action.interests }
     case "reset":
-      return { nickname: undefined, hasCat: undefined, userType: undefined, catProfile: undefined, catTags: [], interests: [] }
+      return {
+        nickname: undefined,
+        hasCat: undefined,
+        userType: undefined,
+        catProfile: undefined,
+        catTags: [],
+        interests: [],
+      }
     default:
       return state
   }
@@ -85,7 +92,7 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
       setInterests: (interests) => dispatch({ type: "set_interests", interests }),
       reset: () => dispatch({ type: "reset" }),
     }),
-    [draft],
+    [draft]
   )
 
   return <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>
@@ -96,5 +103,3 @@ export function useOnboarding() {
   if (!ctx) throw new Error("useOnboarding must be used within OnboardingProvider")
   return ctx
 }
-
-

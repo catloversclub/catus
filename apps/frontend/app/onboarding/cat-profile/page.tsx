@@ -104,21 +104,21 @@ export default function CatProfilePage() {
   const isFormValid = isValid && name && gender
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col flex-1">
-      <p className="text-lg font-bold text-text-primary leading-7 mb-3">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col">
+      <p className="text-text-primary mb-3 text-lg leading-7 font-bold">
         고양이의 프로필을 완성해 주세요!
       </p>
-      <p className="text-text-secondary font-semibold text-base mb-10">
+      <p className="text-text-secondary mb-10 text-base font-semibold">
         여러 마리의 고양이가 있다면
         <br />
         다음 화면에서 ‘더 추가하기’를 클릭해주세요.
       </p>
 
-      <div className="flex flex-col gap-10 flex-1">
+      <div className="flex flex-1 flex-col gap-10">
         <CatImageUpload value={draft.catProfile?.imageUrl} onChange={handleImageChange} />
 
         <div>
-          <label className="block text-xs font-normal text-foreground">이름</label>
+          <label className="text-foreground block text-xs font-normal">이름</label>
           <Input
             {...register("name")}
             placeholder="고양이 이름을 입력해주세요"
@@ -126,12 +126,12 @@ export default function CatProfilePage() {
             className="h-12"
           />
           {errors.name && (
-            <p className="text-text-error text-[10px] mt-1.5">{errors.name.message}</p>
+            <p className="text-text-error mt-1.5 text-[10px]">{errors.name.message}</p>
           )}
         </div>
 
         <div>
-          <label className="block text-xs font-normal text-foreground mb-2">성별</label>
+          <label className="text-foreground mb-2 block text-xs font-normal">성별</label>
           <div className="flex gap-3">
             {catGenderOptions.map(({ value, label }) => (
               <Chip
@@ -147,11 +147,11 @@ export default function CatProfilePage() {
         </div>
 
         <div>
-          <label className="block text-xs font-normal text-foreground mb-2">생일 (선택)</label>
+          <label className="text-foreground mb-2 block text-xs font-normal">생일 (선택)</label>
           <button
             type="button"
             onClick={() => setDatePickerOpen(true)}
-            className="w-full h-12 px-3 text-left rounded bg-background-secondary transition-colors text-foreground"
+            className="bg-background-secondary text-foreground h-12 w-full rounded px-3 text-left transition-colors"
           >
             {formatDate(birthDate)}
           </button>
@@ -164,7 +164,7 @@ export default function CatProfilePage() {
         </div>
 
         <div>
-          <label className="block text-xs font-normal text-foreground mb-2">품종 (선택)</label>
+          <label className="text-foreground mb-2 block text-xs font-normal">품종 (선택)</label>
           <BreedAutocomplete
             value={breed}
             onChange={handleBreedChange}

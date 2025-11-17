@@ -37,5 +37,3 @@ export default function OnboardingLayout({ children }: { children: ReactNode }) 
     </OnboardingProvider>
   )
 }
-
-

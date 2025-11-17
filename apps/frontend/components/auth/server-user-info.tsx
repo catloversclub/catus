@@ -22,12 +22,12 @@ export async function ServerUserInfo() {
 
   console.log(session)
 
-  if(!session) {
+  if (!session) {
     return null
   }
 
   return (
-    <div className="bg-background-secondary rounded-lg p-4 border border-border w-full">
+    <div className="bg-background-secondary border-border w-full rounded-lg border p-4">
       <div className="flex items-center gap-3">
         {session.user?.image && (
           <Image
@@ -35,10 +35,10 @@ export async function ServerUserInfo() {
             alt="프로필 이미지"
             width={48}
             height={48}
-            className="w-12 h-12 rounded-full object-cover"
+            className="h-12 w-12 rounded-full object-cover"
           />
         )}
-        <h3 className="font-semibold text-foreground">{session.user?.name || "사용자"}</h3>
+        <h3 className="text-foreground font-semibold">{session.user?.name || "사용자"}</h3>
       </div>
     </div>
   )

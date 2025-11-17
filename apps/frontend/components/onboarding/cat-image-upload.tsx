@@ -63,18 +63,18 @@ export function CatImageUpload({ value, onChange, className }: CatImageUploadPro
       />
       <div className="flex w-full items-center justify-center">
         {preview ? (
-          <div className="relative size-[106px] rounded-full overflow-hidden bg-background-secondary">
+          <div className="bg-background-secondary relative size-[106px] overflow-hidden rounded-full">
             <img
               src={preview}
               alt="고양이 프로필 미리보기"
-              className="w-full h-full object-cover"
+              className="h-full w-full object-cover"
             />
           </div>
         ) : (
           <button
             type="button"
             onClick={handleClick}
-            className="relative size-[106px] rounded-full overflow-hidden bg-background-secondary"
+            className="bg-background-secondary relative size-[106px] overflow-hidden rounded-full"
           >
             <Image
               src={catAvatar}

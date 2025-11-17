@@ -75,14 +75,14 @@ export default function DesignSystemPage() {
   }
 
   return (
-    <div className={cn("font-sans min-h-screen p-4 transition-colors", isDark ? "dark" : "light")}>
-      <div className="max-w-[336px] mx-auto space-y-8">
+    <div className={cn("min-h-screen p-4 font-sans transition-colors", isDark ? "dark" : "light")}>
+      <div className="mx-auto max-w-[336px] space-y-8">
         {/* Header */}
         <div className="space-y-4">
-          <div className="flex justify-between items-start">
+          <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Design System</h1>
-              <p className="text-sm text-text-secondary">디자인 시스템</p>
+              <h1 className="text-foreground text-2xl font-bold">Design System</h1>
+              <p className="text-text-secondary text-sm">디자인 시스템</p>
             </div>
             <Button onClick={toggleTheme} variant="outline" size="sm">
               {isDark ? "☀️" : "🌙"}
@@ -92,18 +92,18 @@ export default function DesignSystemPage() {
 
         {/* Color Palette */}
         <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">Color Palette</h2>
+          <h2 className="text-foreground mb-4 text-xl font-semibold">Color Palette</h2>
 
           <div className="space-y-6">
             {/* Light Mode Colors */}
             <div className="space-y-3">
-              <h3 className="text-lg font-medium text-foreground">Light Mode</h3>
+              <h3 className="text-foreground text-lg font-medium">Light Mode</h3>
               <div className="grid grid-cols-2 gap-2">
                 {designSystemData.colors.light.map((color, index) => (
-                  <div key={index} className={cn("p-3 border border-border rounded-lg", color.bg)}>
-                    <div className={cn("w-full h-6 rounded mb-1", color.bg)}></div>
+                  <div key={index} className={cn("border-border rounded-lg border p-3", color.bg)}>
+                    <div className={cn("mb-1 h-6 w-full rounded", color.bg)}></div>
                     <p className={cn("text-xs", color.text || "text-foreground")}>{color.name}</p>
-                    <p className={cn("text-xs text-text-tertiary", color.text && "opacity-70")}>
+                    <p className={cn("text-text-tertiary text-xs", color.text && "opacity-70")}>
                       {color.value}
                     </p>
                   </div>
@@ -113,12 +113,12 @@ export default function DesignSystemPage() {
 
             {/* Text Colors */}
             <div className="space-y-3">
-              <h3 className="text-lg font-medium text-foreground">Text Colors</h3>
+              <h3 className="text-foreground text-lg font-medium">Text Colors</h3>
               <div className="space-y-2">
                 {designSystemData.colors.text.map((color, index) => (
-                  <div key={index} className="p-2 border border-border rounded">
+                  <div key={index} className="border-border rounded border p-2">
                     <p className={cn("text-sm font-medium", color.text)}>{color.name}</p>
-                    <p className="text-xs text-text-tertiary">{color.value}</p>
+                    <p className="text-text-tertiary text-xs">{color.value}</p>
                   </div>
                 ))}
               </div>
@@ -128,12 +128,12 @@ export default function DesignSystemPage() {
 
         {/* Buttons */}
         <section>
-          <h2 className="text-xl font-semibold text-foreground mb-4">Buttons</h2>
+          <h2 className="text-foreground mb-4 text-xl font-semibold">Buttons</h2>
 
           <div className="space-y-6">
             {/* Button Variants */}
             <div>
-              <h3 className="text-lg font-medium text-foreground mb-3">Button Variants</h3>
+              <h3 className="text-foreground mb-3 text-lg font-medium">Button Variants</h3>
               <div className="grid grid-cols-2 gap-2">
                 {designSystemData.buttons.variants.map((button, index) => (
                   <Button
@@ -145,14 +145,14 @@ export default function DesignSystemPage() {
                   </Button>
                 ))}
                 <Button variant="outline" size="icon">
-                  <FaPencil className="w-4 h-4" />
+                  <FaPencil className="h-4 w-4" />
                 </Button>
               </div>
             </div>
 
             {/* Button States */}
             <div>
-              <h3 className="text-lg font-medium text-foreground mb-3">Button States</h3>
+              <h3 className="text-foreground mb-3 text-lg font-medium">Button States</h3>
               <div className="space-y-2">
                 {designSystemData.buttons.states.map((state, index) => (
                   <Button key={index} disabled={state.disabled} className="w-full">

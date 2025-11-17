@@ -1,5 +1,2 @@
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") ||
-  "https://api.catus.app"
-
-
+  process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "") || "https://api.catus.app"

@@ -27,12 +27,12 @@ export default function OnboardingInterestsPage() {
   const [selectedPersonality, setSelectedPersonality] = useState<number[]>(
     draft.interests
       ?.map((value) => Number(value))
-      .filter((value) => personalityTagOptions.some((option) => option.id === value)) ?? [],
+      .filter((value) => personalityTagOptions.some((option) => option.id === value)) ?? []
   )
   const [selectedAppearance, setSelectedAppearance] = useState<number[]>(
     draft.interests
       ?.map((value) => Number(value))
-      .filter((value) => appearanceTagOptions.some((option) => option.id === value)) ?? [],
+      .filter((value) => appearanceTagOptions.some((option) => option.id === value)) ?? []
   )
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -116,7 +116,7 @@ export default function OnboardingInterestsPage() {
 
   return (
     <div className="flex flex-1 flex-col gap-8">
-      <p className="text-lg font-bold text-text-primary leading-7 mb-3">
+      <p className="text-text-primary mb-3 text-lg leading-7 font-bold">
         마음이 가는 키워드를 골라주시면
         <br />
         맞춤 콘텐츠를 추천해 드릴게요!
@@ -125,8 +125,8 @@ export default function OnboardingInterestsPage() {
       <div className="flex flex-col gap-10">
         <div className="flex flex-col gap-6">
           <div>
-            <p className="text-base font-semibold text-text-primary">성격</p>
-            <p className="text-xs text-text-tertiary">최대 2개까지 선택 가능해요</p>
+            <p className="text-text-primary text-base font-semibold">성격</p>
+            <p className="text-text-tertiary text-xs">최대 2개까지 선택 가능해요</p>
           </div>
           <div className="flex flex-col gap-3">
             {personalityRows.map((row, rowIndex) => (
@@ -148,8 +148,8 @@ export default function OnboardingInterestsPage() {
 
         <div className="flex flex-col gap-6">
           <div>
-            <p className="text-base font-semibold text-text-primary">외모 태그</p>
-            <p className="text-xs text-text-tertiary">최대 2개까지 선택 가능해요</p>
+            <p className="text-text-primary text-base font-semibold">외모 태그</p>
+            <p className="text-text-tertiary text-xs">최대 2개까지 선택 가능해요</p>
           </div>
           <div className="flex flex-col gap-3">
             {appearanceRows.map((row, rowIndex) => (

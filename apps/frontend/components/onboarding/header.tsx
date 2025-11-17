@@ -15,10 +15,9 @@ export function OnboardingHeader({
   showProgress = true,
 }: OnboardingHeaderProps) {
   return (
-    <div className="flex flex-col gap-6 mt-8">
+    <div className="mt-8 flex flex-col gap-6">
       <FaArrowLeft className="size-5 cursor-pointer" onClick={onBack} />
       {showProgress && <OnboardingProgress currentStep={currentStep} className="mb-10" />}
     </div>
   )
 }
-

@@ -1,4 +1,4 @@
-import type { NextAuthOptions} from "next-auth"
+import type { NextAuthOptions } from "next-auth"
 import KakaoProvider from "next-auth/providers/kakao"
 import type { KakaoProfile, RefreshableToken } from "./types"
 
@@ -22,10 +22,7 @@ export const authOptions: NextAuthOptions = {
       profile(profile: KakaoProfile) {
         const id = (profile?.sub ?? profile?.id ?? "").toString()
         const name =
-          profile?.name ??
-          profile?.nickname ??
-          profile?.kakao_account?.profile?.nickname ??
-          null
+          profile?.name ?? profile?.nickname ?? profile?.kakao_account?.profile?.nickname ?? null
         const image =
           profile?.picture ??
           profile?.image ??
@@ -51,7 +48,7 @@ export const authOptions: NextAuthOptions = {
         token.idToken = account.id_token ?? (token.idToken as string | undefined)
         token.accessTokenExpires = account.expires_at
           ? account.expires_at * 1000
-          : (token.accessTokenExpires as number | undefined) ?? Date.now() + 60 * 60 * 1000
+          : ((token.accessTokenExpires as number | undefined) ?? Date.now() + 60 * 60 * 1000)
 
         const profileData = profile as KakaoProfile | undefined
         const profileId =
@@ -63,8 +60,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         const name =
-          (profileData?.name as string | undefined) ??
-          (profileData?.nickname as string | undefined)
+          (profileData?.name as string | undefined) ?? (profileData?.nickname as string | undefined)
         if (name) {
           token.userName = name
         }

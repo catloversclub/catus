@@ -6,7 +6,7 @@ type ApiFetchOptions = RequestInit & {
 
 export async function apiFetch<T = unknown>(
   path: string,
-  { authToken, headers, ...init }: ApiFetchOptions = {},
+  { authToken, headers, ...init }: ApiFetchOptions = {}
 ): Promise<T> {
   const url = path.startsWith("http")
     ? path
@@ -33,5 +33,3 @@ export async function apiFetch<T = unknown>(
   }
   return (await res.text()) as unknown as T
 }
-
-

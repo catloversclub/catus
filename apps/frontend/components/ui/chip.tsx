@@ -10,8 +10,7 @@ const chipVariants = cva(
       variant: {
         default:
           "bg-chips-background text-chips-foreground hover:bg-chips-pressed hover:text-chips-pressed-foreground",
-        selected:
-          "bg-chips-selected text-chips-selected-foreground hover:bg-primary-pressed",
+        selected: "bg-chips-selected text-chips-selected-foreground hover:bg-primary-pressed",
       },
       size: {
         default: "p-3 font-semibold",
@@ -23,7 +22,7 @@ const chipVariants = cva(
       variant: "default",
       size: "default",
     },
-  },
+  }
 )
 
 export interface ChipProps
@@ -40,9 +39,8 @@ const Chip = React.forwardRef<HTMLButtonElement, ChipProps>(
         {...props}
       />
     )
-  },
+  }
 )
 Chip.displayName = "Chip"
 
 export { Chip, chipVariants }
-

@@ -1,18 +1,15 @@
-import { Button } from "@/components/ui/button"
-import { KakaoLogoutButton } from "@/components/auth/kakao-logout-button"
-import { ServerUserInfo } from "@/components/auth/server-user-info"
-import Link from "next/link"
+import { FeedHeader } from "@/components/feed/feed-header"
+import { FeedList } from "@/components/feed/feed-list"
+import { BottomNav } from "@/components/feed/bottom-nav"
 
 export default function Home() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
-      <main className="flex flex-col items-center gap-4 text-center max-w-[336px] w-full">
-        <ServerUserInfo />
-        <Link href="/design-system" className="w-full">
-          <Button className="w-full">Design System</Button>
-        </Link>
-        <KakaoLogoutButton />
+    <div className="min-h-screen">
+      <FeedHeader />
+      <main className="pt-[146px]">
+        <FeedList />
       </main>
+      <BottomNav />
     </div>
   )
 }
