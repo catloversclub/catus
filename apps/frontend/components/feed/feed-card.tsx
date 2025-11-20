@@ -1,9 +1,10 @@
 "use client"
 
 import Image from "next/image"
-import { Heart, MessageCircle, Bookmark, MoreVertical } from "lucide-react"
-import { useState } from "react"
+import { MoreVertical } from "lucide-react"
+import { useState, useEffect } from "react"
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel"
+import { FeedActionButtons } from "./feed-action-buttons"
 
 interface FeedCardProps {
   id: string
@@ -30,7 +31,7 @@ export function FeedCard({
   const [liked, setLiked] = useState(isLiked)
   const [bookmarked, setBookmarked] = useState(isBookmarked)
 
-  useState(() => {
+  useEffect(() => {
     if (!api) return
 
     setCurrent(api.selectedScrollSnap())
@@ -38,7 +39,7 @@ export function FeedCard({
     api.on("select", () => {
       setCurrent(api.selectedScrollSnap())
     })
-  })
+  }, [api])
 
   return (
     <article className="mb-4 bg-white px-4">
@@ -47,12 +48,13 @@ export function FeedCard({
         <CarouselContent>
           {images.map((image, index) => (
             <CarouselItem key={index}>
-              <div className="relative aspect-square overflow-hidden rounded-2xl bg-gray-100">
+              <div className="relative overflow-hidden rounded-2xl bg-gray-100">
                 <Image
                   src={image}
                   alt={`${catName} photo ${index + 1}`}
-                  fill
-                  className="object-cover"
+                  width={800}
+                  height={800}
+                  className="h-auto w-full object-cover"
                 />
               </div>
             </CarouselItem>
@@ -61,7 +63,7 @@ export function FeedCard({
 
         {/* 이미지 카운터 (오른쪽 상단) */}
         {images.length > 1 && (
-          <div className="absolute top-3 right-3 z-10 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white">
+          <div className="absolute top-3 right-3 z-10 rounded-full bg-black/20 px-2 py-1 text-xs font-medium text-white">
             {current + 1} / {images.length}
           </div>
         )}
@@ -82,25 +84,12 @@ export function FeedCard({
         )}
 
         {/* 액션 버튼들 (이미지 오른쪽 하단) */}
-        <div className="absolute right-3 bottom-3 z-10 flex flex-col gap-2">
-          <button
-            onClick={() => setLiked(!liked)}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm transition-colors hover:bg-white"
-          >
-            <Heart className={`h-5 w-5 ${liked ? "fill-red-500 text-red-500" : "text-gray-700"}`} />
-          </button>
-          <button className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm transition-colors hover:bg-white">
-            <MessageCircle className="h-5 w-5 text-gray-700" />
-          </button>
-          <button
-            onClick={() => setBookmarked(!bookmarked)}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm transition-colors hover:bg-white"
-          >
-            <Bookmark
-              className={`h-5 w-5 ${bookmarked ? "fill-yellow-400 text-yellow-400" : "text-gray-700"}`}
-            />
-          </button>
-        </div>
+        <FeedActionButtons
+          liked={liked}
+          bookmarked={bookmarked}
+          onLikeToggle={() => setLiked(!liked)}
+          onBookmarkToggle={() => setBookmarked(!bookmarked)}
+        />
       </Carousel>
 
       {/* 프로필 정보 (이미지 하단) */}

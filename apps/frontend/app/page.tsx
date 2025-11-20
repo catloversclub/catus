@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <FeedHeader />
-      <main className="pt-[146px]">
+      <main className="pt-[140px]">
         <FeedList />
       </main>
       <BottomNav />
