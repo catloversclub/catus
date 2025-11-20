@@ -6,7 +6,7 @@ interface FeedActionButtonsProps {
   bookmarked: boolean
   onLikeToggle: () => void
   onBookmarkToggle: () => void
-  onComment?: () => void
+  onComment: () => void
 }
 
 export function FeedActionButtons({

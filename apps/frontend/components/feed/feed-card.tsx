@@ -5,6 +5,7 @@ import { MoreVertical } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel"
 import { FeedActionButtons } from "./feed-action-buttons"
+import { CommentDrawer } from "./comment-drawer"
 
 interface FeedCardProps {
   id: string
@@ -30,6 +31,7 @@ export function FeedCard({
   const [current, setCurrent] = useState(0)
   const [liked, setLiked] = useState(isLiked)
   const [bookmarked, setBookmarked] = useState(isBookmarked)
+  const [commentOpen, setCommentOpen] = useState(false)
 
   useEffect(() => {
     if (!api) return
@@ -40,6 +42,76 @@ export function FeedCard({
       setCurrent(api.selectedScrollSnap())
     })
   }, [api])
+
+  // 임시 댓글 데이터
+  const dummyComments = [
+    {
+      id: "1",
+      author: "랜선집사",
+      authorImage: "/images/user/placeholder-user-1.png",
+      content: "치즈 사진 빨리 재채 올려주세요 감사합니다 복 받으세요 선생님",
+      timeAgo: "9분 전",
+      liked: false,
+      replies: [],
+    },
+    {
+      id: "2",
+      author: "김치즈튀김나나",
+      authorImage: "/images/user/placeholder-user-2.png",
+      content: "네~ 에빡께 박 주서서 감사해요~^^",
+      timeAgo: "5초 전",
+      liked: true,
+      isAuthor: true,
+      replies: [
+        {
+          id: "2-1",
+          author: "너님엄동파이야",
+          authorImage: "/images/user/placeholder-user-3.png",
+          content: "너무 귀여워요!",
+          timeAgo: "14분 전",
+          liked: false,
+        },
+      ],
+    },
+    {
+      id: "3",
+      author: "나만고양이아이러닛",
+      authorImage: "/images/user/placeholder-user-1.png",
+      content: "치조도... 얌오도... 맘껏주세저 재채...",
+      timeAgo: "20분 전",
+      liked: false,
+      replies: [],
+    },
+    {
+      id: "4",
+      author: "미리본편견",
+      authorImage: "/images/user/placeholder-user-2.png",
+      content: "치도요...",
+      timeAgo: "20분 전",
+      liked: false,
+      replies: [],
+    },
+    {
+      id: "5",
+      author: "김치즈튀김나나",
+      authorImage: "/images/user/placeholder-user-2.png",
+      content: "네~ 그렇게나요 ^^^ 감사합니당~",
+      timeAgo: "1분 전",
+      liked: false,
+      isAuthor: true,
+      replies: [],
+    },
+    {
+      id: "6",
+      author: "김치즈튀김나나",
+      authorImage: "/images/user/placeholder-user-2.png",
+      content: "우리 치즈 항상 예뻐해주서서 더너 감사해요~🧡",
+      timeAgo: "1시간 전",
+      liked: true,
+      isAuthor: true,
+      replies: [],
+    },
+  ]
 
   return (
     <article className="mb-4 bg-white px-4">
@@ -89,6 +161,7 @@ export function FeedCard({
           bookmarked={bookmarked}
           onLikeToggle={() => setLiked(!liked)}
           onBookmarkToggle={() => setBookmarked(!bookmarked)}
+          onComment={() => setCommentOpen(true)}
         />
       </Carousel>
 
@@ -111,6 +184,14 @@ export function FeedCard({
           <MoreVertical className="h-5 w-5 text-gray-700" />
         </button>
       </div>
+
+      {/* 댓글 Drawer */}
+      <CommentDrawer
+        open={commentOpen}
+        onOpenChange={setCommentOpen}
+        comments={dummyComments}
+        totalComments={dummyComments.length}
+      />
     </article>
   )
 }
