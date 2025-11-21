@@ -2,7 +2,7 @@ import { Type } from "class-transformer"
 import {
   ArrayMaxSize,
   IsArray,
-  IsDateString,
+  IsDate,
   IsEnum,
   IsInt,
   IsNotEmpty,
@@ -30,9 +30,10 @@ export class CreateCatDto {
   @IsOptional()
   profileImageUrl?: string | null
 
-  @IsDateString()
+  @Type(() => Date)
+  @IsDate()
   @IsOptional()
-  birthDate?: string | null
+  birthDate?: Date | null
 
   @IsString()
   @IsOptional()
@@ -43,12 +44,12 @@ export class CreateCatDto {
   @Type(() => Number)
   @IsOptional()
   @ArrayMaxSize(2)
-  personality?: number[]
+  personalities?: number[]
 
   @IsArray()
   @IsInt({ each: true })
   @Type(() => Number)
   @IsOptional()
   @ArrayMaxSize(2)
-  appearance?: number[]
+  appearances?: number[]
 }

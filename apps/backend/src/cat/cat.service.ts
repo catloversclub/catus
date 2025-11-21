@@ -16,9 +16,17 @@ export class CatService {
   ) {}
 
   create(userId: string, createCatDto: CreateCatDto) {
+    const { appearances, personalities, ...rest } = createCatDto
+
     return this.prisma.cat.create({
       data: {
-        ...createCatDto,
+        ...rest,
+        appearances: appearances?.length
+          ? { connect: appearances.map((id) => ({ id })) }
+          : undefined,
+        personalities: personalities?.length
+          ? { connect: personalities.map((id) => ({ id })) }
+          : undefined,
         butlerId: userId,
       },
     })
@@ -34,7 +42,25 @@ export class CatService {
 
   async update(id: string, userId: string, updateCatDto: UpdateCatDto) {
     await this.isMyCat(id, userId)
-    return this.prisma.cat.update({ where: { id }, data: updateCatDto })
+
+    const { appearances, personalities, ...rest } = updateCatDto
+
+    return this.prisma.cat.update({
+      where: { id },
+      data: {
+        ...rest,
+        ...(appearances !== undefined && {
+          appearances: {
+            set: appearances.map((appearanceId) => ({ id: appearanceId })),
+          },
+        }),
+        ...(personalities !== undefined && {
+          personalities: {
+            set: personalities.map((personalityId) => ({ id: personalityId })),
+          },
+        }),
+      },
+    })
   }
 
   async delete(id: string, userId: string) {

@@ -55,7 +55,7 @@ async function bootstrap() {
       console.error("❌ Failed to check bucket:", err)
     }
   }
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }))
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }))
   app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader("X-Instance-Id", process.env.HOSTNAME || "unknown")
     next()
