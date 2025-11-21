@@ -43,7 +43,7 @@ RUN --mount=type=cache,target=/root/.pnpm-store \
 
 # Cache prisma engine downloads (used by generate)
 RUN --mount=type=cache,target=/root/.cache/prisma \
-  pnpm dlx prisma generate --schema apps/backend/prisma/schema.prisma
+  pnpm dlx prisma@6 generate --schema apps/backend/prisma/schema.prisma
 
 COPY --from=builder /app/apps/backend/dist apps/backend/dist
 
