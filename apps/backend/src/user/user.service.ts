@@ -16,10 +16,22 @@ export class UserService {
   ) {}
 
   create(createUserDto: CreateUserDto, kakaoId: string) {
+    const { favoritePersonalities, favoriteAppearances, ...rest } = createUserDto
+
     return this.prisma.user.create({
       data: {
-        ...createUserDto,
+        ...rest,
         kakaoId,
+        ...(favoritePersonalities?.length && {
+          favoritePersonality: {
+            connect: favoritePersonalities.map((id) => ({ id })),
+          },
+        }),
+        ...(favoriteAppearances?.length && {
+          favoriteAppearance: {
+            connect: favoriteAppearances.map((id) => ({ id })),
+          },
+        }),
       },
     })
   }
@@ -50,7 +62,24 @@ export class UserService {
   }
 
   update(userId: string, updateUserDto: UpdateUserDto) {
-    return this.prisma.user.update({ where: { id: userId }, data: updateUserDto })
+    const { favoritePersonalities, favoriteAppearances, ...rest } = updateUserDto
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        ...rest,
+        ...(favoritePersonalities !== undefined && {
+          favoritePersonality: {
+            set: favoritePersonalities.map((id) => ({ id })),
+          },
+        }),
+        ...(favoriteAppearances !== undefined && {
+          favoriteAppearance: {
+            set: favoriteAppearances.map((id) => ({ id })),
+          },
+        }),
+      },
+    })
   }
 
   remove(userId: string) {

@@ -29,14 +29,14 @@ export class CreateUserDto {
   @Type(() => Number)
   @IsOptional()
   @ArrayMaxSize(2)
-  favoritePersonality?: number[]
+  favoritePersonalities?: number[]
 
   @IsArray()
   @IsInt({ each: true })
   @Type(() => Number)
   @IsOptional()
   @ArrayMaxSize(2)
-  favoriteAppearance?: number[]
+  favoriteAppearances?: number[]
 
   @IsString()
   @IsOptional()
