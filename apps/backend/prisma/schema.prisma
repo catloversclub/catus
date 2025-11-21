@@ -8,17 +8,17 @@ datasource db {
 }
 
 model User {
-  id                  String  @id @default(uuid(7))
-  kakaoId             String  @unique @map("kakao_id")
-  nickname            String  @unique
-  isLivingWithCat     Boolean @default(false) @map("is_living_with_cat")
-  hasAgreedToTerms    Boolean @default(false) @map("has_agreed_to_term")
-  favoriteAppearance  Int[]   @default([]) @map("favorite_appearance")
-  favoritePersonality Int[]   @default([]) @map("favorite_personality")
-  phone               String?
-  profileImageUrl     String? @map("profile_image_url")
+  id               String  @id @default(uuid(7))
+  kakaoId          String  @unique @map("kakao_id")
+  nickname         String  @unique
+  isLivingWithCat  Boolean @default(false) @map("is_living_with_cat")
+  hasAgreedToTerms Boolean @default(false) @map("has_agreed_to_term")
+  phone            String?
+  profileImageUrl  String? @map("profile_image_url")
 
-  Cat Cat[]
+  cats                  Cat[]
+  favoriteAppearances   Appearance[]
+  favoritePersonalities Personality[]
 
   @@map("user")
 }
@@ -34,14 +34,34 @@ model Cat {
   name            String
   gender          Gender    @default(UNKNOWN)
   profileImageUrl String?   @map("profile_image_url")
-  appearance      Int[]     @default([])
-  personality     Int[]     @default([])
   birthDate       DateTime? @map("birth_date") @db.Date
   breed           String?
   type            Int?
 
-  butler   User   @relation(fields: [butlerId], references: [id])
-  butlerId String
+  butler        User          @relation(fields: [butlerId], references: [id])
+  butlerId      String
+  appearances   Appearance[]
+  personalities Personality[]
 
   @@map("cat")
+}
+
+model Appearance {
+  id    Int    @id @default(autoincrement())
+  label String
+
+  users User[]
+  cats  Cat[]
+
+  @@map("appearance")
+}
+
+model Personality {
+  id    Int    @id @default(autoincrement())
+  label String
+
+  users User[]
+  cats  Cat[]
+
+  @@map("personality")
 }
