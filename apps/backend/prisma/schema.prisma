@@ -48,7 +48,7 @@ model Cat {
 
 model Appearance {
   id    Int    @id @default(autoincrement())
-  label String
+  label String @unique()
 
   users User[]
   cats  Cat[]
@@ -58,7 +58,7 @@ model Appearance {
 
 model Personality {
   id    Int    @id @default(autoincrement())
-  label String
+  label String @unique()
 
   users User[]
   cats  Cat[]
