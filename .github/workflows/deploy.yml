@@ -63,4 +63,4 @@ jobs:
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker compose pull api
             docker compose up -d --no-deps --force-recreate --scale api=2 api
-            docker compose run --rm api npm run db:seed
+            docker compose run --rm api pnpm run db:seed
