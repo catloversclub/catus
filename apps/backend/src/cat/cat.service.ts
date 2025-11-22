@@ -33,11 +33,16 @@ export class CatService {
   }
 
   getMyCats(userId: string) {
-    return this.prisma.cat.findMany({ where: { butlerId: userId } })
+    return this.prisma.cat.findMany({
+      where: { butlerId: userId },
+    })
   }
 
   findOne(id: string) {
-    return this.prisma.cat.findUniqueOrThrow({ where: { id } })
+    return this.prisma.cat.findUniqueOrThrow({
+      where: { id },
+      include: { appearances: true, personalities: true },
+    })
   }
 
   async update(id: string, userId: string, updateCatDto: UpdateCatDto) {
