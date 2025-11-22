@@ -23,12 +23,12 @@ export class UserService {
         ...rest,
         kakaoId,
         ...(favoritePersonalities?.length && {
-          favoritePersonality: {
+          favoritePersonalities: {
             connect: favoritePersonalities.map((id) => ({ id })),
           },
         }),
         ...(favoriteAppearances?.length && {
-          favoriteAppearance: {
+          favoriteAppearances: {
             connect: favoriteAppearances.map((id) => ({ id })),
           },
         }),
@@ -69,12 +69,12 @@ export class UserService {
       data: {
         ...rest,
         ...(favoritePersonalities !== undefined && {
-          favoritePersonality: {
+          favoritePersonalities: {
             set: favoritePersonalities.map((id) => ({ id })),
           },
         }),
         ...(favoriteAppearances !== undefined && {
-          favoriteAppearance: {
+          favoriteAppearances: {
             set: favoriteAppearances.map((id) => ({ id })),
           },
         }),
