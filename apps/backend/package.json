@@ -86,6 +86,6 @@
     "testEnvironment": "node"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "pnpm exec ts-node prisma/seed.ts"
   }
 }
