@@ -38,7 +38,11 @@ export default function HasCatPage() {
   }, [hasCat, setHasCat, draft.hasCat])
 
   const onSubmit = () => {
-    router.push("/onboarding/cat-profile")
+    if (hasCat) {
+      router.push("/onboarding/cat-profile")
+    } else {
+      router.push("/onboarding/interests")
+    }
   }
 
   const handleSelect = (value: boolean) => {
