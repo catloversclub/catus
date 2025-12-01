@@ -1,22 +1,32 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Chip } from "@/components/ui/chip"
 import { useOnboarding } from "@/components/onboarding/onboarding-context"
-import { appearanceTagOptions, personalityTagOptions } from "../_libs/schemas"
 import { fetcherWithAuth } from "@/lib/utils"
+
+type TagOption = {
+  id: number
+  label: string
+}
 
 export default function OnboardingInterestsPage() {
   const router = useRouter()
   const { draft, setInterests } = useOnboarding()
   const { data: session } = useSession()
 
-  const renderRows = (items: ReadonlyArray<{ id: number; label: string }>, chunkSize: number) => {
-    return items.reduce<{ id: number; label: string }[][]>((rows, item, index) => {
+  const [personalityOptions, setPersonalityOptions] = useState<TagOption[]>([])
+  const [appearanceOptions, setAppearanceOptions] = useState<TagOption[]>([])
+  const [selectedPersonality, setSelectedPersonality] = useState<number[]>([])
+  const [selectedAppearance, setSelectedAppearance] = useState<number[]>([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const renderRows = (items: ReadonlyArray<TagOption>, chunkSize: number) => {
+    return items.reduce<TagOption[][]>((rows, item, index) => {
       const rowIndex = Math.floor(index / chunkSize)
       if (!rows[rowIndex]) rows[rowIndex] = []
       rows[rowIndex]!.push(item)
@@ -24,17 +34,44 @@ export default function OnboardingInterestsPage() {
     }, [])
   }
 
-  const [selectedPersonality, setSelectedPersonality] = useState<number[]>(
-    draft.interests
-      ?.map((value) => Number(value))
-      .filter((value) => personalityTagOptions.some((option) => option.id === value)) ?? []
-  )
-  const [selectedAppearance, setSelectedAppearance] = useState<number[]>(
-    draft.interests
-      ?.map((value) => Number(value))
-      .filter((value) => appearanceTagOptions.some((option) => option.id === value)) ?? []
-  )
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  useEffect(() => {
+    const loadOptions = async () => {
+      try {
+        const [personalityRes, appearanceRes] = await Promise.all([
+          fetcherWithAuth.get("attribute/personality").json<TagOption[]>(),
+          fetcherWithAuth.get("attribute/appearance").json<TagOption[]>(),
+        ])
+
+        setPersonalityOptions(personalityRes)
+        setAppearanceOptions(appearanceRes)
+      } catch (error) {
+        console.error("[onboarding] failed to load tag options", error)
+        toast.error("태그 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.")
+      }
+    }
+
+    loadOptions()
+  }, [])
+
+  useEffect(() => {
+    if (!draft.interests || personalityOptions.length === 0 || appearanceOptions.length === 0) {
+      return
+    }
+
+    const personalityIds = draft.interests
+      .filter((value) => value.startsWith("personality:"))
+      .map((value) => Number(value.split(":")[1]))
+    const appearanceIds = draft.interests
+      .filter((value) => value.startsWith("appearance:"))
+      .map((value) => Number(value.split(":")[1]))
+
+    setSelectedPersonality(
+      personalityIds.filter((id) => personalityOptions.some((option) => option.id === id))
+    )
+    setSelectedAppearance(
+      appearanceIds.filter((id) => appearanceOptions.some((option) => option.id === id))
+    )
+  }, [draft.interests, personalityOptions, appearanceOptions])
 
   const handleToggle = (category: "personality" | "appearance", id: number) => {
     const [selected, setter] =
@@ -80,8 +117,9 @@ export default function OnboardingInterestsPage() {
       const payload = {
         nickname: draft.nickname,
         hasAgreedToTerms: true,
-        favoritePersonality: selectedPersonality,
-        favoriteAppearance: selectedAppearance,
+        isLivingWithCat: draft.hasCat,
+        favoritePersonalities: selectedPersonality,
+        favoriteAppearances: selectedAppearance,
         phone: null,
         profileImageUrl: draft.catProfile?.imageUrl ?? null,
       }
@@ -95,7 +133,10 @@ export default function OnboardingInterestsPage() {
         throw new Error(errorText || response.statusText)
       }
 
-      const combined = [...selectedPersonality, ...selectedAppearance].map(String)
+      const combined = [
+        ...selectedPersonality.map((id) => `personality:${id}`),
+        ...selectedAppearance.map((id) => `appearance:${id}`),
+      ]
       setInterests(combined)
       router.push("/onboarding/complete")
     } catch (error) {
@@ -108,10 +149,10 @@ export default function OnboardingInterestsPage() {
 
   const hasSelection = selectedPersonality.length + selectedAppearance.length > 0
 
-  const personalityRows = renderRows(personalityTagOptions, 3)
+  const personalityRows = renderRows(personalityOptions, 3)
   const appearanceRows = [
-    appearanceTagOptions.slice(0, 3),
-    ...renderRows(appearanceTagOptions.slice(3), 4),
+    appearanceOptions.slice(0, 3),
+    ...renderRows(appearanceOptions.slice(3), 4),
   ]
 
   return (
