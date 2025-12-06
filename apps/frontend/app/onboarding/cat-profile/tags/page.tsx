@@ -2,24 +2,21 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Chip } from "@/components/ui/chip"
 import { useOnboarding } from "@/components/onboarding/onboarding-context"
 import { fetcherWithAuth } from "@/lib/utils"
-import { TagOption } from "../_libs/schemas"
+import { TagOption } from "../../_libs/schemas"
 
-export default function OnboardingInterestsPage() {
+export default function CatTagsPage() {
   const router = useRouter()
-  const { draft, setInterests } = useOnboarding()
-  const { data: session } = useSession()
+  const { draft, setCatTags } = useOnboarding()
 
   const [personalityOptions, setPersonalityOptions] = useState<TagOption[]>([])
   const [appearanceOptions, setAppearanceOptions] = useState<TagOption[]>([])
   const [selectedPersonality, setSelectedPersonality] = useState<number[]>([])
   const [selectedAppearance, setSelectedAppearance] = useState<number[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const renderRows = (items: ReadonlyArray<TagOption>, chunkSize: number) => {
     return items.reduce<TagOption[][]>((rows, item, index) => {
@@ -50,14 +47,14 @@ export default function OnboardingInterestsPage() {
   }, [])
 
   useEffect(() => {
-    if (!draft.interests || personalityOptions.length === 0 || appearanceOptions.length === 0) {
+    if (!draft.catTags || personalityOptions.length === 0 || appearanceOptions.length === 0) {
       return
     }
 
-    const personalityIds = draft.interests
+    const personalityIds = draft.catTags
       .filter((value) => value.startsWith("personality:"))
       .map((value) => Number(value.split(":")[1]))
-    const appearanceIds = draft.interests
+    const appearanceIds = draft.catTags
       .filter((value) => value.startsWith("appearance:"))
       .map((value) => Number(value.split(":")[1]))
 
@@ -67,7 +64,7 @@ export default function OnboardingInterestsPage() {
     setSelectedAppearance(
       appearanceIds.filter((id) => appearanceOptions.some((option) => option.id === id))
     )
-  }, [draft.interests, personalityOptions, appearanceOptions])
+  }, [draft.catTags, personalityOptions, appearanceOptions])
 
   const handleToggle = (category: "personality" | "appearance", id: number) => {
     const [selected, setter] =
@@ -89,96 +86,13 @@ export default function OnboardingInterestsPage() {
     setter([...selected, id])
   }
 
-  const handleSkip = () => {
-    setInterests([])
-    router.push("/")
-  }
-
-  const convertGender = (gender?: string): "MALE" | "FEMALE" | "UNKNOWN" | undefined => {
-    if (!gender) return undefined
-    switch (gender) {
-      case "male":
-        return "MALE"
-      case "female":
-        return "FEMALE"
-      case "unknown":
-        return "UNKNOWN"
-      default:
-        return undefined
-    }
-  }
-
-  const handleSave = async () => {
-    const hasSelection = selectedPersonality.length + selectedAppearance.length > 0
-    if (!hasSelection) return
-
-    if (!draft.nickname) {
-      toast.error("닉네임 정보를 찾을 수 없어요. 처음 단계부터 다시 진행해주세요.")
-      return
-    }
-
-    if (!session?.idToken) {
-      toast.error("세션 정보가 만료되었어요. 다시 로그인 해주세요.")
-      return
-    }
-
-    setIsSubmitting(true)
-    try {
-      // 1. 회원가입
-      const userPayload = {
-        nickname: draft.nickname,
-        hasAgreedToTerms: true,
-        isLivingWithCat: draft.hasCat,
-        favoritePersonalities: selectedPersonality,
-        favoriteAppearances: selectedAppearance,
-        phone: null,
-        profileImageUrl: null,
-      }
-
-      const userResponse = await fetcherWithAuth.post("user", {
-        json: userPayload,
-      })
-
-      if (!userResponse.ok) {
-        const errorText = await userResponse.text()
-        throw new Error(errorText || userResponse.statusText)
-      }
-
-      // 2. 고양이들 생성
-      if (draft.cats && draft.cats.length > 0) {
-        const catPromises = draft.cats.map((cat) => {
-          const catPayload = {
-            name: cat.name,
-            gender: convertGender(cat.gender),
-            profileImageUrl: cat.imageUrl || null,
-            birthDate: cat.birthDate ? new Date(cat.birthDate) : null,
-            breed: cat.breed || null,
-            personalities: cat.personalities || [],
-            appearances: cat.appearances || [],
-          }
-          return fetcherWithAuth.post("cat", { json: catPayload })
-        })
-
-        const catResponses = await Promise.all(catPromises)
-        const failedCats = catResponses.filter((res) => !res.ok)
-        if (failedCats.length > 0) {
-          console.error("[onboarding] some cats failed to create", failedCats)
-          toast.error("일부 고양이 정보 저장에 실패했어요. 나중에 마이페이지에서 추가해 주세요.")
-        }
-      }
-
-      const combined = [
-        ...selectedPersonality.map((id) => `personality:${id}`),
-        ...selectedAppearance.map((id) => `appearance:${id}`),
-      ]
-      setInterests(combined)
-      router.push("/onboarding/complete")
-    } catch (error) {
-      console.error(error)
-      toast.error("저장에 실패했어요. 잠시 후 다시 시도해 주세요.")
-    } finally {
-      setIsSubmitting(false)
-    }
+  const handleNext = () => {
+    const combined = [
+      ...selectedPersonality.map((id) => `personality:${id}`),
+      ...selectedAppearance.map((id) => `appearance:${id}`),
+    ]
+    setCatTags(combined)
+    router.push("/onboarding/cat-profile/complete")
   }
 
   const hasSelection = selectedPersonality.length + selectedAppearance.length > 0
@@ -192,9 +106,9 @@ export default function OnboardingInterestsPage() {
   return (
     <div className="flex flex-1 flex-col gap-8">
       <p className="text-text-primary mb-3 text-lg leading-7 font-bold">
-        마음이 가는 키워드를 골라주시면
+        고양이의 성격과 외모를
         <br />
-        맞춤 콘텐츠를 추천해 드릴게요!
+        태그로 선택해 주세요!
       </p>
 
       <div className="flex flex-col gap-10">
@@ -245,10 +159,17 @@ export default function OnboardingInterestsPage() {
         </div>
 
         <div className="mt-auto flex flex-col gap-2">
-          <Button className="w-full" disabled={!hasSelection || isSubmitting} onClick={handleSave}>
-            {isSubmitting ? "저장 중..." : "다음으로"}
+          <Button className="w-full" disabled={!hasSelection} onClick={handleNext}>
+            다음으로
           </Button>
-          <Button variant="ghost" className="w-full" onClick={handleSkip}>
+          <Button
+            variant="ghost"
+            className="w-full"
+            onClick={() => {
+              setCatTags([])
+              router.push("/onboarding/cat-profile/complete")
+            }}
+          >
             건너뛰기
           </Button>
         </div>
@@ -256,3 +177,4 @@ export default function OnboardingInterestsPage() {
     </div>
   )
 }
+

@@ -15,6 +15,8 @@ const STEP_MAP: Record<
   "/onboarding/nickname": { step: 1, showProgress: true },
   "/onboarding/has-cat": { step: 2, showProgress: true },
   "/onboarding/cat-profile": { step: 3, showProgress: true },
+  "/onboarding/cat-profile/tags": { step: 4, showProgress: true },
+  "/onboarding/cat-profile/complete": { step: 5, showProgress: true },
   "/onboarding/interests": { step: 6, showProgress: true },
   "/onboarding/complete": { step: 6, showProgress: false },
 }
