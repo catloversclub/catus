@@ -103,6 +103,15 @@ export class CatService {
       maxSizeBytes: 5 * 1024 * 1024,
     })
 
+    await this.prisma.cat.update({
+      where: {
+        id: catId,
+      },
+      data: {
+        profileImageUrl: url,
+      },
+    })
+
     return { url, fields, key: objectKey }
   }
 }
