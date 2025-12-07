@@ -8,13 +8,14 @@ datasource db {
 }
 
 model User {
-  id               String  @id @default(uuid(7))
-  kakaoId          String  @unique @map("kakao_id")
-  nickname         String  @unique
-  isLivingWithCat  Boolean @default(false) @map("is_living_with_cat")
-  hasAgreedToTerms Boolean @default(false) @map("has_agreed_to_term")
+  id               String   @id @default(uuid(7))
+  kakaoId          String   @unique @map("kakao_id")
+  nickname         String   @unique
+  isLivingWithCat  Boolean  @default(false) @map("is_living_with_cat")
+  hasAgreedToTerms Boolean  @default(false) @map("has_agreed_to_term")
   phone            String?
-  profileImageUrl  String? @map("profile_image_url")
+  profileImageUrl  String?  @map("profile_image_url")
+  createdAt        DateTime @default(now())
 
   cats                  Cat[]
   favoriteAppearances   Appearance[]
@@ -37,8 +38,9 @@ model Cat {
   birthDate       DateTime? @map("birth_date") @db.Date
   breed           String?
   type            Int?
+  createdAt       DateTime  @default(now())
 
-  butler        User          @relation(fields: [butlerId], references: [id])
+  butler        User          @relation(fields: [butlerId], references: [id], onDelete: Cascade)
   butlerId      String
   appearances   Appearance[]
   personalities Personality[]

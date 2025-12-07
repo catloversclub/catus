@@ -1,0 +1,11 @@
+-- DropForeignKey
+ALTER TABLE "public"."cat" DROP CONSTRAINT "cat_butlerId_fkey";
+
+-- AlterTable
+ALTER TABLE "cat" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "user" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AddForeignKey
+ALTER TABLE "cat" ADD CONSTRAINT "cat_butlerId_fkey" FOREIGN KEY ("butlerId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
