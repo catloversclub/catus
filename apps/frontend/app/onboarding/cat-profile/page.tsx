@@ -30,7 +30,6 @@ export default function CatProfilePage() {
   const router = useRouter()
   const { setCatProfile, draft } = useOnboarding()
   const [datePickerOpen, setDatePickerOpen] = useState(false)
-  const [_imageFile, setImageFile] = useState<File | null>(null)
 
   const {
     register,
@@ -54,6 +53,7 @@ export default function CatProfilePage() {
   const gender = watch("gender")
   const birthDate = watch("birthDate")
   const breed = watch("breed")
+  const imageUrl = watch("imageUrl")
 
   useEffect(() => {
     const currentProfile = {
@@ -61,13 +61,13 @@ export default function CatProfilePage() {
       gender: gender || undefined,
       birthDate: birthDate || undefined,
       breed: breed || undefined,
-      imageUrl: draft.catProfile?.imageUrl,
+      imageUrl: imageUrl || undefined,
     }
 
     if (JSON.stringify(currentProfile) !== JSON.stringify(draft.catProfile)) {
       setCatProfile(currentProfile)
     }
-  }, [name, gender, birthDate, breed, setCatProfile, draft.catProfile])
+  }, [name, gender, birthDate, breed, imageUrl, setCatProfile, draft.catProfile])
 
   const onSubmit = (data: CatProfileFormData) => {
     router.push("/onboarding/cat-profile/tags")
@@ -85,13 +85,21 @@ export default function CatProfilePage() {
     setValue("breed", selectedBreed || undefined, { shouldValidate: false })
   }
 
-  const handleImageChange = (file: File | null, previewUrl?: string) => {
-    setImageFile(file)
-    // TODO: 실제 이미지 업로드 로직 구현
-    if (previewUrl) {
-      setValue("imageUrl", previewUrl, { shouldValidate: false })
+  const handleImageChange = (previewUrl?: string) => {
+    const newImageUrl = previewUrl
+
+    if (newImageUrl) {
+      setValue("imageUrl", newImageUrl, { shouldValidate: false })
+      setCatProfile({
+        ...draft.catProfile,
+        imageUrl: newImageUrl,
+      })
     } else {
       setValue("imageUrl", undefined, { shouldValidate: false })
+      setCatProfile({
+        ...draft.catProfile,
+        imageUrl: undefined,
+      })
     }
   }
 
@@ -115,7 +123,7 @@ export default function CatProfilePage() {
       </p>
 
       <div className="flex flex-1 flex-col gap-10">
-        <CatImageUpload value={draft.catProfile?.imageUrl} onChange={handleImageChange} />
+        <CatImageUpload value={draft.catProfile?.imageUrl} onChange={(_, previewUrl) => handleImageChange(previewUrl)} />
 
         <div>
           <label className="text-foreground block text-xs font-normal">이름</label>
