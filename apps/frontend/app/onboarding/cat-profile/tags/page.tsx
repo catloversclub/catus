@@ -4,8 +4,8 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Chip } from "@/components/ui/chip"
 import { useOnboarding } from "@/components/onboarding/onboarding-context"
-import { useTagOptions } from "@/hooks/use-tag-options"
-import { useTagSelection } from "@/hooks/use-tag-selection"
+import { useTagOptions } from "@/app/onboarding/_hooks/use-tag-options"
+import { useTagSelection } from "@/app/onboarding/_hooks/use-tag-selection"
 import { renderTagRows } from "@/app/onboarding/_libs/utils"
 
 export default function CatTagsPage() {

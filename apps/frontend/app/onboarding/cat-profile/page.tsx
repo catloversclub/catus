@@ -10,6 +10,7 @@ import { Chip } from "@/components/ui/chip"
 import { useRouter } from "next/navigation"
 import { useOnboarding } from "@/components/onboarding/onboarding-context"
 import { catGenderOptions, catProfileSchema, type CatGender } from "../_libs/schemas"
+import { formatDate } from "../_libs/utils"
 import { CatImageUpload } from "@/components/onboarding/cat-image-upload"
 import { DatePickerSheet } from "@/components/onboarding/date-picker-sheet"
 import { BreedAutocomplete } from "@/components/onboarding/breed-autocomplete"
@@ -103,11 +104,6 @@ export default function CatProfilePage() {
     }
   }
 
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "생년월일 선택"
-    const [year, month, day] = dateStr.split("-")
-    return `${year}년 ${parseInt(month)}월 ${parseInt(day)}일`
-  }
 
   const isFormValid = isValid && name && gender
 
@@ -161,7 +157,7 @@ export default function CatProfilePage() {
             onClick={() => setDatePickerOpen(true)}
             className="bg-background-secondary text-foreground h-12 w-full rounded px-3 text-left transition-colors"
           >
-            {formatDate(birthDate)}
+            {formatDate(birthDate, "생년월일 선택")}
           </button>
           <DatePickerSheet
             open={datePickerOpen}
