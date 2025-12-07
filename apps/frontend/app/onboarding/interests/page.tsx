@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Chip } from "@/components/ui/chip"
 import { useOnboarding } from "@/components/onboarding/onboarding-context"
 import { fetcherWithAuth } from "@/lib/utils"
-import { uploadCatImage } from "@/lib/image-upload"
+import { completeOnboarding } from "@/lib/onboarding/complete-onboarding"
 import { TagOption } from "../_libs/schemas"
 
 export default function OnboardingInterestsPage() {
@@ -95,20 +95,6 @@ export default function OnboardingInterestsPage() {
     router.push("/")
   }
 
-  const convertGender = (gender?: string): "MALE" | "FEMALE" | "UNKNOWN" | undefined => {
-    if (!gender) return undefined
-    switch (gender) {
-      case "male":
-        return "MALE"
-      case "female":
-        return "FEMALE"
-      case "unknown":
-        return "UNKNOWN"
-      default:
-        return undefined
-    }
-  }
-
   const handleSave = async () => {
     const hasSelection = selectedPersonality.length + selectedAppearance.length > 0
     if (!hasSelection) return
@@ -125,96 +111,16 @@ export default function OnboardingInterestsPage() {
 
     setIsSubmitting(true)
     try {
-      // 1. 회원가입
-      const userPayload = {
+      const result = await completeOnboarding({
         nickname: draft.nickname,
-        hasAgreedToTerms: true,
-        isLivingWithCat: draft.hasCat,
+        hasCat: draft.hasCat ?? false,
         favoritePersonalities: selectedPersonality,
         favoriteAppearances: selectedAppearance,
-        phone: null,
-        profileImageUrl: null,
-      }
-
-      const userResponse = await fetcherWithAuth.post("user", {
-        json: userPayload,
+        cats: draft.cats || [],
       })
 
-      if (!userResponse.ok) {
-        const errorText = await userResponse.text()
-        throw new Error(errorText || userResponse.statusText)
-      }
-
-      // 2. 고양이들 생성 (이미지 없이)
-      if (draft.cats && draft.cats.length > 0) {
-        const catPromises = draft.cats.map((cat) => {
-          const catPayload = {
-            name: cat.name,
-            gender: convertGender(cat.gender),
-            profileImageUrl: null, // 이미지는 나중에 업로드
-            birthDate: cat.birthDate ? new Date(cat.birthDate) : null,
-            breed: cat.breed || null,
-            personalities: cat.personalities || [],
-            appearances: cat.appearances || [],
-          }
-          return fetcherWithAuth.post("cat", { json: catPayload })
-        })
-
-        const catResponses = await Promise.all(catPromises)
-
-        const catWithOriginal = await Promise.all(
-          catResponses.map(async (res, index) => {
-            if (res.ok) {
-              const createdCat = await res.json<{ id: string }>()
-              return { createdCat, originalCat: draft.cats![index] }
-            }
-            return null
-          })
-        )
-
-        const validCats = catWithOriginal.filter((item): item is NonNullable<typeof item> => item !== null)
-
-        // 3. 각 고양이의 이미지 업로드 및 업데이트
-        if (validCats.length > 0) {
-          const imageUploadPromises = validCats.map(async ({ createdCat, originalCat }) => {
-            if (originalCat.imageUrl && originalCat.imageUrl.startsWith("data:")) {
-              try {
-                const base64Data = originalCat.imageUrl.split(",")[1]
-                const mimeType = originalCat.imageUrl.match(/data:([^;]+);/)?.[1] || "image/jpeg"
-                const byteCharacters = atob(base64Data)
-                const byteNumbers = new Array(byteCharacters.length)
-                for (let i = 0; i < byteCharacters.length; i++) {
-                  byteNumbers[i] = byteCharacters.charCodeAt(i)
-                }
-                const byteArray = new Uint8Array(byteNumbers)
-                const blob = new Blob([byteArray], { type: mimeType })
-                const file = new File([blob], `cat-${createdCat.id}.${mimeType.split("/")[1] || "jpg"}`, {
-                  type: mimeType,
-                })
-
-                const uploadedUrl = await uploadCatImage(createdCat.id, file)
-
-                const updateResponse = await fetcherWithAuth.patch(`cat/${createdCat.id}`, {
-                  json: { profileImageUrl: uploadedUrl },
-                })
-                if (!updateResponse.ok) {
-                  const errorText = await updateResponse.text()
-                  throw new Error(errorText || updateResponse.statusText)
-                }
-              } catch (error) {
-                console.error("[onboarding] failed to upload image for cat:", createdCat.id, error)
-              }
-            } else {
-            }
-          })
-
-          await Promise.all(imageUploadPromises)
-        }
-
-        const failedCats = catResponses.filter((res) => !res.ok)
-        if (failedCats.length > 0) {
-          toast.error("일부 고양이 정보 저장에 실패했어요. 나중에 마이페이지에서 추가해 주세요.")
-        }
+      if (result.failedCatCount && result.failedCatCount > 0) {
+        toast.error("일부 고양이 정보 저장에 실패했어요. 나중에 마이페이지에서 추가해 주세요.")
       }
 
       const combined = [
