@@ -25,15 +25,32 @@ export function formatGender(gender?: string): string {
   }
 }
 
+interface FormatDateOptions {
+  dateStr?: string
+  fallback?: string | null
+  format?: "korean" | "iso"
+}
+
 /**
- * 날짜 문자열을 한글 형식으로 포맷팅합니다.
- * @param dateStr - YYYY-MM-DD 형식의 날짜 문자열
- * @param fallback - 날짜가 없을 때 반환할 기본값 (기본값: null)
+ * 날짜 문자열을 포맷팅합니다.
+ * @param options - 포맷팅 옵션
+ * @param options.dateStr - YYYY-MM-DD 형식의 날짜 문자열
+ * @param options.fallback - 날짜가 없을 때 반환할 기본값 (기본값: null)
+ * @param options.format - 포맷 형식 ("korean" | "iso"), 기본값: "korean"
  * @returns 포맷팅된 날짜 문자열 또는 fallback 값
  */
-export function formatDate(dateStr?: string, fallback: string | null = null): string | null {
+export function formatDate({
+  dateStr,
+  fallback = null,
+  format = "korean",
+}: FormatDateOptions): string | null {
   if (!dateStr) return fallback
   const [year, month, day] = dateStr.split("-")
+  
+  if (format === "iso") {
+    return dateStr // 이미 YYYY-MM-DD 형식이므로 그대로 반환
+  }
+  
   return `${year}년 ${parseInt(month)}월 ${parseInt(day)}일`
 }
 

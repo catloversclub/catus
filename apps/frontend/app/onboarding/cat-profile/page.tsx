@@ -157,7 +157,7 @@ export default function CatProfilePage() {
             onClick={() => setDatePickerOpen(true)}
             className="bg-background-secondary text-foreground h-12 w-full rounded px-3 text-left transition-colors"
           >
-            {formatDate(birthDate, "생년월일 선택")}
+            {formatDate({ dateStr: birthDate, fallback: "생년월일 선택" })}
           </button>
           <DatePickerSheet
             open={datePickerOpen}

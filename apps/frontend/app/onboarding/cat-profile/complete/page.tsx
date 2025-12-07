@@ -96,7 +96,7 @@ function CatCard({ cat, index }: CatCardProps) {
   }
 
   const infoItems = [
-    cat.birthDate && formatDate(cat.birthDate),
+    cat.birthDate && formatDate({ dateStr: cat.birthDate, format: "iso" }),
     cat.breed,
     cat.gender && formatGender(cat.gender),
   ].filter(Boolean)
