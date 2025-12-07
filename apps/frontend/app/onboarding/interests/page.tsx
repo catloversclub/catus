@@ -7,7 +7,7 @@ import { useOnboarding } from "@/components/onboarding/onboarding-context"
 import { useTagOptions } from "@/hooks/use-tag-options"
 import { useTagSelection } from "@/hooks/use-tag-selection"
 import { useCompleteOnboarding } from "@/hooks/use-complete-onboarding"
-import { renderTagRows } from "@/lib/utils/tag-rows"
+import { renderTagRows } from "@/app/onboarding/_libs/utils"
 
 export default function OnboardingInterestsPage() {
   const router = useRouter()
