@@ -1,4 +1,4 @@
-import { fetcherWithAuth } from "../utils"
+import { fetcherWithAuth } from "../../../lib/utils"
 
 export interface RegisterUserPayload {
   nickname: string
