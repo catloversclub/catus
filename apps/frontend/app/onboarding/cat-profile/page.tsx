@@ -27,6 +27,7 @@ import {
 type CatProfileFormData = v.InferInput<typeof catProfileSchema>
 
 export default function CatProfilePage() {
+  const router = useRouter()
   const { setCatProfile, draft } = useOnboarding()
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const [_imageFile, setImageFile] = useState<File | null>(null)
@@ -69,8 +70,7 @@ export default function CatProfilePage() {
   }, [name, gender, birthDate, breed, setCatProfile, draft.catProfile])
 
   const onSubmit = (data: CatProfileFormData) => {
-    console.log(data)
-    // TODO: 다음 단계로 이동
+    router.push("/onboarding/cat-profile/tags")
   }
 
   const handleGenderSelect = (selectedGender: CatGender) => {
