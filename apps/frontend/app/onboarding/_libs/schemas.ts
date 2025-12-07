@@ -27,39 +27,6 @@ export const catGenderOptions = [
   { value: "unknown" as CatGender, label: "선택 안 함" },
 ] as const
 
-export const personalityTagOptions = [
-  { id: 1, label: "애교쟁이 💕" },
-  { id: 2, label: "수다쟁이 💨" },
-  { id: 3, label: "순둥이 🧸" },
-  { id: 4, label: "차분 🌿" },
-  { id: 5, label: "소심 ☔" },
-  { id: 6, label: "겁쟁이 🥺" },
-  { id: 7, label: "예민 🔥" },
-  { id: 8, label: "츤데레 😤" },
-  { id: 9, label: "도도 ✨" },
-  { id: 10, label: "장난꾸러기 😜 " },
-  { id: 11, label: "먹보 🍩" },
-  { id: 12, label: "똑쟁이 📖" },
-] as const
-
-export const appearanceTagOptions = [
-  { id: 1, label: "단모" },
-  { id: 2, label: "중장모" },
-  { id: 3, label: "장모" },
-  { id: 4, label: "치즈 🧀" },
-  { id: 5, label: "삼색이 🌈" },
-  { id: 6, label: "고등어 🐟" },
-  { id: 7, label: "턱시도 👔" },
-  { id: 8, label: "올블랙 🖤" },
-  { id: 9, label: "올화이트 🤍" },
-  { id: 10, label: "카오스 🍪" },
-  { id: 11, label: "젖소 🐄" },
-  { id: 12, label: "블루 💙" },
-  { id: 13, label: "초콜릿 🍫" },
-  { id: 14, label: "라일락 🩶" },
-  { id: 15, label: "시나몬 🤎" },
-] as const
-
 export const catProfileSchema = v.object({
   name: v.pipe(
     v.string(),

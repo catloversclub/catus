@@ -1,11 +1,18 @@
 "use client"
 
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { useState, useRef, useEffect } from "react"
 import { CommentItem } from "./comment-item"
+import { MessageCircle } from "lucide-react"
 
 interface Comment {
   id: string
@@ -19,13 +26,12 @@ interface Comment {
 }
 
 interface CommentDrawerProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
   comments: Comment[]
+  onComment: () => void
   totalComments: number
 }
 
-export function CommentDrawer({ open, onOpenChange, comments, totalComments }: CommentDrawerProps) {
+export function CommentDrawer({ comments, totalComments, onComment }: CommentDrawerProps) {
   const [commentText, setCommentText] = useState("")
   const [replyingTo, setReplyingTo] = useState<{ id: string; author: string } | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -52,7 +58,18 @@ export function CommentDrawer({ open, onOpenChange, comments, totalComments }: C
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
+    <Drawer>
+      <DrawerTrigger asChild>
+        <Button
+          variant="ghost"
+          className="px-2 py-3"
+          onClick={(event) => {
+            event.stopPropagation()
+          }}
+        >
+          <MessageCircle className="text-icon-tertiary size-5" />
+        </Button>
+      </DrawerTrigger>
       <DrawerContent className="max-h-[90vh]">
         <DrawerHeader>
           <DrawerTitle className="text-text-secondary text-center text-base">
