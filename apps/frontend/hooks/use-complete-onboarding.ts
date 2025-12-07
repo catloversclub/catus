@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
-import { completeOnboarding } from "@/lib/onboarding/complete-onboarding"
+import { completeOnboarding } from "@/app/onboarding/_libs/complete-onboarding"
 import { useOnboarding } from "@/components/onboarding/onboarding-context"
 
 export function useCompleteOnboarding() {

@@ -1,5 +1,5 @@
-import { fetcherWithAuth } from "../utils"
-import { uploadCatImage } from "../image-upload"
+import { fetcherWithAuth } from "../../../lib/utils"
+import { uploadCatImage } from "../../../lib/image-upload"
 import type { CatCreationResult } from "./create-cats"
 
 function base64ToFile(base64Url: string, catId: string): File {

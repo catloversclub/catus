@@ -1,4 +1,4 @@
-import { fetcherWithAuth } from "../utils"
+import { fetcherWithAuth } from "../../../lib/utils"
 import type { CatData } from "@/components/onboarding/onboarding-context"
 
 export interface CreateCatPayload {
