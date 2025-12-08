@@ -5,9 +5,10 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { CatData, useOnboarding } from "@/components/onboarding/onboarding-context"
-import { formatGender, formatDate } from "../../_libs/utils"
+import { formatDate } from "../../_libs/utils"
 import { useAddCurrentCat } from "../../_hooks/use-add-current-cat"
 import catAvatar from "@/public/cat-avatar.svg"
+import { IoIosAddCircle } from "react-icons/io"
 
 export default function CatProfileCompletePage() {
   const router = useRouter()
@@ -28,18 +29,22 @@ export default function CatProfileCompletePage() {
 
   return (
     <div className="flex flex-1 flex-col gap-8">
-      <div className="flex flex-1 flex-col gap-6">
-        <p className="text-text-primary text-lg leading-7 font-bold">
+      <div className="flex flex-1 flex-col">
+        <p className="text-text-primary mb-10 text-lg leading-7 font-bold">
           고양이 정보 입력이 완료되었어요!
         </p>
         <CatList cats={allCats} />
+        <Button
+          className="mt-1.5 w-full gap-1.5 text-sm font-normal"
+          variant="ghost"
+          onClick={handleAddAnother}
+        >
+          <IoIosAddCircle className="text-icon-tertiary" />더 추가하기
+        </Button>
       </div>
 
       <div className="mt-auto flex flex-col gap-2">
-        <Button className="w-full" onClick={handleAddAnother}>
-          고양이 더 추가하기
-        </Button>
-        <Button variant="ghost" className="w-full" onClick={handleNext}>
+        <Button className="w-full" onClick={handleNext}>
           다음으로
         </Button>
       </div>
@@ -55,7 +60,7 @@ function CatList({ cats }: CatListProps) {
   if (cats.length === 0) return null
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-1.5">
       {cats.map((cat, index) => (
         <CatCard
           key={`${cat.name}-${cat.birthDate || ""}-${cat.breed || ""}-${index}`}
@@ -144,7 +149,12 @@ function CatCard({ cat, index }: CatCardProps) {
                 </React.Fragment>
               ))}
               {genderIcon && (
-                <Image src={genderIcon} alt={cat.gender === "male" ? "남자" : "여자"} width={16} height={16} />
+                <Image
+                  src={genderIcon}
+                  alt={cat.gender === "male" ? "남자" : "여자"}
+                  width={16}
+                  height={16}
+                />
               )}
             </div>
           )}
