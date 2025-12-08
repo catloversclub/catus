@@ -15,11 +15,15 @@ model User {
   hasAgreedToTerms Boolean  @default(false) @map("has_agreed_to_term")
   phone            String?
   profileImageUrl  String?  @map("profile_image_url")
-  createdAt        DateTime @default(now())
+  createdAt        DateTime @default(now()) @map("created_at")
 
   cats                  Cat[]
   favoriteAppearances   Appearance[]
   favoritePersonalities Personality[]
+  posts                 Post[]
+  comments              Comment[]
+  postLikes             PostLike[]
+  commentLikes           CommentLike[]
 
   @@map("user")
 }
@@ -38,12 +42,13 @@ model Cat {
   birthDate       DateTime? @map("birth_date") @db.Date
   breed           String?
   type            Int?
-  createdAt       DateTime  @default(now())
+  createdAt       DateTime  @default(now()) @map("created_at")
 
   butler        User          @relation(fields: [butlerId], references: [id], onDelete: Cascade)
   butlerId      String
   appearances   Appearance[]
   personalities Personality[]
+  posts         Post[]
 
   @@map("cat")
 }
@@ -66,4 +71,80 @@ model Personality {
   cats  Cat[]
 
   @@map("personality")
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  content   String?
+  createdAt DateTime @default(now()) @map("created_at")
+  likeCount Int      @default(0) @map("like_count")
+
+  butlerId String  @map("butler_id")
+  user     User    @relation(fields: [butlerId], references: [id], onDelete: Cascade)
+  catId    String? @map("cat_id")
+  cat      Cat?    @relation(fields: [catId], references: [id], onDelete: SetNull)
+
+  images   PostImage[]
+  comments Comment[]
+  likes    PostLike[]
+
+  @@map("post")
+}
+
+model PostImage {
+  id    Int    @id @default(autoincrement())
+  url   String
+  order Int
+
+  postId Int  @map("post_id")
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("post_image")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  likeCount Int      @default(0) @map("like_count")
+
+  postId   Int    @map("post_id")
+  post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId String @map("author_id")
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  parentId    Int?          @map("parent_id")
+  parent      Comment?      @relation("CommentToComment", fields: [parentId], references: [id], onDelete: Cascade)
+  replies     Comment[]     @relation("CommentToComment")
+  commentLikes CommentLike[]
+
+  @@map("comment")
+}
+
+model PostLike {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  postId Int  @map("post_id")
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@map("post_like")
+}
+
+model CommentLike {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now()) @map("created_at")
+
+  commentId Int     @map("comment_id")
+  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+
+  userId String @map("user_id")
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([commentId, userId])
+  @@map("comment_like")
 }
