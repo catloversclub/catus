@@ -17,6 +17,13 @@ export default function CatProfileCompletePage() {
 
   const allCats = draft.cats || []
 
+  const lastCatName =
+    draft.catProfile?.name ||
+    (draft.editingCatIndex !== undefined && draft.editingCatIndex >= 0
+      ? allCats[draft.editingCatIndex]?.name
+      : allCats[allCats.length - 1]?.name) ||
+    "고양이"
+
   const handleAddAnother = () => {
     resetCurrentCat()
     router.push("/onboarding/cat-profile")
@@ -31,7 +38,7 @@ export default function CatProfileCompletePage() {
     <div className="flex flex-1 flex-col gap-8">
       <div className="flex flex-1 flex-col">
         <p className="text-text-primary mb-10 text-lg leading-7 font-bold">
-          고양이 정보 입력이 완료되었어요!
+          {lastCatName}의 프로필이 완성되었어요!
         </p>
         <CatList cats={allCats} />
         <Button
