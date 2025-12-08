@@ -9,7 +9,8 @@ export type CatData = {
   gender?: CatGender
   birthDate?: string
   breed?: string
-  imageUrl?: string
+  imageUrl?: string // preview URL (base64)
+  imageFile?: File // 실제 업로드할 파일 (온보딩 단계에서 저장)
   personalities?: number[]
   appearances?: number[]
 }

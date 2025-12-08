@@ -1,6 +1,5 @@
 "use client"
 
-import Image from "next/image"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export function FeedHeader() {

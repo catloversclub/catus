@@ -1,5 +1,4 @@
 import { BottomNav } from "@/components/feed/bottom-nav"
-import { FeedHeader } from "@/components/feed/feed-header"
 
 export default function MainLayout({
   children,
@@ -8,9 +7,7 @@ export default function MainLayout({
 }>) {
   return (
     <div className="min-h-screen">
-      <FeedHeader />
-      <main className="pt-[88px]">{children}</main>
-      <BottomNav />
+      <main>{children}</main>
     </div>
   )
 }

@@ -1,192 +1,47 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
-import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Chip } from "@/components/ui/chip"
 import { useOnboarding } from "@/components/onboarding/onboarding-context"
-import { fetcherWithAuth } from "@/lib/utils"
-import { TagOption } from "../_libs/schemas"
+import { useTagOptions } from "@/hooks/use-tag-options"
+import { useTagSelection } from "@/hooks/use-tag-selection"
+import { useCompleteOnboarding } from "@/hooks/use-complete-onboarding"
+import { renderTagRows } from "@/app/onboarding/_libs/utils"
 
 export default function OnboardingInterestsPage() {
   const router = useRouter()
   const { draft, setInterests } = useOnboarding()
-  const { data: session } = useSession()
-
-  const [personalityOptions, setPersonalityOptions] = useState<TagOption[]>([])
-  const [appearanceOptions, setAppearanceOptions] = useState<TagOption[]>([])
-  const [selectedPersonality, setSelectedPersonality] = useState<number[]>([])
-  const [selectedAppearance, setSelectedAppearance] = useState<number[]>([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  const renderRows = (items: ReadonlyArray<TagOption>, chunkSize: number) => {
-    return items.reduce<TagOption[][]>((rows, item, index) => {
-      const rowIndex = Math.floor(index / chunkSize)
-      if (!rows[rowIndex]) rows[rowIndex] = []
-      rows[rowIndex]!.push(item)
-      return rows
-    }, [])
-  }
-
-  useEffect(() => {
-    const loadOptions = async () => {
-      try {
-        const [personalityRes, appearanceRes] = await Promise.all([
-          fetcherWithAuth.get("attribute/personality").json<TagOption[]>(),
-          fetcherWithAuth.get("attribute/appearance").json<TagOption[]>(),
-        ])
-
-        setPersonalityOptions(personalityRes)
-        setAppearanceOptions(appearanceRes)
-      } catch (error) {
-        console.error("[onboarding] failed to load tag options", error)
-        toast.error("태그 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.")
-      }
-    }
-
-    loadOptions()
-  }, [])
-
-  useEffect(() => {
-    if (!draft.interests || personalityOptions.length === 0 || appearanceOptions.length === 0) {
-      return
-    }
-
-    const personalityIds = draft.interests
-      .filter((value) => value.startsWith("personality:"))
-      .map((value) => Number(value.split(":")[1]))
-    const appearanceIds = draft.interests
-      .filter((value) => value.startsWith("appearance:"))
-      .map((value) => Number(value.split(":")[1]))
-
-    setSelectedPersonality(
-      personalityIds.filter((id) => personalityOptions.some((option) => option.id === id))
-    )
-    setSelectedAppearance(
-      appearanceIds.filter((id) => appearanceOptions.some((option) => option.id === id))
-    )
-  }, [draft.interests, personalityOptions, appearanceOptions])
-
-  const handleToggle = (category: "personality" | "appearance", id: number) => {
-    const [selected, setter] =
-      category === "personality"
-        ? [selectedPersonality, setSelectedPersonality]
-        : [selectedAppearance, setSelectedAppearance]
-
-    const isSelected = selected.includes(id)
-    if (isSelected) {
-      setter(selected.filter((value) => value !== id))
-      return
-    }
-
-    if (selected.length >= 2) {
-      toast("최대 2개까지 선택할 수 있어요.")
-      return
-    }
-
-    setter([...selected, id])
-  }
+  const { personalityOptions, appearanceOptions } = useTagOptions()
+  const {
+    selectedPersonality,
+    selectedAppearance,
+    toggleTag,
+    hasSelection,
+  } = useTagSelection({
+    savedInterests: draft.interests,
+    personalityOptions,
+    appearanceOptions,
+  })
+  const { submit, isSubmitting } = useCompleteOnboarding()
 
   const handleSkip = () => {
     setInterests([])
     router.push("/")
   }
 
-  const convertGender = (gender?: string): "MALE" | "FEMALE" | "UNKNOWN" | undefined => {
-    if (!gender) return undefined
-    switch (gender) {
-      case "male":
-        return "MALE"
-      case "female":
-        return "FEMALE"
-      case "unknown":
-        return "UNKNOWN"
-      default:
-        return undefined
-    }
-  }
-
   const handleSave = async () => {
-    const hasSelection = selectedPersonality.length + selectedAppearance.length > 0
     if (!hasSelection) return
-
-    if (!draft.nickname) {
-      toast.error("닉네임 정보를 찾을 수 없어요. 처음 단계부터 다시 진행해주세요.")
-      return
-    }
-
-    if (!session?.idToken) {
-      toast.error("세션 정보가 만료되었어요. 다시 로그인 해주세요.")
-      return
-    }
-
-    setIsSubmitting(true)
-    try {
-      // 1. 회원가입
-      const userPayload = {
-        nickname: draft.nickname,
-        hasAgreedToTerms: true,
-        isLivingWithCat: draft.hasCat,
-        favoritePersonalities: selectedPersonality,
-        favoriteAppearances: selectedAppearance,
-        phone: null,
-        profileImageUrl: null,
-      }
-
-      const userResponse = await fetcherWithAuth.post("user", {
-        json: userPayload,
-      })
-
-      if (!userResponse.ok) {
-        const errorText = await userResponse.text()
-        throw new Error(errorText || userResponse.statusText)
-      }
-
-      // 2. 고양이들 생성
-      if (draft.cats && draft.cats.length > 0) {
-        const catPromises = draft.cats.map((cat) => {
-          const catPayload = {
-            name: cat.name,
-            gender: convertGender(cat.gender),
-            profileImageUrl: cat.imageUrl || null,
-            birthDate: cat.birthDate ? new Date(cat.birthDate) : null,
-            breed: cat.breed || null,
-            personalities: cat.personalities || [],
-            appearances: cat.appearances || [],
-          }
-          return fetcherWithAuth.post("cat", { json: catPayload })
-        })
-
-        const catResponses = await Promise.all(catPromises)
-        const failedCats = catResponses.filter((res) => !res.ok)
-        if (failedCats.length > 0) {
-          console.error("[onboarding] some cats failed to create", failedCats)
-          toast.error("일부 고양이 정보 저장에 실패했어요. 나중에 마이페이지에서 추가해 주세요.")
-        }
-      }
-
-      const combined = [
-        ...selectedPersonality.map((id) => `personality:${id}`),
-        ...selectedAppearance.map((id) => `appearance:${id}`),
-      ]
-      setInterests(combined)
-      router.push("/onboarding/complete")
-    } catch (error) {
-      console.error(error)
-      toast.error("저장에 실패했어요. 잠시 후 다시 시도해 주세요.")
-    } finally {
-      setIsSubmitting(false)
-    }
+    await submit({
+      favoritePersonalities: selectedPersonality,
+      favoriteAppearances: selectedAppearance,
+    })
   }
 
-  const hasSelection = selectedPersonality.length + selectedAppearance.length > 0
-
-  const personalityRows = renderRows(personalityOptions, 3)
+  const personalityRows = renderTagRows(personalityOptions, 3)
   const appearanceRows = [
     appearanceOptions.slice(0, 3),
-    ...renderRows(appearanceOptions.slice(3), 4),
+    ...renderTagRows(appearanceOptions.slice(3), 4),
   ]
 
   return (
@@ -210,7 +65,7 @@ export default function OnboardingInterestsPage() {
                   <Chip
                     key={id}
                     variant={selectedPersonality.includes(id) ? "selected" : "default"}
-                    onClick={() => handleToggle("personality", id)}
+                    onClick={() => toggleTag("personality", id)}
                     size="sm"
                   >
                     {label}
@@ -233,7 +88,7 @@ export default function OnboardingInterestsPage() {
                   <Chip
                     key={id}
                     variant={selectedAppearance.includes(id) ? "selected" : "default"}
-                    onClick={() => handleToggle("appearance", id)}
+                    onClick={() => toggleTag("appearance", id)}
                     size="sm"
                   >
                     {label}
