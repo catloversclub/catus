@@ -6,36 +6,28 @@ import { Chip } from "@/components/ui/chip"
 import { useOnboarding } from "@/components/onboarding/onboarding-context"
 import { useTagOptions } from "@/hooks/use-tag-options"
 import { useTagSelection } from "@/hooks/use-tag-selection"
-import { useCompleteOnboarding } from "@/hooks/use-complete-onboarding"
 import { renderTagRows } from "@/app/onboarding/_libs/utils"
 
-export default function OnboardingInterestsPage() {
+export default function CatTagsPage() {
   const router = useRouter()
-  const { draft, setInterests } = useOnboarding()
+  const { draft, setCatTags } = useOnboarding()
+
   const { personalityOptions, appearanceOptions } = useTagOptions()
   const {
     selectedPersonality,
     selectedAppearance,
     toggleTag,
     hasSelection,
+    toInterestStrings,
   } = useTagSelection({
-    savedInterests: draft.interests,
+    savedInterests: draft.catTags,
     personalityOptions,
     appearanceOptions,
   })
-  const { submit, isSubmitting } = useCompleteOnboarding()
 
-  const handleSkip = () => {
-    setInterests([])
-    router.push("/")
-  }
-
-  const handleSave = async () => {
-    if (!hasSelection) return
-    await submit({
-      favoritePersonalities: selectedPersonality,
-      favoriteAppearances: selectedAppearance,
-    })
+  const handleNext = () => {
+    setCatTags(toInterestStrings())
+    router.push("/onboarding/cat-profile/complete")
   }
 
   const personalityRows = renderTagRows(personalityOptions, 3)
@@ -47,9 +39,9 @@ export default function OnboardingInterestsPage() {
   return (
     <div className="flex flex-1 flex-col gap-8">
       <p className="text-text-primary mb-3 text-lg leading-7 font-bold">
-        마음이 가는 키워드를 골라주시면
+        고양이의 성격과 외모를
         <br />
-        맞춤 콘텐츠를 추천해 드릴게요!
+        태그로 선택해 주세요!
       </p>
 
       <div className="flex flex-col gap-10">
@@ -100,10 +92,17 @@ export default function OnboardingInterestsPage() {
         </div>
 
         <div className="mt-auto flex flex-col gap-2">
-          <Button className="w-full" disabled={!hasSelection || isSubmitting} onClick={handleSave}>
-            {isSubmitting ? "저장 중..." : "다음으로"}
+          <Button className="w-full" disabled={!hasSelection} onClick={handleNext}>
+            다음으로
           </Button>
-          <Button variant="ghost" className="w-full" onClick={handleSkip}>
+          <Button
+            variant="ghost"
+            className="w-full"
+            onClick={() => {
+              setCatTags([])
+              router.push("/onboarding/cat-profile/complete")
+            }}
+          >
             건너뛰기
           </Button>
         </div>
@@ -111,3 +110,4 @@ export default function OnboardingInterestsPage() {
     </div>
   )
 }
+
