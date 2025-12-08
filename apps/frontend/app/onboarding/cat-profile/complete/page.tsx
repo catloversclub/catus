@@ -99,8 +99,10 @@ function CatCard({ cat, index }: CatCardProps) {
   const infoItems = [
     cat.birthDate && formatDate({ dateStr: cat.birthDate, format: "iso" }),
     cat.breed,
-    cat.gender && formatGender(cat.gender),
   ].filter(Boolean)
+
+  const genderIcon =
+    cat.gender === "male" ? "/icons/male.svg" : cat.gender === "female" ? "/icons/female.svg" : null
 
   return (
     <div
@@ -129,18 +131,21 @@ function CatCard({ cat, index }: CatCardProps) {
           <p className="text-text-primary justify-center self-stretch text-center text-sm leading-6 font-semibold">
             {cat.name}
           </p>
-          {infoItems.length > 0 && (
+          {(infoItems.length > 0 || genderIcon) && (
             <div className="inline-flex items-center justify-center gap-1 self-stretch">
               {infoItems.map((item, idx) => (
                 <React.Fragment key={idx}>
                   <span className="text-text-tertiary justify-center text-sm leading-6 font-normal">
                     {item}
                   </span>
-                  {idx < infoItems.length - 1 && (
+                  {(idx < infoItems.length - 1 || genderIcon) && (
                     <div className="h-0.5 w-0.5 rounded-full bg-neutral-400" />
                   )}
                 </React.Fragment>
               ))}
+              {genderIcon && (
+                <Image src={genderIcon} alt={cat.gender === "male" ? "남자" : "여자"} width={16} height={16} />
+              )}
             </div>
           )}
         </div>
