@@ -1,12 +1,13 @@
 "use client"
 
 import React from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { CatData, useOnboarding } from "@/components/onboarding/onboarding-context"
 import { formatGender, formatDate } from "../../_libs/utils"
 import { useAddCurrentCat } from "../../_hooks/use-add-current-cat"
-import { FaPencil } from "react-icons/fa6"
+import catAvatar from "@/public/cat-avatar.svg"
 
 export default function CatProfileCompletePage() {
   const router = useRouter()
@@ -104,40 +105,39 @@ function CatCard({ cat, index }: CatCardProps) {
   return (
     <div
       key={`cat-${index}-${cat.name}-${cat.birthDate || ""}-${cat.breed || ""}`}
-      className="bg-background-secondary rounded-md px-3 pt-1.5 pb-6 border border-border-primary flex flex-col justify-center items-end"
+      className="bg-background-secondary border-border-primary flex flex-col items-end justify-center rounded-md border px-3 pt-1.5 pb-6"
     >
       <button
         type="button"
         onClick={handleEdit}
-        className="p-3 rounded-[100px] inline-flex justify-center items-center gap-2"
+        className="inline-flex cursor-pointer items-center justify-center gap-2 p-3"
       >
-        <FaPencil className="w-5 h-5" />
+        <Image src="/icons/pencil.svg" alt="수정" width={20} height={20} className="h-5 w-5" />
       </button>
-      <div className="self-stretch flex flex-col justify-start items-center gap-3">
-        <div className="w-20 h-20 relative">
-          {cat.imageUrl ? (
-            <img
-              src={cat.imageUrl}
-              alt={cat.name}
-              className="w-20 h-20 absolute left-0 top-0 rounded-full border border-border-primary object-cover"
-            />
-          ) : (
-            <div className="w-20 h-20 absolute left-0 top-0 rounded-full border border-border-primary bg-background-secondary" />
-          )}
+      <div className="flex flex-col items-center justify-start gap-3 self-stretch">
+        <div className="relative h-20 w-20">
+          <Image
+            src={cat.imageUrl || catAvatar}
+            alt={cat.name}
+            width={80}
+            height={80}
+            className="border-border-primary absolute top-0 left-0 h-20 w-20 rounded-full border object-cover"
+            unoptimized
+          />
         </div>
-        <div className="self-stretch flex flex-col justify-center items-center gap-1.5">
-          <p className="self-stretch text-center justify-center text-text-primary text-sm font-semibold leading-6">
+        <div className="flex flex-col items-center justify-center gap-1.5 self-stretch">
+          <p className="text-text-primary justify-center self-stretch text-center text-sm leading-6 font-semibold">
             {cat.name}
           </p>
           {infoItems.length > 0 && (
-            <div className="self-stretch inline-flex justify-center items-center gap-1">
+            <div className="inline-flex items-center justify-center gap-1 self-stretch">
               {infoItems.map((item, idx) => (
                 <React.Fragment key={idx}>
-                  <span className="justify-center text-text-tertiary text-sm font-normal leading-6">
+                  <span className="text-text-tertiary justify-center text-sm leading-6 font-normal">
                     {item}
                   </span>
                   {idx < infoItems.length - 1 && (
-                    <div className="w-0.5 h-0.5 bg-neutral-400 rounded-full" />
+                    <div className="h-0.5 w-0.5 rounded-full bg-neutral-400" />
                   )}
                 </React.Fragment>
               ))}
