@@ -3,6 +3,9 @@ import { PrismaClient } from "@prisma/client"
 const prisma = new PrismaClient()
 
 async function main() {
+  await prisma.appearance.deleteMany({})
+  await prisma.personality.deleteMany({})
+
   const appearances = [
     "단모",
     "중장모",
