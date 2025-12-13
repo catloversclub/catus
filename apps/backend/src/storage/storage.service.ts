@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common"
 import { ConfigService } from "@nestjs/config"
-import { S3Client } from "@aws-sdk/client-s3"
+import { CopyObjectCommand, S3Client } from "@aws-sdk/client-s3"
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post"
 
 export interface PresignedUrlOptions {
@@ -54,5 +54,15 @@ export class StorageService {
     })
 
     return { url, fields }
+  }
+
+  async copyObject(bucket: string, sourceKey: string, destinationKey: string): Promise<void> {
+    await this.client.send(
+      new CopyObjectCommand({
+        Bucket: bucket,
+        CopySource: `${bucket}/${sourceKey}`,
+        Key: destinationKey,
+      }),
+    )
   }
 }

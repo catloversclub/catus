@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client"
 
 export type Paginator<T> = {
   skip?: number
-  cursor?: T extends number ? { id: number } : T
+  cursor?: { id: T }
 }
 
 @Injectable()
@@ -18,19 +18,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     })
   }
 
-  // Use explicit type to avoid Prisma query argument type error
-  getPaginator(cursor: number | null): Paginator<number>
-  getPaginator<T>(cursor: number | null, transform: (arg: number) => T): Paginator<T>
-
-  getPaginator<T>(cursor: number | null, transform?: (arg: number) => T) {
+  getPaginator<T>(cursor: T | null): Paginator<T> {
     if (cursor == null) {
       return {}
-    }
-    if (transform) {
-      return {
-        skip: 1,
-        cursor: transform(cursor),
-      }
     }
     return {
       skip: 1,

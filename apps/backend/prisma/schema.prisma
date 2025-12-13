@@ -50,7 +50,7 @@ model Cat {
   personalities Personality[]
   posts         Post[]
 
-  @@index([butlerId, createdAt])
+  @@index([butlerId, id])
   @@map("cat")
 }
 
@@ -75,7 +75,7 @@ model Personality {
 }
 
 model Post {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid(7))
   likeCount Int      @default(0) @map("like_count")
   content   String?
   createdAt DateTime @default(now()) @map("created_at")
@@ -90,68 +90,64 @@ model Post {
   comments Comment[]
   likes    PostLike[]
 
-  @@index([authorId, createdAt])
-  @@index([catId, createdAt])
-  @@index([createdAt, id])
+  @@index([authorId, id])
+  @@index([catId, id])
   @@map("post")
 }
 
 model PostImage {
-  id    Int    @id @default(autoincrement())
+  id    String @id @default(uuid(7))
   url   String
   order Int
 
-  postId Int  @map("post_id")
-  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String @map("post_id")
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([postId, order])
-  @@index([postId])
   @@map("post_image")
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(uuid(7))
   likeCount Int      @default(0) @map("like_count")
   content   String
   createdAt DateTime @default(now())
 
-  postId   Int    @map("post_id")
+  postId   String @map("post_id")
   post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
   authorId String @map("author_id")
   author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
-  parentId     Int?          @map("parent_id")
+  parentId     String?       @map("parent_id")
   parent       Comment?      @relation("CommentToComment", fields: [parentId], references: [id], onDelete: Cascade)
   replies      Comment[]     @relation("CommentToComment")
   commentLikes CommentLike[]
 
-  @@index([postId, createdAt])
-  @@index([parentId, createdAt])
+  @@index([postId, id])
+  @@index([parentId, id])
   @@map("comment")
 }
 
 model PostLike {
-  id        Int      @id @default(autoincrement())
+  postId String @map("post_id")
+  userId String @map("user_id")
   createdAt DateTime @default(now()) @map("created_at")
 
-  postId Int    @map("post_id")
-  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
-  userId String @map("user_id")
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([postId, userId])
+  @@id([postId, userId])
   @@map("post_like")
 }
 
 model CommentLike {
-  id        Int      @id @default(autoincrement())
+  commentId String @map("comment_id")
+  userId    String @map("user_id")
   createdAt DateTime @default(now()) @map("created_at")
 
-  commentId Int     @map("comment_id")
-  comment   Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  userId    String  @map("user_id")
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([commentId, userId])
+  @@id([commentId, userId])
   @@map("comment_like")
 }
