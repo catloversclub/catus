@@ -4,13 +4,13 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Chip } from "@/components/ui/chip"
 import { useOnboarding } from "@/components/onboarding/onboarding-context"
-import { useTagOptions } from "@/hooks/use-tag-options"
-import { useTagSelection } from "@/hooks/use-tag-selection"
+import { useTagOptions } from "@/app/onboarding/_hooks/use-tag-options"
+import { useTagSelection } from "@/app/onboarding/_hooks/use-tag-selection"
 import { renderTagRows } from "@/app/onboarding/_libs/utils"
 
 export default function CatTagsPage() {
   const router = useRouter()
-  const { draft, setCatTags } = useOnboarding()
+  const { draft, setCatTags, addCat, updateCat } = useOnboarding()
 
   const { personalityOptions, appearanceOptions } = useTagOptions()
   const {
@@ -26,7 +26,40 @@ export default function CatTagsPage() {
   })
 
   const handleNext = () => {
-    setCatTags(toInterestStrings())
+    const tags = toInterestStrings()
+    setCatTags(tags)
+
+    if (draft.catProfile?.name) {
+      const catData = {
+        name: draft.catProfile.name,
+        gender: draft.catProfile.gender,
+        birthDate: draft.catProfile.birthDate,
+        breed: draft.catProfile.breed,
+        imageUrl: draft.catProfile.imageUrl,
+        personalities: tags
+          ?.filter((tag) => tag.startsWith("personality:"))
+          .map((tag) => Number(tag.split(":")[1])) || [],
+        appearances: tags
+          ?.filter((tag) => tag.startsWith("appearance:"))
+          .map((tag) => Number(tag.split(":")[1])) || [],
+      }
+
+      if (draft.editingCatIndex !== undefined && draft.editingCatIndex >= 0) {
+        updateCat(draft.editingCatIndex, catData)
+      } else {
+        const isAlreadyAdded = draft.cats?.some(
+          (cat) =>
+            cat.name === draft.catProfile?.name &&
+            cat.birthDate === draft.catProfile?.birthDate &&
+            cat.breed === draft.catProfile?.breed
+        )
+
+        if (!isAlreadyAdded) {
+          addCat(catData)
+        }
+      }
+    }
+
     router.push("/onboarding/cat-profile/complete")
   }
 
@@ -100,6 +133,33 @@ export default function CatTagsPage() {
             className="w-full"
             onClick={() => {
               setCatTags([])
+
+              if (draft.catProfile?.name) {
+                const catData = {
+                  name: draft.catProfile.name,
+                  gender: draft.catProfile.gender,
+                  birthDate: draft.catProfile.birthDate,
+                  breed: draft.catProfile.breed,
+                  imageUrl: draft.catProfile.imageUrl,
+                  personalities: [],
+                  appearances: [],
+                }
+
+                if (draft.editingCatIndex !== undefined && draft.editingCatIndex >= 0) {
+                  updateCat(draft.editingCatIndex, catData)
+                } else {
+                  const isAlreadyAdded = draft.cats?.some(
+                    (cat) =>
+                      cat.name === draft.catProfile?.name &&
+                      cat.birthDate === draft.catProfile?.birthDate &&
+                      cat.breed === draft.catProfile?.breed
+                  )
+                  if (!isAlreadyAdded) {
+                    addCat(catData)
+                  }
+                }
+              }
+
               router.push("/onboarding/cat-profile/complete")
             }}
           >

@@ -28,6 +28,7 @@ export type OnboardingDraft = {
   catTags?: string[]
   cats?: CatData[]
   interests?: string[]
+  editingCatIndex?: number // 수정 중인 고양이의 인덱스
 }
 
 type Action =
@@ -36,6 +37,8 @@ type Action =
   | { type: "set_cat_profile"; catProfile?: OnboardingDraft["catProfile"] }
   | { type: "set_cat_tags"; catTags?: string[] }
   | { type: "add_cat"; cat: CatData }
+  | { type: "update_cat"; index: number; cat: CatData }
+  | { type: "set_editing_cat_index"; index?: number }
   | { type: "reset_current_cat" }
   | { type: "set_interests"; interests?: string[] }
   | { type: "reset" }
@@ -55,11 +58,27 @@ function reducer(state: OnboardingDraft, action: Action): OnboardingDraft {
         ...state,
         cats: [...(state.cats || []), action.cat],
       }
+    case "update_cat":
+      const updatedCats = [...(state.cats || [])]
+      if (updatedCats[action.index]) {
+        updatedCats[action.index] = action.cat
+      }
+      return {
+        ...state,
+        cats: updatedCats,
+        editingCatIndex: undefined,
+      }
+    case "set_editing_cat_index":
+      return {
+        ...state,
+        editingCatIndex: action.index,
+      }
     case "reset_current_cat":
       return {
         ...state,
         catProfile: undefined,
         catTags: [],
+        editingCatIndex: undefined,
       }
     case "set_interests":
       return { ...state, interests: action.interests }
@@ -71,6 +90,7 @@ function reducer(state: OnboardingDraft, action: Action): OnboardingDraft {
         catTags: [],
         cats: [],
         interests: [],
+        editingCatIndex: undefined,
       }
     default:
       return state
@@ -84,6 +104,8 @@ type OnboardingContextValue = {
   setCatProfile: (catProfile?: OnboardingDraft["catProfile"]) => void
   setCatTags: (catTags?: string[]) => void
   addCat: (cat: CatData) => void
+  updateCat: (index: number, cat: CatData) => void
+  setEditingCatIndex: (index?: number) => void
   resetCurrentCat: () => void
   setInterests: (interests?: string[]) => void
   reset: () => void
@@ -109,6 +131,8 @@ export function OnboardingProvider({ children }: { children: React.ReactNode }) 
       setCatProfile: (catProfile) => dispatch({ type: "set_cat_profile", catProfile }),
       setCatTags: (catTags) => dispatch({ type: "set_cat_tags", catTags }),
       addCat: (cat) => dispatch({ type: "add_cat", cat }),
+      updateCat: (index, cat) => dispatch({ type: "update_cat", index, cat }),
+      setEditingCatIndex: (index) => dispatch({ type: "set_editing_cat_index", index }),
       resetCurrentCat: () => dispatch({ type: "reset_current_cat" }),
       setInterests: (interests) => dispatch({ type: "set_interests", interests }),
       reset: () => dispatch({ type: "reset" }),
