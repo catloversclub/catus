@@ -60,6 +60,16 @@ export class PostController {
   delete(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
     return this.postService.delete(id, req.user.id!)
   }
+
+  @Post(":id/like")
+  likePost(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
+    return this.postService.likePost(id, req.user.id!)
+  }
+
+  @Delete(":id/like")
+  unlikePost(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
+    return this.postService.unlikePost(id, req.user.id!)
+  }
 }
 
 @Controller("user")

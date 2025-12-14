@@ -206,6 +206,113 @@ export class PostService {
     return this.prisma.post.delete({ where: { id } })
   }
 
+  async likePost(postId: string, userId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const post = await tx.post.findUnique({
+        where: { id: postId },
+        select: { id: true },
+      })
+
+      if (!post) {
+        throw new BadRequestException("post not found")
+      }
+
+      let liked = true
+      let likeCount: number
+
+      try {
+        await tx.postLike.create({
+          data: { postId, userId },
+        })
+
+        const updated = await tx.post.update({
+          where: { id: postId },
+          data: { likeCount: { increment: 1 } },
+          select: { likeCount: true },
+        })
+
+        likeCount = updated.likeCount
+      } catch (err: any) {
+        if (err.code !== "P2002") {
+          throw err
+        }
+
+        liked = false
+
+        const current = await tx.post.findUniqueOrThrow({
+          where: { id: postId },
+          select: { likeCount: true },
+        })
+
+        likeCount = current.likeCount
+      }
+
+      return {
+        liked,
+        likeCount,
+      }
+    })
+  }
+
+  async unlikePost(postId: string, userId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const post = await tx.post.findUnique({
+        where: { id: postId },
+        select: { id: true },
+      })
+
+      if (!post) {
+        throw new BadRequestException("post not found")
+      }
+
+      let liked = false
+      let likeCount: number
+
+      const existing = await tx.postLike.findUnique({
+        where: {
+          postId_userId: {
+            postId,
+            userId,
+          },
+        },
+      })
+
+      if (!existing) {
+        const current = await tx.post.findUniqueOrThrow({
+          where: { id: postId },
+          select: { likeCount: true },
+        })
+
+        return {
+          liked: false,
+          likeCount: current.likeCount,
+        }
+      }
+
+      await tx.postLike.delete({
+        where: {
+          postId_userId: {
+            postId,
+            userId,
+          },
+        },
+      })
+
+      const updated = await tx.post.update({
+        where: { id: postId },
+        data: { likeCount: { decrement: 1 } },
+        select: { likeCount: true },
+      })
+
+      likeCount = updated.likeCount
+
+      return {
+        liked,
+        likeCount,
+      }
+    })
+  }
+
   async getImageUploadUrls(userId: string, count: number) {
     if (!count || count < 1) {
       throw new BadRequestException("count must be at least 1")
