@@ -1,63 +1,28 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import React from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { useOnboarding } from "@/components/onboarding/onboarding-context"
+import { CatData, useOnboarding } from "@/components/onboarding/onboarding-context"
+import { formatDate } from "../../_libs/utils"
+import { useAddCurrentCat } from "../../_hooks/use-add-current-cat"
+import catAvatar from "@/public/cat-avatar.svg"
+import { IoIosAddCircle } from "react-icons/io"
 
 export default function CatProfileCompletePage() {
   const router = useRouter()
-  const { draft, addCat, resetCurrentCat } = useOnboarding()
-  const hasAddedRef = useRef(false)
-
-  useEffect(() => {
-    if (hasAddedRef.current) return
-
-    if (draft.catProfile?.name) {
-      const isAlreadyAdded = draft.cats?.some(
-        (cat) =>
-          cat.name === draft.catProfile?.name &&
-          cat.birthDate === draft.catProfile?.birthDate &&
-          cat.breed === draft.catProfile?.breed
-      )
-
-      if (!isAlreadyAdded) {
-        addCat({
-          name: draft.catProfile.name,
-          gender: draft.catProfile.gender,
-          birthDate: draft.catProfile.birthDate,
-          breed: draft.catProfile.breed,
-          imageUrl: draft.catProfile.imageUrl,
-          personalities: draft.catTags
-            ?.filter((tag) => tag.startsWith("personality:"))
-            .map((tag) => Number(tag.split(":")[1])) || [],
-          appearances: draft.catTags
-            ?.filter((tag) => tag.startsWith("appearance:"))
-            .map((tag) => Number(tag.split(":")[1])) || [],
-        })
-        hasAddedRef.current = true
-      }
-    }
-  }, [])
+  const { draft, resetCurrentCat } = useOnboarding()
+  useAddCurrentCat()
 
   const allCats = draft.cats || []
 
-  const formatGender = (gender?: string) => {
-    switch (gender) {
-      case "male":
-        return "남자"
-      case "female":
-        return "여자"
-      default:
-        return "선택 안 함"
-    }
-  }
-
-  const formatDate = (dateStr?: string) => {
-    if (!dateStr) return null
-    const [year, month, day] = dateStr.split("-")
-    return `${year}년 ${parseInt(month)}월 ${parseInt(day)}일`
-  }
+  const lastCatName =
+    draft.catProfile?.name ||
+    (draft.editingCatIndex !== undefined && draft.editingCatIndex >= 0
+      ? allCats[draft.editingCatIndex]?.name
+      : allCats[allCats.length - 1]?.name) ||
+    "고양이"
 
   const handleAddAnother = () => {
     resetCurrentCat()
@@ -70,55 +35,23 @@ export default function CatProfileCompletePage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-8">
-      <div className="flex flex-1 flex-col gap-6">
-        <p className="text-text-primary text-lg leading-7 font-bold">
-          고양이 정보 입력이 완료되었어요!
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="scrollbar-hide flex-1 overflow-y-auto">
+        <p className="text-text-primary mb-10 text-lg leading-7 font-bold">
+          {lastCatName}의 프로필이 완성되었어요!
         </p>
-
-        {allCats.length > 0 && (
-          <div className="flex flex-col gap-4">
-            {allCats.map((cat, index) => (
-              <div
-                key={`cat-${index}-${cat.name}-${cat.birthDate || ""}-${cat.breed || ""}`}
-                className="bg-background-secondary rounded-lg p-4"
-              >
-                <div className="flex items-start gap-4">
-                  {cat.imageUrl && (
-                    <img
-                      src={cat.imageUrl}
-                      alt={cat.name}
-                      className="h-16 w-16 rounded-lg object-cover"
-                    />
-                  )}
-                  <div className="flex flex-1 flex-col gap-2">
-                    <div className="flex items-center gap-2">
-                      <p className="text-text-primary text-base font-semibold">{cat.name}</p>
-                      {cat.gender && (
-                        <span className="text-text-tertiary text-xs">
-                          ({formatGender(cat.gender)})
-                        </span>
-                      )}
-                    </div>
-                    {cat.birthDate && (
-                      <p className="text-text-secondary text-sm">{formatDate(cat.birthDate)}</p>
-                    )}
-                    {cat.breed && (
-                      <p className="text-text-secondary text-sm">품종: {cat.breed}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <CatList cats={allCats} />
+        <Button
+          className="mt-1.5 w-full gap-1.5 text-sm font-normal"
+          variant="ghost"
+          onClick={handleAddAnother}
+        >
+          <IoIosAddCircle className="text-icon-tertiary" />더 추가하기
+        </Button>
       </div>
 
-      <div className="mt-auto flex flex-col gap-2">
-        <Button className="w-full" onClick={handleAddAnother}>
-          고양이 더 추가하기
-        </Button>
-        <Button variant="ghost" className="w-full" onClick={handleNext}>
+      <div className="flex flex-shrink-0 pt-4">
+        <Button className="w-full" onClick={handleNext}>
           다음으로
         </Button>
       </div>
@@ -126,3 +59,114 @@ export default function CatProfileCompletePage() {
   )
 }
 
+interface CatListProps {
+  cats: CatData[]
+}
+
+function CatList({ cats }: CatListProps) {
+  if (cats.length === 0) return null
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      {cats.map((cat, index) => (
+        <CatCard
+          key={`${cat.name}-${cat.birthDate || ""}-${cat.breed || ""}-${index}`}
+          cat={cat}
+          index={index}
+        />
+      ))}
+    </div>
+  )
+}
+
+interface CatCardProps {
+  cat: CatData
+  index: number
+}
+
+function CatCard({ cat, index }: CatCardProps) {
+  const router = useRouter()
+  const { setCatProfile, setCatTags, setEditingCatIndex } = useOnboarding()
+
+  const handleEdit = () => {
+    setEditingCatIndex(index)
+    setCatProfile({
+      name: cat.name,
+      gender: cat.gender,
+      birthDate: cat.birthDate,
+      breed: cat.breed,
+      imageUrl: cat.imageUrl,
+    })
+    const tags: string[] = []
+    if (cat.personalities) {
+      tags.push(...cat.personalities.map((id) => `personality:${id}`))
+    }
+    if (cat.appearances) {
+      tags.push(...cat.appearances.map((id) => `appearance:${id}`))
+    }
+    setCatTags(tags)
+    router.push("/onboarding/cat-profile")
+  }
+
+  const infoItems = [
+    cat.birthDate && formatDate({ dateStr: cat.birthDate, format: "iso" }),
+    cat.breed,
+  ].filter(Boolean)
+
+  const genderIcon =
+    cat.gender === "male" ? "/icons/male.svg" : cat.gender === "female" ? "/icons/female.svg" : null
+
+  return (
+    <div
+      key={`cat-${index}-${cat.name}-${cat.birthDate || ""}-${cat.breed || ""}`}
+      className="bg-background-secondary border-border-primary flex flex-col items-end justify-center rounded-md border px-3 pt-1.5 pb-6"
+    >
+      <button
+        type="button"
+        onClick={handleEdit}
+        className="inline-flex cursor-pointer items-center justify-center gap-2 p-3"
+      >
+        <Image src="/icons/pencil.svg" alt="수정" width={20} height={20} className="h-5 w-5" />
+      </button>
+      <div className="flex flex-col items-center justify-start gap-3 self-stretch">
+        <div className="relative h-20 w-20">
+          <Image
+            src={cat.imageUrl || catAvatar}
+            alt={cat.name}
+            width={80}
+            height={80}
+            className="border-border-primary absolute top-0 left-0 h-20 w-20 rounded-full border object-cover"
+            unoptimized
+          />
+        </div>
+        <div className="flex flex-col items-center justify-center gap-1.5 self-stretch">
+          <p className="text-text-primary justify-center self-stretch text-center text-sm leading-6 font-semibold">
+            {cat.name}
+          </p>
+          {(infoItems.length > 0 || genderIcon) && (
+            <div className="inline-flex items-center justify-center gap-1 self-stretch">
+              {infoItems.map((item, idx) => (
+                <React.Fragment key={idx}>
+                  <span className="text-text-tertiary justify-center text-sm leading-6 font-normal">
+                    {item}
+                  </span>
+                  {(idx < infoItems.length - 1 || genderIcon) && (
+                    <div className="h-0.5 w-0.5 rounded-full bg-neutral-400" />
+                  )}
+                </React.Fragment>
+              ))}
+              {genderIcon && (
+                <Image
+                  src={genderIcon}
+                  alt={cat.gender === "male" ? "남자" : "여자"}
+                  width={16}
+                  height={16}
+                />
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
