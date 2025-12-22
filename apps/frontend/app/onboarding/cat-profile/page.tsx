@@ -181,7 +181,7 @@ export default function CatProfilePage() {
         </div>
       </div>
 
-      <div className="flex flex-shrink-0 pt-4">
+      <div className="flex flex-shrink-0 flex-col gap-1.5 pt-4">
         <Button type="submit" disabled={!isFormValid} className="w-full">
           다음으로
         </Button>

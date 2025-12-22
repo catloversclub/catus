@@ -97,7 +97,7 @@ export default function OnboardingInterestsPage() {
         </div>
       </div>
 
-      <div className="flex flex-shrink-0 pt-4">
+      <div className="flex flex-shrink-0 flex-col gap-1.5 pt-4">
         <Button className="w-full" disabled={!hasSelection || isSubmitting} onClick={handleSave}>
           {isSubmitting ? "저장 중..." : "다음으로"}
         </Button>
