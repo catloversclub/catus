@@ -1,5 +1,3 @@
-import { BottomNav } from "@/components/feed/bottom-nav"
-
 export default function MainLayout({
   children,
 }: Readonly<{

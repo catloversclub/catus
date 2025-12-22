@@ -50,8 +50,8 @@ export default function HasCatPage() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col">
-      <div className="flex-1">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
+      <div className="scrollbar-hide flex-1 overflow-y-auto">
         <p className="text-foreground mb-6 text-lg leading-7 font-bold">
           지금 고양이와 살고 있나요?
         </p>
@@ -73,9 +73,11 @@ export default function HasCatPage() {
         </div>
       </div>
 
-      <Button type="submit" disabled={!isValid || hasCat === undefined} className="mt-auto w-full">
-        다음
-      </Button>
+      <div className="flex flex-shrink-0 pt-4">
+        <Button type="submit" disabled={!isValid || hasCat === undefined} className="w-full">
+          다음
+        </Button>
+      </div>
     </form>
   )
 }

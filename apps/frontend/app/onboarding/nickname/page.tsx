@@ -77,16 +77,18 @@ export default function NicknamePage() {
         : "border-border-success focus-visible:ring-ring-success"
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col">
-      <div className="flex-1">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
+      <div className="scrollbar-hide flex-1 overflow-y-auto">
         <p className="text-foreground mb-6 text-lg leading-7 font-bold">닉네임을 입력해주세요</p>
         <NicknameField {...register("nickname")} onClear={handleClear} borderClass={borderClass} />
         <FeedbackText status={status} />
       </div>
 
-      <Button type="submit" disabled={!isValidNickname} className="mt-auto w-full">
-        다음
-      </Button>
+      <div className="flex flex-shrink-0 pt-4">
+        <Button type="submit" disabled={!isValidNickname} className="w-full">
+          다음으로
+        </Button>
+      </div>
     </form>
   )
 }

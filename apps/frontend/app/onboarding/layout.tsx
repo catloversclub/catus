@@ -28,13 +28,13 @@ export default function OnboardingLayout({ children }: { children: ReactNode }) 
 
   return (
     <OnboardingProvider>
-      <div className="flex min-h-screen flex-col px-3 pb-16">
+      <div className="flex h-screen flex-col px-3 pb-16 overflow-hidden">
         <OnboardingHeader
           currentStep={step}
           showProgress={showProgress}
           onBack={() => router.back()}
         />
-        <main className="flex flex-1 flex-col">{children}</main>
+        <main className="flex flex-1 flex-col min-h-0 overflow-hidden">{children}</main>
       </div>
     </OnboardingProvider>
   )
