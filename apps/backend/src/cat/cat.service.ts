@@ -9,11 +9,14 @@ import { uuidv7 } from "uuidv7"
 
 @Injectable()
 export class CatService {
+  private readonly bucket: string
   constructor(
     private readonly prisma: PrismaService,
     private readonly storage: StorageService,
     private readonly config: ConfigService,
-  ) {}
+  ) {
+    this.bucket = this.config.get<string>("S3_BUCKET") ?? "catus-media"
+  }
 
   create(userId: string, createCatDto: CreateCatDto) {
     const { appearances, personalities, ...rest } = createCatDto
@@ -95,9 +98,8 @@ export class CatService {
     }
     const unique = uuidv7()
     const objectKey = `cats/${catId}/profile/${unique}.${ext}`
-    const bucket = this.config.get<string>("S3_BUCKET") ?? "catus-media"
 
-    const { url, fields } = await this.storage.getPresignedUploadUrl(bucket, objectKey, {
+    const { url, fields } = await this.storage.getPresignedUploadUrl(this.bucket, objectKey, {
       contentType,
       expiresInSeconds: 60 * 2,
       maxSizeBytes: 5 * 1024 * 1024,

@@ -8,7 +8,6 @@ export default function MainLayout({
   return (
     <div className="min-h-screen">
       <main>{children}</main>
-      <BottomNav />
     </div>
   )
 }

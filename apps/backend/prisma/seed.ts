@@ -4,62 +4,57 @@ const prisma = new PrismaClient()
 
 async function main() {
   const appearances = [
-    "단모",
-    "중장모",
-    "장모",
-    "치즈 🧀",
-    "삼색이 🌈",
-    "고등어 🐟",
-    "턱시도 👔",
-    "카오스 🍪",
-    "올블랙 🖤",
-    "올화이트 🤍",
-    "젖소 🐄",
-    "블루 💙",
-    "초콜릿 🍫",
-    "라일락 🩶",
-    "시나몬 🤎",
+    { id: 1, label: "단모" },
+    { id: 2, label: "중장모" },
+    { id: 3, label: "장모" },
+    { id: 4, label: "치즈 🧀" },
+    { id: 5, label: "삼색이 🌈" },
+    { id: 6, label: "고등어 🐟" },
+    { id: 7, label: "턱시도 👔" },
+    { id: 8, label: "카오스 🍪" },
+    { id: 9, label: "올블랙 🖤" },
+    { id: 10, label: "올화이트 🤍" },
+    { id: 11, label: "젖소 🐄" },
+    { id: 12, label: "블루 💙" },
+    { id: 13, label: "초콜릿 🍫" },
+    { id: 14, label: "라일락 🩶" },
+    { id: 15, label: "시나몬 🤎" },
   ]
 
-  for (const label of appearances) {
+  for (const appearance of appearances) {
     await prisma.appearance.upsert({
-      where: { label },
-      update: {},
-      create: { label },
+      where: { id: appearance.id },
+      update: { label: appearance.label },
+      create: appearance,
     })
   }
 
   const personalities = [
-    "애교쟁이 💕",
-    "도도 ✨",
-    "겁쟁이 🥺",
-    "장난꾸러기 😜",
-    "차분 🌿",
-    "먹보 🍩",
-    "츤데레 😤",
-    "똑쟁이 📖",
-    "수다쟁이 💨",
-    "순둥이 🧸",
-    "소심 ☔",
-    "예민 🔥",
+    { id: 1, label: "애교쟁이 💕" },
+    { id: 2, label: "도도 ✨" },
+    { id: 3, label: "겁쟁이 🥺" },
+    { id: 4, label: "장난꾸러기 😜" },
+    { id: 5, label: "차분 🌿" },
+    { id: 6, label: "먹보 🍩" },
+    { id: 7, label: "츤데레 😤" },
+    { id: 8, label: "똑쟁이 📖" },
+    { id: 9, label: "수다쟁이 💨" },
+    { id: 10, label: "순둥이 🧸" },
+    { id: 11, label: "소심 ☔" },
+    { id: 12, label: "예민 🔥" },
   ]
 
-  for (const label of personalities) {
+  for (const personality of personalities) {
     await prisma.personality.upsert({
-      where: { label },
-      update: {},
-      create: { label },
+      where: { id: personality.id },
+      update: { label: personality.label },
+      create: personality,
     })
   }
 
-  console.log("🌱 Seed data inserted successfully!")
+  console.log("🌱 Seed updated successfully!")
 }
 
 main()
-  .catch((err) => {
-    console.error(err)
-    process.exit(1)
-  })
-  .finally(async () => {
-    await prisma.$disconnect()
-  })
+  .catch(console.error)
+  .finally(() => prisma.$disconnect())
