@@ -115,7 +115,7 @@ export default function CatProfilePage() {
         <p className="text-text-secondary mb-10 text-base font-semibold">
           여러 마리의 고양이가 있다면
           <br />
-          다음 화면에서 '더 추가하기'를 클릭해주세요.
+          다음 화면에서 &apos;더 추가하기&apos;를 클릭해주세요.
         </p>
 
         <div className="flex flex-col gap-10">
