@@ -73,6 +73,7 @@ const dummyComments = [
 ]
 
 interface FeedActionButtonsProps {
+  postId: string
   liked: boolean
   bookmarked: boolean
   onLikeToggle: () => void
@@ -81,6 +82,7 @@ interface FeedActionButtonsProps {
 }
 
 export function FeedActionButtons({
+  postId,
   liked,
   bookmarked,
   onLikeToggle,
@@ -101,6 +103,7 @@ export function FeedActionButtons({
       </Button>
       {/* 댓글 Drawer */}
       <CommentDrawer
+        postId={postId}
         comments={dummyComments}
         totalComments={dummyComments.length}
         onComment={function (): void {

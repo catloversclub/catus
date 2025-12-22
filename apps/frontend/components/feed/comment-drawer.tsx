@@ -13,6 +13,7 @@ import Image from "next/image"
 import { useState, useRef, useEffect } from "react"
 import { CommentItem } from "./comment-item"
 import { MessageCircle } from "lucide-react"
+import { isInWebView, openCommentModal } from "@/lib/webview-bridge"
 
 interface Comment {
   id: string
@@ -26,12 +27,13 @@ interface Comment {
 }
 
 interface CommentDrawerProps {
+  postId: string
   comments: Comment[]
   onComment: () => void
   totalComments: number
 }
 
-export function CommentDrawer({ comments, totalComments, onComment }: CommentDrawerProps) {
+export function CommentDrawer({ postId, comments, totalComments, onComment }: CommentDrawerProps) {
   const [commentText, setCommentText] = useState("")
   const [replyingTo, setReplyingTo] = useState<{ id: string; author: string } | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -65,6 +67,17 @@ export function CommentDrawer({ comments, totalComments, onComment }: CommentDra
           className="px-2 py-3"
           onClick={(event) => {
             event.stopPropagation()
+
+            // WebView 환경에서는 React Native 모달로 열기
+            if (isInWebView()) {
+              event.preventDefault()
+              openCommentModal({
+                postId,
+                comments,
+                totalComments,
+              })
+              return
+            }
           }}
         >
           <MessageCircle className="text-icon-tertiary size-5" />

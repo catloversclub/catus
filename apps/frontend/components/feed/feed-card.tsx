@@ -79,6 +79,7 @@ export function FeedCard({
 
         {/* 액션 버튼들 (이미지 오른쪽 하단)*/}
         <FeedActionButtons
+          postId={id}
           liked={liked}
           bookmarked={bookmarked}
           onLikeToggle={() => setLiked(!liked)}
