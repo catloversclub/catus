@@ -35,8 +35,8 @@ export default function CatProfileCompletePage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-8">
-      <div className="flex flex-1 flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="scrollbar-hide flex-1 overflow-y-auto">
         <p className="text-text-primary mb-10 text-lg leading-7 font-bold">
           {lastCatName}의 프로필이 완성되었어요!
         </p>
@@ -50,7 +50,7 @@ export default function CatProfileCompletePage() {
         </Button>
       </div>
 
-      <div className="mt-auto flex flex-col gap-2">
+      <div className="flex flex-shrink-0 pt-4">
         <Button className="w-full" onClick={handleNext}>
           다음으로
         </Button>
