@@ -1,0 +1,14 @@
+meta {
+  name: Like Post
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/post/:id/like
+  auth: inherit
+}
+
+params:path {
+  id:
+}

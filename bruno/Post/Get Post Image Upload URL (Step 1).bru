@@ -1,0 +1,29 @@
+meta {
+  name: Get Post Image Upload URL (Step 1)
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/post/image/upload-url
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "count": 10
+  }
+}
+
+script:post-response {
+  const first = res.body?.uploads?.[0];
+  if (!first) {
+    throw new Error("No uploads returned");
+  }
+  await require("./presigned-url").savePresignEnv({ body: first });
+}

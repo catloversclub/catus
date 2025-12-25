@@ -1,0 +1,14 @@
+meta {
+  name: Unlike Post
+  type: http
+  seq: 11
+}
+
+delete {
+  url: {{baseUrl}}/post/:id/like
+  auth: inherit
+}
+
+params:path {
+  id:
+}
