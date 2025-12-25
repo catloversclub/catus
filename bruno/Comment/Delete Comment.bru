@@ -1,0 +1,14 @@
+meta {
+  name: Delete Comment
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseUrl}}/comment/:id
+  auth: inherit
+}
+
+params:path {
+  id:
+}

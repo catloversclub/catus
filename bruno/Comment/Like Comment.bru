@@ -1,0 +1,14 @@
+meta {
+  name: Like Comment
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/comment/:id/like
+  auth: inherit
+}
+
+params:path {
+  id:
+}
