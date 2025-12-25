@@ -217,7 +217,6 @@ export class PostService {
         throw new BadRequestException("post not found")
       }
 
-      let liked = true
       let likeCount: number
 
       try {
@@ -237,8 +236,6 @@ export class PostService {
           throw err
         }
 
-        liked = false
-
         const current = await tx.post.findUniqueOrThrow({
           where: { id: postId },
           select: { likeCount: true },
@@ -248,7 +245,6 @@ export class PostService {
       }
 
       return {
-        liked,
         likeCount,
       }
     })
@@ -265,7 +261,6 @@ export class PostService {
         throw new BadRequestException("post not found")
       }
 
-      let liked = false
       let likeCount: number
 
       const existing = await tx.postLike.findUnique({
@@ -284,7 +279,6 @@ export class PostService {
         })
 
         return {
-          liked: false,
           likeCount: current.likeCount,
         }
       }
@@ -307,7 +301,6 @@ export class PostService {
       likeCount = updated.likeCount
 
       return {
-        liked,
         likeCount,
       }
     })
