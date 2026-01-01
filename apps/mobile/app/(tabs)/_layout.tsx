@@ -5,7 +5,7 @@ import { HapticTab } from "@/components/haptic-tab";
 import { Colors } from "@/constants/theme";
 
 import { Image } from "expo-image";
-import { useColorScheme } from "react-native";
+import { useColorScheme, View } from "react-native";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -36,6 +36,7 @@ export default function TabLayout() {
           ),
         }}
       />
+
       <Tabs.Screen
         name="explore"
         options={{
@@ -49,13 +50,27 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="camera"
+        options={{
+          title: "Camera",
+          tabBarIcon: ({ color }) => (
+            <View className="h-11 w-20 bg-yellow-300 rounded-full items-center justify-center">
+              <Image
+                source={require("@/assets/icons/camera.svg")}
+                style={{ width: 20, height: 20, tintColor: color }}
+              />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="notifications"
         options={{
           title: "Notifications",
           tabBarIcon: ({ color }) => (
             <Image
               source={require("@/assets/icons/bell.svg")}
-              style={{ width: 20, height: 25, tintColor: color }}
+              style={{ width: 16, height: 20, tintColor: color }}
             />
           ),
         }}
