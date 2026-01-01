@@ -12,8 +12,6 @@ import { Button } from "@/components/ui/button"
 import Image from "next/image"
 import { useState, useRef, useEffect } from "react"
 import { CommentItem } from "./comment-item"
-import { MessageCircle } from "lucide-react"
-import { isInWebView, openCommentModal } from "@/lib/webview-bridge"
 
 interface Comment {
   id: string
@@ -61,28 +59,7 @@ export function CommentDrawer({ postId, comments, totalComments, onComment }: Co
 
   return (
     <Drawer>
-      <DrawerTrigger asChild>
-        <Button
-          variant="ghost"
-          className="px-2 py-3"
-          onClick={(event) => {
-            event.stopPropagation()
-
-            // WebView 환경에서는 React Native 모달로 열기
-            if (isInWebView()) {
-              event.preventDefault()
-              openCommentModal({
-                postId,
-                comments,
-                totalComments,
-              })
-              return
-            }
-          }}
-        >
-          <MessageCircle className="text-icon-tertiary size-5" />
-        </Button>
-      </DrawerTrigger>
+      <DrawerTrigger asChild></DrawerTrigger>
       <DrawerContent className="max-h-[90vh]">
         <DrawerHeader>
           <DrawerTitle className="text-text-secondary text-center text-base">

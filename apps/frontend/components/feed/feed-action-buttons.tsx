@@ -1,6 +1,6 @@
-import { Heart, MessageCircle, Bookmark } from "lucide-react"
+import { Heart, Bookmark, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { CommentDrawer } from "./comment-drawer"
+import { isInWebView, openCommentSheet } from "@/lib/webview-bridge"
 
 // 임시 댓글 데이터
 const dummyComments = [
@@ -102,14 +102,22 @@ export function FeedActionButtons({
         <Heart className={`size-5 ${liked ? "fill-red-500 text-red-500" : "text-icon-tertiary"}`} />
       </Button>
       {/* 댓글 Drawer */}
-      <CommentDrawer
-        postId={postId}
-        comments={dummyComments}
-        totalComments={dummyComments.length}
-        onComment={function (): void {
-          throw new Error("Function not implemented.")
+      <Button
+        variant="ghost"
+        className="px-2 py-3"
+        onClick={(event) => {
+          event.stopPropagation()
+
+          // WebView 환경에서는 React Native 모달로 열기
+          if (isInWebView()) {
+            event.preventDefault()
+            openCommentSheet({ postId, comments: dummyComments })
+            return
+          }
         }}
-      />
+      >
+        <MessageCircle className="text-icon-tertiary size-5" />
+      </Button>
       <Button
         variant="ghost"
         className="px-2 py-3"

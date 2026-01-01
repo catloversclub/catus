@@ -1,13 +1,14 @@
 packages:
-  - apps/*
+  - "apps/*"
+  - "packages/*"
 
 nodeLinker: hoisted
 
 onlyBuiltDependencies:
-  - '@nestjs/core'
-  - '@prisma/client'
-  - '@prisma/engines'
-  - '@tailwindcss/oxide'
+  - "@nestjs/core"
+  - "@prisma/client"
+  - "@prisma/engines"
+  - "@tailwindcss/oxide"
   - prisma
   - sharp
   - unrs-resolver

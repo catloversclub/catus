@@ -2,11 +2,9 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { MoreVertical } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel"
 import { FeedActionButtons } from "./feed-action-buttons"
-import { CommentDrawer } from "./comment-drawer"
 import { ActionDrawer } from "./action-drawer"
 
 interface FeedCardProps {
@@ -120,15 +118,7 @@ export function FeedCard({
           </div>
         </div>
         {/* 액션 Drawer */}
-        <ActionDrawer
-          postAuthorName={ownerName}
-          postAuthorImage={ownerImage}
-          isNotificationEnabled={false}
-          onNotificationToggle={() => {}}
-          onBlock={() => {}}
-          onShare={() => {}}
-          onViewProfile={() => {}}
-        />
+        <ActionDrawer />
       </div>
     </article>
   )

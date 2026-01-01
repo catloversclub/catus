@@ -140,6 +140,9 @@ importers:
       '@auth/core':
         specifier: ^0.41.0
         version: 0.41.0
+      '@catus/constants':
+        specifier: workspace:*
+        version: link:../../packages/constants
       '@hookform/resolvers':
         specifier: ^5.2.2
         version: 5.2.2(react-hook-form@7.66.0(react@19.1.0))
@@ -261,6 +264,9 @@ importers:
 
   apps/mobile:
     dependencies:
+      '@catus/constants':
+        specifier: workspace:*
+        version: link:../../packages/constants
       '@expo/ui':
         specifier: 0.2.0-beta.9
         version: 0.2.0-beta.9(expo@54.0.27)(react-native@0.81.5(@babel/core@7.28.4)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)
@@ -373,6 +379,8 @@ importers:
       typescript:
         specifier: ~5.9.2
         version: 5.9.3
+
+  packages/constants: {}
 
 packages:
 

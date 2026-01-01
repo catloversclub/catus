@@ -1,0 +1,8 @@
+// WebView와 App이 공유할 메시지 타입
+export const WEBVIEW_MESSAGE_TYPE = {
+  OPEN_COMMENT_SHEET: "OPEN_COMMENT_SHEET",
+  OPEN_ADDITION_SHEET: "OPEN_ADDITION_SHEET",
+} as const;
+
+// 타입 추론을 위한 타입 정의
+export type WebviewMessageType = keyof typeof WEBVIEW_MESSAGE_TYPE;

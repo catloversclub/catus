@@ -1,3 +1,4 @@
+import { WEBVIEW_MESSAGE_TYPE } from "@catus/constants";
 import React, { useState, useRef, useCallback } from "react";
 import { WebViewMessageEvent } from "react-native-webview";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -30,10 +31,10 @@ export default function App() {
     try {
       const data = JSON.parse(event.nativeEvent.data);
 
-      if (data.type === "OPEN_COMMENT_MODAL") {
+      if (data.type === WEBVIEW_MESSAGE_TYPE.OPEN_COMMENT_SHEET) {
         handlePresentModalPress();
       }
-      if (data.type === "OPEN_ADDITION_MODAL") {
+      if (data.type === WEBVIEW_MESSAGE_TYPE.OPEN_ADDITION_SHEET) {
         handleadditionModalPress();
       }
     } catch (error) {

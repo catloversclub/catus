@@ -1,5 +1,3 @@
-"use client"
-
 import { FeedCard } from "./feed-card"
 
 // 임시 더미 데이터
