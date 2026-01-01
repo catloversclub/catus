@@ -1,0 +1,25 @@
+meta {
+  name: Create Post
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/post
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "content": "Hello from Bruno",
+    "catId": null,
+    "imageUrls": [
+      "{{KEY}}"
+    ]
+  }
+}

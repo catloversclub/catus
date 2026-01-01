@@ -1,0 +1,14 @@
+meta {
+  name: Unlike Comment
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/comment/:id/like
+  auth: inherit
+}
+
+params:path {
+  id:
+}

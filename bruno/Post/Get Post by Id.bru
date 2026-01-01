@@ -1,0 +1,14 @@
+meta {
+  name: Get Post by Id
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/post/:id
+  auth: inherit
+}
+
+params:path {
+  id:
+}

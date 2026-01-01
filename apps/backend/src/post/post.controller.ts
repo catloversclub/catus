@@ -1,5 +1,6 @@
 import {
   Controller,
+  DefaultValuePipe,
   Get,
   Post,
   Body,
@@ -37,7 +38,7 @@ export class PostController {
   getMyPosts(
     @Req() req: AuthenticatedRequest,
     @Query("cursor") cursor?: string,
-    @Query("take", ParseIntPipe) take?: number,
+    @Query("take", new DefaultValuePipe(20), ParseIntPipe) take?: number,
   ) {
     return this.postService.getUserPosts(req.user.id!, cursor ?? null, take)
   }
@@ -81,7 +82,7 @@ export class UserPostController {
   getUserPosts(
     @Param("id") userId: string,
     @Query("cursor") cursor?: string,
-    @Query("take", ParseIntPipe) take?: number,
+    @Query("take", new DefaultValuePipe(20), ParseIntPipe) take?: number,
   ) {
     return this.postService.getUserPosts(userId, cursor ?? null, take)
   }
@@ -96,7 +97,7 @@ export class CatPostController {
   getCatPosts(
     @Param("id") catId: string,
     @Query("cursor") cursor?: string,
-    @Query("take", ParseIntPipe) take?: number,
+    @Query("take", new DefaultValuePipe(20), ParseIntPipe) take?: number,
   ) {
     return this.postService.getCatPosts(catId, cursor ?? null, take)
   }

@@ -8,7 +8,8 @@ import { StorageModule } from "./storage/storage.module"
 import { APP_FILTER } from "@nestjs/core"
 import { PrismaExceptionFilter } from "./common/filters/prisma-exception.filter"
 import { PostModule } from "./post/post.module"
-import { AttributeModule } from './attribute/attribute.module';
+import { CommentModule } from "./comment/comment.module"
+import { AttributeModule } from "./attribute/attribute.module"
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { AttributeModule } from './attribute/attribute.module';
     UserModule,
     CatModule,
     PostModule,
+    CommentModule,
     AttributeModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: PrismaExceptionFilter }],

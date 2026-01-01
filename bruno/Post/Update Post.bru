@@ -1,0 +1,26 @@
+meta {
+  name: Update Post
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/post/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "content": "Updated content",
+    "catId": null
+  }
+}

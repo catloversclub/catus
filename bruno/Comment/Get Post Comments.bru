@@ -1,0 +1,20 @@
+meta {
+  name: Get Post Comments
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/post/:postId/comment?take=20
+  body: none
+  auth: inherit
+}
+
+params:path {
+  postId:
+}
+
+params:query {
+  take: 20
+  ~cursor: 
+}
