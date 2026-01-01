@@ -45,7 +45,7 @@ export function useCompleteOnboarding() {
       ]
       setInterests(combined)
       router.push("/onboarding/complete")
-    } catch (error) {
+    } catch {
       toast.error("저장에 실패했어요. 잠시 후 다시 시도해 주세요.")
     } finally {
       setIsSubmitting(false)
@@ -57,4 +57,3 @@ export function useCompleteOnboarding() {
     isSubmitting,
   }
 }
-
