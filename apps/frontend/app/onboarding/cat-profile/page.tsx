@@ -70,7 +70,7 @@ export default function CatProfilePage() {
     }
   }, [name, gender, birthDate, breed, imageUrl, setCatProfile, draft.catProfile])
 
-  const onSubmit = (data: CatProfileFormData) => {
+  const onSubmit = () => {
     router.push("/onboarding/cat-profile/tags")
   }
 

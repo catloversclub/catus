@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import catAvatar from "@/public/cat-avatar.svg"
@@ -27,6 +27,10 @@ export function CatImageUpload({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [preview, setPreview] = useState<string | null>(value || null)
   const [isUploading, setIsUploading] = useState(false)
+
+  useEffect(() => {
+    setPreview(value || null)
+  }, [value])
 
   const handleFileSelect = async (file: File | null) => {
     if (!file) {
@@ -71,7 +75,7 @@ export function CatImageUpload({
       setPreview(uploadedUrl)
       onChange(file, uploadedUrl, uploadedUrl)
       toast.success("이미지가 업로드되었습니다.")
-    } catch (error) {
+    } catch {
       toast.error("이미지 업로드에 실패했습니다.")
       onChange(file, previewUrl)
     } finally {
@@ -87,6 +91,9 @@ export function CatImageUpload({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null
     handleFileSelect(file)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
   }
 
   return (
@@ -100,18 +107,25 @@ export function CatImageUpload({
       />
       <div className="flex w-full items-center justify-center">
         {preview ? (
-          <div className="bg-background-secondary relative size-[106px] overflow-hidden rounded-full">
-            <img
+          <button
+            type="button"
+            onClick={handleClick}
+            disabled={isUploading}
+            className="bg-background-secondary relative size-[106px] overflow-hidden rounded-full disabled:opacity-50"
+          >
+            <Image
               src={preview}
               alt="고양이 프로필 미리보기"
-              className="h-full w-full object-cover"
+              fill
+              className="object-cover"
+              unoptimized
             />
             {isUploading && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/50">
                 <div className="text-xs text-white">업로드 중...</div>
               </div>
             )}
-          </div>
+          </button>
         ) : (
           <button
             type="button"

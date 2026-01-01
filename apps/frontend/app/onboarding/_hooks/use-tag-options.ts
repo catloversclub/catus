@@ -19,7 +19,7 @@ export function useTagOptions() {
 
         setPersonalityOptions(personalityRes)
         setAppearanceOptions(appearanceRes)
-      } catch (error) {
+      } catch {
         toast.error("태그 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요.")
       } finally {
         setIsLoading(false)
@@ -35,4 +35,3 @@ export function useTagOptions() {
     isLoading,
   }
 }
-
