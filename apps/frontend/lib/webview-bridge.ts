@@ -1,4 +1,4 @@
-import { Comment } from "@/types/type"
+import { Comment } from "@catus/constants"
 import { WEBVIEW_MESSAGE_TYPE } from "@catus/constants"
 // WebView 환경인지 확인
 export function isInWebView(): boolean {

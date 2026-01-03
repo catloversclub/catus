@@ -6,3 +6,14 @@ export const WEBVIEW_MESSAGE_TYPE = {
 
 // 타입 추론을 위한 타입 정의
 export type WebviewMessageType = keyof typeof WEBVIEW_MESSAGE_TYPE;
+
+// 타입 정의
+export interface Comment {
+  id: string;
+  author: string;
+  authorImage: string;
+  content: string;
+  timeAgo: string;
+  liked: boolean;
+  replies?: Comment[];
+}

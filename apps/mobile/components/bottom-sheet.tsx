@@ -32,7 +32,7 @@ const BottomSheet = forwardRef<BottomSheetModal, BottomSheetProps>(
         ref={ref} // 부모로부터 전달받은 ref를 여기에 연결!
         backdropComponent={renderBackdrop}
         // snapPoints가 전달되지 않았을 경우를 대비한 기본값
-        snapPoints={props.snapPoints || ["25%", "50%", "90%"]}
+        snapPoints={props.snapPoints}
         {...props}
       >
         <BottomSheetView style={{ flex: 1 }}>{children}</BottomSheetView>

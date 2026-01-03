@@ -11,15 +11,17 @@ import { commonStyles } from "@/constants/common-styles";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import BottomSheet from "@/components/bottom-sheet";
 import { Text } from "react-native";
+import CommentSheet from "./components/comment-sheet";
 
 export default function App() {
-  const WEBVIEW_URL = "http://192.168.0.172:3000";
+  const WEBVIEW_URL = "http://172.30.1.22:3000";
 
   const pagerRef = useRef<PagerView>(null);
   const commentSheetRef = useRef<BottomSheetModal>(null);
   const additionSheetRef = useRef<BottomSheetModal>(null);
 
   const [activeTab, setActiveTab] = useState(0); // 0: following, 1: recommended
+  const [comments, setComments] = useState([]);
 
   const handleTabChange = (tab: TabType) => {
     const index = tab === "following" ? 0 : 1;
@@ -32,20 +34,26 @@ export default function App() {
       const data = JSON.parse(event.nativeEvent.data);
 
       if (data.type === WEBVIEW_MESSAGE_TYPE.OPEN_COMMENT_SHEET) {
-        handlePresentModalPress();
+        // 2. WebView에서 보낸 payload(댓글 데이터)를 상태에 저장
+        // 데이터 구조 예시: { type: '...', payload: { comments: [...], total: 10 } }
+        if (data.payload) {
+          setComments(data.payload.comments || []);
+        }
+
+        handleCommentSheetPress();
       }
       if (data.type === WEBVIEW_MESSAGE_TYPE.OPEN_ADDITION_SHEET) {
-        handleadditionModalPress();
+        handleAdditionSheetPress();
       }
     } catch (error) {
       console.error("Failed to parse message from WebView:", error);
     }
   };
 
-  const handlePresentModalPress = useCallback(() => {
+  const handleCommentSheetPress = useCallback(() => {
     commentSheetRef.current?.present(); // .present()를 호출해야 함
   }, []);
-  const handleadditionModalPress = useCallback(() => {
+  const handleAdditionSheetPress = useCallback(() => {
     additionSheetRef.current?.present(); // .present()를 호출해야 함
   }, []);
 
@@ -76,9 +84,9 @@ export default function App() {
           onMessage={handleWebViewMessage}
         />
       </PagerView>
-      <BottomSheet ref={commentSheetRef} index={1}>
-        <Text>이제 탭 바 위로 올라옵니다! 🎉</Text>
-      </BottomSheet>
+
+      <CommentSheet commentSheetRef={commentSheetRef} comments={comments} />
+
       <BottomSheet ref={additionSheetRef} index={1}>
         <Text>이제 탭 바 위로 올라옵니다! 🎉</Text>
       </BottomSheet>
