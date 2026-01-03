@@ -70,7 +70,7 @@ export default function CatProfilePage() {
     }
   }, [name, gender, birthDate, breed, imageUrl, setCatProfile, draft.catProfile])
 
-  const onSubmit = (data: CatProfileFormData) => {
+  const onSubmit = () => {
     router.push("/onboarding/cat-profile/tags")
   }
 
@@ -112,11 +112,10 @@ export default function CatProfilePage() {
         <p className="text-text-primary mb-3 text-lg leading-7 font-bold">
           고양이의 프로필을 완성해 주세요!
         </p>
-        <p className="text-text-secondary mb-10 text-base font-semibold">
-          여러 마리의 고양이가 있다면
-          <br />
-          다음 화면에서 &apos;더 추가하기&apos;를 클릭해주세요.
-        </p>
+        <div className="text-text-secondary mb-10 flex flex-col gap-1.5 text-sm font-medium">
+          <p>여러 마리의 고양이가 있다면</p>
+          <p>다음 화면에서 &apos;더 추가하기&apos;를 클릭해주세요.</p>
+        </div>
 
         <div className="flex flex-col gap-10">
           <CatImageUpload
