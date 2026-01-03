@@ -6,6 +6,7 @@ import { useState, useEffect } from "react"
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel"
 import { FeedActionButtons } from "./feed-action-buttons"
 import { ActionDrawer } from "./action-drawer"
+import { isInWebView, navigateToPost } from "@/lib/webview-bridge"
 
 interface FeedCardProps {
   id: string
@@ -44,10 +45,18 @@ export function FeedCard({
     })
   }, [api])
 
+  const handleCardClick = () => {
+    if (isInWebView()) {
+      navigateToPost(id)
+    } else {
+      window.location.href = `/post/${id}`
+    }
+  }
+
   return (
     <article className="mb-4 bg-white px-4">
       <div className="relative">
-        <Link href={`/post/${id}`}>
+        <div onClick={handleCardClick} className="cursor-pointer">
           {/* 이미지 캐러셀 */}
           <Carousel setApi={setApi} className="w-full overflow-hidden rounded-lg">
             <CarouselContent className="-ml-0">
@@ -73,7 +82,7 @@ export function FeedCard({
               </div>
             )}
           </Carousel>
-        </Link>
+        </div>
 
         {/* 액션 버튼들 (이미지 오른쪽 하단)*/}
         <FeedActionButtons

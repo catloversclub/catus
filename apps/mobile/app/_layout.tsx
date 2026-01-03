@@ -23,6 +23,13 @@ export default function RootLayout() {
           >
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="post/[id]"
+                options={{
+                  headerShown: false,
+                  presentation: "card",
+                }}
+              />
             </Stack>
           </ThemeProvider>
         </BottomSheetModalProvider>

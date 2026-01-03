@@ -2,6 +2,7 @@ import { WEBVIEW_MESSAGE_TYPE } from "@catus/constants";
 import React, { useState, useRef, useCallback } from "react";
 import { WebViewMessageEvent } from "react-native-webview";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
 
 import { FeedHeader } from "@/components/layout/feed-header";
 import { WebViewPage } from "@/components/webview-page";
@@ -44,6 +45,12 @@ export default function App() {
       }
       if (data.type === WEBVIEW_MESSAGE_TYPE.OPEN_ADDITION_SHEET) {
         handleAdditionSheetPress();
+      }
+      if (data.type === WEBVIEW_MESSAGE_TYPE.NAVIGATE_TO_POST) {
+        const postId = data.payload?.postId;
+        if (postId) {
+          router.push(`/post/${postId}`);
+        }
       }
     } catch (error) {
       console.error("Failed to parse message from WebView:", error);

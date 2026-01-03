@@ -32,6 +32,11 @@ export function openAdditionSheet() {
   sendToReactNative(WEBVIEW_MESSAGE_TYPE.OPEN_ADDITION_SHEET)
 }
 
+// React Native Post 상세 화면으로 이동
+export function navigateToPost(postId: string) {
+  sendToReactNative(WEBVIEW_MESSAGE_TYPE.NAVIGATE_TO_POST, { postId })
+}
+
 // React Native로부터 메시지 수신 리스너 등록
 export function addWebViewMessageListener(callback: (event: MessageEvent) => void): () => void {
   if (typeof window === "undefined") return () => {}
