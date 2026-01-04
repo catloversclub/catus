@@ -9,13 +9,17 @@ datasource db {
 
 model User {
   id               String   @id @default(uuid(7))
-  kakaoId          String   @unique @map("kakao_id")
+  //TODO: Use UserIdentity instead
+  kakaoId          String   @unique @map("kakao_id") 
   nickname         String   @unique
   isLivingWithCat  Boolean  @default(false) @map("is_living_with_cat")
   hasAgreedToTerms Boolean  @default(false) @map("has_agreed_to_term")
   phone            String?
   profileImageUrl  String?  @map("profile_image_url")
   createdAt        DateTime @default(now()) @map("created_at")
+
+  following Follow[] @relation("Follows")
+  followers Follow[] @relation("FollowedBy")
 
   cats                  Cat[]
   favoriteAppearances   Appearance[]
@@ -24,8 +28,41 @@ model User {
   comments              Comment[]
   postLikes             PostLike[]
   commentLikes          CommentLike[]
+  UserIdentity          UserIdentity[]
 
   @@map("user")
+}
+
+model Follow {
+  followerId  String   @map("follower_id")
+  followingId String   @map("following_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  follower  User @relation("Follows", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("FollowedBy", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@id([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@map("follow")
+}
+
+enum Provider {
+  APPLE
+  GOOGLE
+  KAKAO
+}
+
+model UserIdentity {
+  id       String
+  provider Provider
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, id])
+  @@map("user_identity")
 }
 
 enum Gender {
@@ -81,7 +118,7 @@ model Post {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  authorId String  @map("butler_id")
+  authorId String  @map("author_id")
   author   User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
   catId    String? @map("cat_id")
   cat      Cat?    @relation(fields: [catId], references: [id], onDelete: SetNull)
@@ -129,8 +166,8 @@ model Comment {
 }
 
 model PostLike {
-  postId String @map("post_id")
-  userId String @map("user_id")
+  postId    String   @map("post_id")
+  userId    String   @map("user_id")
   createdAt DateTime @default(now()) @map("created_at")
 
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
@@ -141,8 +178,8 @@ model PostLike {
 }
 
 model CommentLike {
-  commentId String @map("comment_id")
-  userId    String @map("user_id")
+  commentId String   @map("comment_id")
+  userId    String   @map("user_id")
   createdAt DateTime @default(now()) @map("created_at")
 
   comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
