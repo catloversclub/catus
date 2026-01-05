@@ -1,0 +1,16 @@
+meta {
+  name: Get Following Feed
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/post/feed?take=20
+  body: none
+  auth: inherit
+}
+
+params:query {
+  take: 20
+  ~cursor:
+}
