@@ -8,7 +8,6 @@ import {
   Delete,
   UseGuards,
   Req,
-  Header,
   Query,
 } from "@nestjs/common"
 import { UserService } from "./user.service"
@@ -43,6 +42,16 @@ export class UserController {
   @Get(":id")
   getOne(@Param("id") id: string) {
     return this.userService.getOne(id)
+  }
+
+  @Post(":id/follow")
+  follow(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
+    return this.userService.follow(req.user.id!, id)
+  }
+
+  @Delete(":id/follow")
+  unfollow(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
+    return this.userService.unfollow(req.user.id!, id)
   }
 
   @Patch("/me")

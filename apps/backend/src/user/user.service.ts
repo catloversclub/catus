@@ -60,7 +60,81 @@ export class UserService {
       select: {
         nickname: true,
         profileImageUrl: true,
+        followerCount: true,
+        followingCount: true,
       },
+    })
+  }
+
+  async follow(followerId: string, followingId: string) {
+    if (followerId === followingId) {
+      throw new BadRequestException("You cannot follow yourself")
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      await Promise.all([
+        tx.user.findUniqueOrThrow({ where: { id: followerId }, select: { id: true } }),
+        tx.user.findUniqueOrThrow({ where: { id: followingId }, select: { id: true } }),
+      ])
+
+      await tx.follow.create({
+        data: { followerId, followingId },
+      })
+
+      const [follower, target] = await Promise.all([
+        tx.user.update({
+          where: { id: followerId },
+          data: { followingCount: { increment: 1 } },
+          select: { id: true, followingCount: true },
+        }),
+        tx.user.update({
+          where: { id: followingId },
+          data: { followerCount: { increment: 1 } },
+          select: { id: true, followerCount: true },
+        }),
+      ])
+
+      return {
+        follower,
+        target,
+      }
+    })
+  }
+
+  async unfollow(followerId: string, followingId: string) {
+    if (followerId === followingId) {
+      throw new BadRequestException("You cannot unfollow yourself")
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      await Promise.all([
+        tx.user.findUniqueOrThrow({ where: { id: followerId }, select: { id: true } }),
+        tx.user.findUniqueOrThrow({ where: { id: followingId }, select: { id: true } }),
+      ])
+
+      await tx.follow.delete({
+        where: {
+          followerId_followingId: { followerId, followingId },
+        },
+      })
+
+      const [follower, target] = await Promise.all([
+        tx.user.update({
+          where: { id: followerId },
+          data: { followingCount: { decrement: 1 } },
+          select: { id: true, followingCount: true },
+        }),
+        tx.user.update({
+          where: { id: followingId },
+          data: { followerCount: { decrement: 1 } },
+          select: { id: true, followerCount: true },
+        }),
+      ])
+
+      return {
+        follower,
+        target,
+      }
     })
   }
 
