@@ -1,0 +1,14 @@
+meta {
+  name: Follow User
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/user/:id/follow
+  auth: inherit
+}
+
+params:path {
+  id:
+}
