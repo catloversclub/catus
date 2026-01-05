@@ -126,6 +126,36 @@ export class PostService {
     })
   }
 
+  getFollowingFeed(userId: string, cursor?: string | null, take = 20) {
+    const pagination = this.prisma.getPaginator(cursor ?? null)
+
+    return this.prisma.post.findMany({
+      ...pagination,
+      take,
+      where: {
+        author: {
+          followers: {
+            some: {
+              followerId: userId,
+            },
+          },
+        },
+      },
+      orderBy: { id: "desc" },
+      include: {
+        cat: true,
+        author: {
+          select: {
+            id: true,
+            nickname: true,
+            profileImageUrl: true,
+          },
+        },
+        images: true,
+      },
+    })
+  }
+
   findAll(cursor?: string | null, take = 20) {
     const pagination = this.prisma.getPaginator(cursor ?? null)
 

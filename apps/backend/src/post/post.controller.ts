@@ -43,6 +43,15 @@ export class PostController {
     return this.postService.getUserPosts(req.user.id!, cursor ?? null, take)
   }
 
+  @Get("feed")
+  getFeed(
+    @Req() req: AuthenticatedRequest,
+    @Query("cursor") cursor?: string,
+    @Query("take", new DefaultValuePipe(20), ParseIntPipe) take?: number,
+  ) {
+    return this.postService.getFollowingFeed(req.user.id!, cursor ?? null, take)
+  }
+
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.postService.findOne(id)
