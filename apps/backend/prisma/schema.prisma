@@ -16,6 +16,8 @@ model User {
   hasAgreedToTerms Boolean  @default(false) @map("has_agreed_to_term")
   phone            String?
   profileImageUrl  String?  @map("profile_image_url")
+  followerCount    Int      @default(0) @map("follower_count")
+  followingCount   Int      @default(0) @map("following_count")
   createdAt        DateTime @default(now()) @map("created_at")
 
   following Follow[] @relation("Follows")
