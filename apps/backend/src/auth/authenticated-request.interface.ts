@@ -1,8 +1,12 @@
 import type { Request } from "express"
+import type { Provider } from "@prisma/client"
 
 export interface AuthenticatedRequest extends Request {
   user: {
     id: string | null
-    kakaoId: string
+    identity: {
+      provider: Provider
+      id: string
+    }
   }
 }

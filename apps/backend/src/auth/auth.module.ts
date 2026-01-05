@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common"
-import { KakaoJwtVerifier } from "./kakao-jwt.verifier"
 import { JwtAuthGuard } from "./guards/jwt-auth.guard"
+import { OidcJwtVerifier } from "./oidc-jwt.verifier"
 
 @Module({
-  providers: [KakaoJwtVerifier, JwtAuthGuard],
-  exports: [KakaoJwtVerifier, JwtAuthGuard],
+  providers: [OidcJwtVerifier, JwtAuthGuard],
+  exports: [OidcJwtVerifier, JwtAuthGuard],
 })
 export class AuthModule {}

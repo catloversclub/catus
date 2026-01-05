@@ -6,6 +6,7 @@ import type { UpdateUserDto } from "./dto/update-user.dto"
 import { PrismaService } from "@app/prisma/prisma.service"
 import { StorageService } from "@app/storage/storage.service"
 import { uuidv7 } from "uuidv7"
+import type { Provider } from "@prisma/client"
 
 @Injectable()
 export class UserService {
@@ -18,24 +19,33 @@ export class UserService {
     this.bucket = this.config.get<string>("S3_BUCKET") ?? "catus-media"
   }
 
-  create(createUserDto: CreateUserDto, kakaoId: string) {
+  create(createUserDto: CreateUserDto, identity: { provider: Provider; id: string }) {
     const { favoritePersonalities, favoriteAppearances, ...rest } = createUserDto
 
-    return this.prisma.user.create({
-      data: {
-        ...rest,
-        kakaoId,
-        ...(favoritePersonalities?.length && {
-          favoritePersonalities: {
-            connect: favoritePersonalities.map((id) => ({ id })),
-          },
-        }),
-        ...(favoriteAppearances?.length && {
-          favoriteAppearances: {
-            connect: favoriteAppearances.map((id) => ({ id })),
-          },
-        }),
+    const data: any = {
+      ...rest,
+      // TODO: Stop storing kakao id on User once all clients use UserIdentity.
+      ...(identity.provider === "KAKAO" ? { kakaoId: identity.id } : {}),
+      UserIdentity: {
+        create: {
+          provider: identity.provider,
+          id: identity.id,
+        },
       },
+      ...(favoritePersonalities?.length && {
+        favoritePersonalities: {
+          connect: favoritePersonalities.map((id) => ({ id })),
+        },
+      }),
+      ...(favoriteAppearances?.length && {
+        favoriteAppearances: {
+          connect: favoriteAppearances.map((id) => ({ id })),
+        },
+      }),
+    }
+
+    return this.prisma.user.create({
+      data,
     })
   }
 

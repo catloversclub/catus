@@ -25,7 +25,7 @@ export class UserController {
   @Post()
   @OnboardingBypass()
   create(@Req() req: AuthenticatedRequest, @Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto, req.user.kakaoId)
+    return this.userService.create(createUserDto, req.user.identity)
   }
 
   @Get("/check-nickname")
