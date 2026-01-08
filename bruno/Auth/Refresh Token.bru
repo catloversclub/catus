@@ -1,0 +1,43 @@
+meta {
+  name: Refresh Token
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/auth/refresh
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "refreshToken": "{{refreshToken}}"
+  }
+}
+
+script:post-response {
+  if (res.body.accessToken) {
+    bru.setVar("accessToken", res.body.accessToken);
+  }
+  if (res.body.refreshToken) {
+    bru.setVar("refreshToken", res.body.refreshToken);
+  }
+}
+
+docs {
+  # Refresh Token
+  
+  Use refresh token to get new access token.
+  
+  ## Request
+  - `refreshToken`: The refresh token received from OIDC Exchange or previous refresh
+  
+  ## Response
+  - `accessToken`: New JWT for API authorization
+  - `refreshToken`: New refresh token (if rotated)
+}

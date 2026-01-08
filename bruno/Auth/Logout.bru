@@ -1,0 +1,33 @@
+meta {
+  name: Logout
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/auth/logout
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "refreshToken": "{{refreshToken}}"
+  }
+}
+
+docs {
+  # Logout
+  
+  Invalidate the refresh token to log out the user.
+  
+  ## Request
+  - `refreshToken`: The refresh token to invalidate
+  
+  ## Note
+  After logout, the refresh token will no longer be valid for obtaining new access tokens.
+}

@@ -1,0 +1,65 @@
+meta {
+  name: Kakao OIDC Exchange
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth/oidc/exchange
+  body: json
+  auth: oauth2
+}
+
+headers {
+  Content-Type: application/json
+}
+
+auth:oauth2 {
+  grant_type: authorization_code
+  callback_url: http://127.0.0.1/oauth
+  authorization_url: https://kauth.kakao.com/oauth/authorize
+  access_token_url: https://kauth.kakao.com/oauth/token
+  refresh_token_url: https://kauth.kakao.com/oauth/token
+  client_id: {{process.env.KAKAO_CLIENT_ID}}
+  client_secret: {{process.env.KAKAO_CLIENT_SECRET}}
+  scope: openid
+  state: 
+  pkce: false
+  credentials_placement: body
+  credentials_id: kakao
+  token_placement: url
+  token_query_key: ignore
+  auto_fetch_token: true
+  auto_refresh_token: true
+}
+
+body:json {
+  {
+    "idToken": "{{$oauth2.kakao.id_token}}",
+    "provider": "kakao"
+  }
+}
+
+script:post-response {
+  if (res.body.accessToken) {
+    bru.setVar("accessToken", res.body.accessToken);
+  }
+  if (res.body.refreshToken) {
+    bru.setVar("refreshToken", res.body.refreshToken);
+  }
+}
+
+docs {
+  # Kakao OIDC Exchange
+  
+  Exchange Kakao OIDC id_token for app-issued tokens.
+  
+  ## Flow
+  1. Run this request - Kakao OAuth2 authentication will automatically trigger
+  2. After Kakao login, id_token is exchanged for app tokens
+  3. `accessToken` and `refreshToken` are saved to environment variables
+  
+  ## Response
+  - `accessToken`: JWT for API authorization
+  - `refreshToken`: Token for refreshing access token
+}

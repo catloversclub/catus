@@ -2,29 +2,10 @@ meta {
   name: Catus
 }
 
-headers {
-  Authorization: Bearer {{$oauth2.kakao.id_token}}
-}
-
 auth {
-  mode: oauth2
+  mode: bearer
 }
 
-auth:oauth2 {
-  grant_type: authorization_code
-  callback_url: http://127.0.0.1/oauth
-  authorization_url: https://kauth.kakao.com/oauth/authorize
-  access_token_url: https://kauth.kakao.com/oauth/token
-  refresh_token_url: https://kauth.kakao.com/oauth/token
-  client_id: {{process.env.KAKAO_CLIENT_ID}}
-  client_secret: {{process.env.KAKAO_CLIENT_SECRET}}
-  scope: 
-  state: 
-  pkce: false
-  credentials_placement: body
-  credentials_id: kakao
-  token_placement: url
-  token_query_key: ignore
-  auto_fetch_token: true
-  auto_refresh_token: true
+auth:bearer {
+  token: {{accessToken}}
 }

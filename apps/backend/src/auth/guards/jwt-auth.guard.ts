@@ -26,7 +26,6 @@ export class JwtAuthGuard implements CanActivate {
     const token = auth?.startsWith("Bearer ") ? auth.slice(7) : undefined
     if (!token) throw new UnauthorizedException("Missing Authorization Token")
 
-    // Prefer app-issued access token.
     try {
       const access = await this.appJwt.verifyAccessToken(token)
       const onboardingBypass = this.reflector.getAllAndOverride<boolean>("onboarding_bypass", [
@@ -51,9 +50,7 @@ export class JwtAuthGuard implements CanActivate {
       }
 
       return true
-    } catch {
-      // fall through
-    }
+    } catch {}
 
     // Fallback: accept OIDC id_token directly as Bearer.
     // TODO: Remove once all clients use /auth/oidc/exchange + app-issued access tokens.
