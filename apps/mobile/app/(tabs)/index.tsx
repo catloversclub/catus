@@ -12,10 +12,10 @@ import { commonStyles } from "@/constants/common-styles";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import BottomSheet from "@/components/bottom-sheet";
 import { Text } from "react-native";
-import CommentSheet from "./components/comment-sheet";
+import CommentSheet from "../../components/comment-sheet";
 
 export default function App() {
-  const WEBVIEW_URL = "http://172.30.1.22:3000";
+  const WEBVIEW_URL = "http://192.168.0.172:3000";
 
   const pagerRef = useRef<PagerView>(null);
   const commentSheetRef = useRef<BottomSheetModal>(null);

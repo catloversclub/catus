@@ -61,7 +61,7 @@ export default function CommentSheet({
       <BottomSheetView className="flex-1 relative">
         <View className="items-center py-4 border-b border-gray-100">
           <Text className="text-base font-semibold text-gray-500">
-            댓글 {comments.length}
+            댓글 {comments?.length}
           </Text>
         </View>
 
