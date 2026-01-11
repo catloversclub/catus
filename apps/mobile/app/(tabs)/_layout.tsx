@@ -1,14 +1,40 @@
-import { Tabs } from "expo-router";
+import { Tabs, router } from "expo-router";
 import React from "react";
+import * as ImagePicker from "expo-image-picker";
 
 import { HapticTab } from "@/components/haptic-tab";
 import { Colors } from "@/constants/theme";
 
 import { Image } from "expo-image";
-import { useColorScheme, View } from "react-native";
+import { useColorScheme, View, Alert, TouchableOpacity } from "react-native";
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+
+  const handleCameraPress = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permissionResult.granted) {
+      Alert.alert("권한 필요", "사진 라이브러리 접근 권한이 필요합니다.");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      // 선택한 이미지로 게시글 작성 화면으로 이동
+      router.push({
+        pathname: "/post/create-post",
+        params: { imageUri: result.assets[0].uri },
+      });
+    }
+  };
 
   return (
     <Tabs
@@ -49,10 +75,10 @@ export default function TabLayout() {
           ),
         }}
       />
+      {/* 카메라 버튼 - 탭 화면이 아닌 이미지 선택 버튼으로만 사용 */}
       <Tabs.Screen
         name="camera"
         options={{
-          title: "Camera",
           tabBarIcon: ({ color }) => (
             <View className="h-11 w-20 bg-yellow-300 rounded-full items-center justify-center">
               <Image
@@ -60,6 +86,11 @@ export default function TabLayout() {
                 style={{ width: 20, height: 20, tintColor: color }}
               />
             </View>
+          ),
+          tabBarButton: ({ children, style }) => (
+            <TouchableOpacity onPress={handleCameraPress} style={style}>
+              {children}
+            </TouchableOpacity>
           ),
         }}
       />

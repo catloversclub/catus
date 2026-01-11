@@ -24,10 +24,9 @@ export default function RootLayout() {
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen
-                name="post/[id]"
+                name="post"
                 options={{
                   headerShown: false,
-                  presentation: "card",
                 }}
               />
             </Stack>
