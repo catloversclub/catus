@@ -1,10 +1,10 @@
+import { WEBVIEW_URL } from "@/constants/dummy";
 import { useLocalSearchParams } from "expo-router";
 import { View } from "react-native";
 import { WebView } from "react-native-webview";
 
 export default function PostDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const WEBVIEW_URL = "http://192.168.0.172:3000";
 
   return (
     <View style={{ flex: 1, backgroundColor: "#fff" }}>
