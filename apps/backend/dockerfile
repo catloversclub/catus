@@ -15,12 +15,16 @@ RUN --mount=type=cache,target=/root/.pnpm-store \
   pnpm install --frozen-lockfile --filter ./apps/backend...
 
 # Then bring in sources (invalidates below layers only on source changes)
-COPY apps/backend ./apps/backend
+COPY apps/backend/prisma ./apps/backend/prisma
+COPY apps/backend/package.json ./apps/backend/package.json
 
 WORKDIR /app/apps/backend
 # Cache prisma engine downloads between builds
 RUN --mount=type=cache,target=/root/.cache/prisma \
   pnpm prisma generate
+
+# Copy the rest of the backend source code
+COPY apps/backend .
 
 RUN pnpm build
 

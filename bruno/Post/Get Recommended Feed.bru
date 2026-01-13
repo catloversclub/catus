@@ -5,12 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/post/feed/recommended?take=20
+  url: {{baseUrl}}/post/feed?type=recommended&take=20
   body: none
   auth: inherit
 }
 
 params:query {
+  type: recommended
   take: 20
   ~cursor:
 }
