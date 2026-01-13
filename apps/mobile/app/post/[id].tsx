@@ -1,4 +1,4 @@
-import { WEBVIEW_URL } from "@/constants/dummy";
+import { WEBVIEW_URL } from "@/constants/url";
 import { useLocalSearchParams } from "expo-router";
 import { View } from "react-native";
 import { WebView } from "react-native-webview";
