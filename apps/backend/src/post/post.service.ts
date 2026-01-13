@@ -126,6 +126,58 @@ export class PostService {
     })
   }
 
+  async getRecommendedFeed(userId: string, cursor?: string | null, take = 20) {
+    const pagination = this.prisma.getPaginator(cursor ?? null)
+
+    const user = await this.prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      include: {
+        favoriteAppearances: true,
+        favoritePersonalities: true,
+      },
+    })
+
+    const favoriteAppearanceIds = user.favoriteAppearances.map((a) => a.id)
+    const favoritePersonalityIds = user.favoritePersonalities.map((p) => p.id)
+
+    return this.prisma.post.findMany({
+      ...pagination,
+      take,
+      where: {
+        cat: {
+          OR: [
+            {
+              appearances: {
+                some: {
+                  id: { in: favoriteAppearanceIds },
+                },
+              },
+            },
+            {
+              personalities: {
+                some: {
+                  id: { in: favoritePersonalityIds },
+                },
+              },
+            },
+          ],
+        },
+      },
+      orderBy: { id: "desc" },
+      include: {
+        cat: true,
+        author: {
+          select: {
+            id: true,
+            nickname: true,
+            profileImageUrl: true,
+          },
+        },
+        images: true,
+      },
+    })
+  }
+
   getFollowingFeed(userId: string, cursor?: string | null, take = 20) {
     const pagination = this.prisma.getPaginator(cursor ?? null)
 
