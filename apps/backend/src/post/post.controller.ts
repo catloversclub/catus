@@ -48,17 +48,13 @@ export class PostController {
     @Req() req: AuthenticatedRequest,
     @Query("cursor") cursor?: string,
     @Query("take", new DefaultValuePipe(20), ParseIntPipe) take?: number,
+    @Query("type") type: "following" | "recommended" = "following",
   ) {
-    return this.postService.getFollowingFeed(req.user.id!, cursor ?? null, take)
-  }
+    if (type === "recommended") {
+      return this.postService.getRecommendedFeed(req.user.id!, cursor ?? null, take)
+    }
 
-  @Get("feed/recommended")
-  getRecommendedFeed(
-    @Req() req: AuthenticatedRequest,
-    @Query("cursor") cursor?: string,
-    @Query("take", new DefaultValuePipe(20), ParseIntPipe) take?: number,
-  ) {
-    return this.postService.getRecommendedFeed(req.user.id!, cursor ?? null, take)
+    return this.postService.getFollowingFeed(req.user.id!, cursor ?? null, take)
   }
 
   @Get(":id")
