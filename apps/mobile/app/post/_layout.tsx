@@ -1,8 +1,11 @@
 import { Stack, router } from "expo-router";
 import { TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
+import { useColorScheme } from "react-native";
+import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 
 export default function PostLayout() {
+  const colorScheme = useColorScheme();
   return (
     <Stack
       screenOptions={{
@@ -10,7 +13,10 @@ export default function PostLayout() {
         headerTitle: "",
         headerShadowVisible: false,
         headerStyle: {
-          backgroundColor: "#fff",
+          backgroundColor:
+            colorScheme === "dark"
+              ? DarkTheme.colors.card
+              : DefaultTheme.colors.card,
         },
         headerLeft: () => (
           <TouchableOpacity onPress={() => router.back()} className="p-2 -ml-2">

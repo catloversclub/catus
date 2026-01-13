@@ -41,3 +41,6 @@ app-example
 # generated native folders
 /ios
 /android
+
+# Ignore the constants/url.ts file
+constants/url.ts

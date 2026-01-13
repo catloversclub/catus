@@ -13,7 +13,7 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import BottomSheet from "@/components/bottom-sheet";
 import { Text } from "react-native";
 import CommentSheet from "../../components/comment-sheet";
-import { WEBVIEW_URL } from "@/constants/dummy";
+import { WEBVIEW_URL } from "@/constants/url";
 
 export default function App() {
   const pagerRef = useRef<PagerView>(null);
