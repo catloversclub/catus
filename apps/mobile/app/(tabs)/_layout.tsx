@@ -22,16 +22,21 @@ export default function TabLayout() {
 
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
-      allowsEditing: true,
+      // allowsEditing: true,
       aspect: [4, 3],
       quality: 1,
+      allowsMultipleSelection: true,
+      selectionLimit: 10,
     });
 
     if (!result.canceled) {
       // 선택한 이미지로 게시글 작성 화면으로 이동
+      // 배열을 JSON 문자열로 직렬화해서 전달
       router.push({
-        pathname: "/post/create-post",
-        params: { imageUri: result.assets[0].uri },
+        pathname: "/post/edit-list",
+        params: {
+          imageUris: JSON.stringify(result.assets.map((asset) => asset.uri)),
+        },
       });
     }
   };

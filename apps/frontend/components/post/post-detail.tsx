@@ -154,7 +154,7 @@ export function PostDetail({ postId }: PostDetailProps) {
         )}
 
         {/* 액션 버튼들 (이미지 오른쪽 하단) */}
-        <FeedActionButtons
+        {/* <FeedActionButtons
           liked={liked}
           bookmarked={bookmarked}
           onLikeToggle={() => setLiked(!liked)}
@@ -162,7 +162,7 @@ export function PostDetail({ postId }: PostDetailProps) {
           onComment={function (): void {
             throw new Error("Function not implemented.")
           }}
-        />
+        /> */}
       </Carousel>
 
       {/* 프로필 정보 (이미지 하단) */}

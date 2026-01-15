@@ -1,7 +1,6 @@
 import { Stack, router } from "expo-router";
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, useColorScheme } from "react-native";
 import { Image } from "expo-image";
-import { useColorScheme } from "react-native";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
 
 export default function PostLayout() {
@@ -10,7 +9,6 @@ export default function PostLayout() {
     <Stack
       screenOptions={{
         headerShown: true,
-        headerTitle: "",
         headerShadowVisible: false,
         headerStyle: {
           backgroundColor:
@@ -19,7 +17,7 @@ export default function PostLayout() {
               : DefaultTheme.colors.card,
         },
         headerLeft: () => (
-          <TouchableOpacity onPress={() => router.back()} className="p-2 -ml-2">
+          <TouchableOpacity onPress={() => router.back()} className="p-2">
             <Image
               source={require("@/assets/icons/arrow-left.svg")}
               style={{ width: 24, height: 24 }}
@@ -28,8 +26,8 @@ export default function PostLayout() {
         ),
       }}
     >
-      <Stack.Screen name="[id]" />
-      <Stack.Screen name="create-post" />
+      <Stack.Screen name="[id]" options={{ title: "김오묘의 게시물" }} />
+      <Stack.Screen name="create-post" options={{ title: "새 게시물" }} />
     </Stack>
   );
 }
