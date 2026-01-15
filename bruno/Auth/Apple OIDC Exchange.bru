@@ -1,0 +1,71 @@
+meta {
+  name: Apple OIDC Exchange
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/auth/oidc/exchange
+  body: json
+  auth: oauth2
+}
+
+auth:oauth2 {
+  grant_type: authorization_code
+  callback_url: https://api.catus.app
+  authorization_url: https://appleid.apple.com/auth/authorize
+  access_token_url: https://appleid.apple.com/auth/token
+  refresh_token_url: 
+  client_id: {{process.env.APPLE_CLIENT_ID}}
+  client_secret: {{process.env.APPLE_CLIENT_SECRET}}
+  scope: 
+  state: 
+  pkce: false
+  credentials_placement: body
+  credentials_id: apple
+  token_placement: url
+  token_query_key: ignore
+  auto_fetch_token: true
+  auto_refresh_token: false
+}
+
+body:json {
+  {
+    "idToken": "{{$oauth2.apple.id_token}}",
+    "provider": "apple"
+  }
+}
+
+script:post-response {
+  if (res.body.accessToken) {
+    bru.setVar("accessToken", res.body.accessToken);
+  }
+  if (res.body.refreshToken) {
+    bru.setVar("refreshToken", res.body.refreshToken);
+  }
+}
+
+docs {
+  # Apple OIDC Exchange
+  
+  Exchange Apple OIDC id_token for app-issued tokens.
+  
+  ## Setup (One-time)
+  
+  1. Ensure `scripts/AuthKey.p8` exists.
+  2. Add to your `.env` file:
+     - `APPLE_TEAM_ID`: Your Apple Team ID
+     - `APPLE_CLIENT_ID`: Your Service ID
+     - `APPLE_KEY_ID`: The Key ID of your .p8 file
+  
+  ## How to use
+  
+  1. Click **Run**.
+  2. The **Pre-Request Script** will automatically generate a fresh `APPLE_CLIENT_SECRET` using your local private key and set it in the environment.
+  3. Sign in to Apple.
+  4. Success!
+  
+  ## Response
+  - `accessToken`: JWT for API authorization
+  - `refreshToken`: Token for refreshing access token
+}
