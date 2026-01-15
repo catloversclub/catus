@@ -1,13 +1,4 @@
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import { View, TextInput, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { useLocalSearchParams, router } from "expo-router";
 import { useMemo, useRef, useState } from "react";
@@ -52,11 +43,14 @@ export default function CreatePostScreen() {
           onPageSelected={(e) => setCurrentPage(e.nativeEvent.position)}
         >
           {images.map((uri, index) => (
-            <View className="w-full aspect-square" key={index}>
+            <View
+              className="w-full h-full justify-center items-center"
+              key={index}
+            >
               <Image
                 source={{ uri }}
-                style={{ width: "100%", height: "100%" }}
-                contentFit="cover"
+                style={{ width: "100%", height: 300 }}
+                contentFit="contain"
               />
             </View>
           ))}

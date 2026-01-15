@@ -33,7 +33,7 @@ export default function TabLayout() {
       // 선택한 이미지로 게시글 작성 화면으로 이동
       // 배열을 JSON 문자열로 직렬화해서 전달
       router.push({
-        pathname: "/post/create-post",
+        pathname: "/post/edit-list",
         params: {
           imageUris: JSON.stringify(result.assets.map((asset) => asset.uri)),
         },

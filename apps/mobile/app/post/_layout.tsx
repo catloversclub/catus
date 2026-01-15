@@ -17,7 +17,7 @@ export default function PostLayout() {
               : DefaultTheme.colors.card,
         },
         headerLeft: () => (
-          <TouchableOpacity onPress={() => router.back()} className="p-2 -ml-2">
+          <TouchableOpacity onPress={() => router.back()} className="p-2">
             <Image
               source={require("@/assets/icons/arrow-left.svg")}
               style={{ width: 24, height: 24 }}
