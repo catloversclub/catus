@@ -6,6 +6,12 @@ import Animated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 
+interface TextItemProps {
+  uri: string;
+  onSave: (editedUri: string) => void;
+  onCancel: () => void;
+}
+
 export default function TextItem({ content, color, canvasSize }: any) {
   // Hook은 여기(컴포넌트 내부)에서 호출해야 에러가 나지 않습니다.
   const x = useSharedValue(canvasSize / 2 - 50);

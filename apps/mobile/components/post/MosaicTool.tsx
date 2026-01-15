@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, {
@@ -7,6 +7,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { Image } from "expo-image";
 import { BlurView } from "expo-blur";
+import ViewShot from "react-native-view-shot";
 
 interface MosaicData {
   id: number;
@@ -19,12 +20,29 @@ interface MosaicData {
 
 interface MosaicToolProps {
   uri: string;
+  onSave: (editedUri: string) => void;
+  onCancel: () => void;
 }
 
-export default function MosaicTool({ uri }: MosaicToolProps) {
+export default function MosaicTool({ uri, onSave, onCancel }: MosaicToolProps) {
   const [mosaics, setMosaics] = useState<MosaicData[]>([]); // 생성된 모자이크 리스트
   const [selectedType, setSelectedType] = useState<"rect" | "circle">("rect");
+  const viewShotRef = useRef<ViewShot>(null); // 캡처를 위한 Ref
 
+  // [핵심] 완료 버튼 클릭 시 실행될 함수
+  const handleComplete = async () => {
+    if (viewShotRef.current?.capture) {
+      try {
+        // 1. 현재 화면에 보이는 캔버스(이미지+모자이크)를 캡처하여 새로운 이미지 생성
+        const editedUri = await viewShotRef.current.capture();
+
+        // 2. 부모 컴포넌트(EditorScreen)의 handleEditSave 호출
+        onSave(editedUri);
+      } catch (error) {
+        console.error("저장 중 오류 발생:", error);
+      }
+    }
+  };
   // 새로운 모자이크 추가 함수
   const addMosaic = () => {
     const newMosaic: MosaicData = {
@@ -47,18 +65,24 @@ export default function MosaicTool({ uri }: MosaicToolProps) {
     <View className="flex-1 bg-black">
       {/* 1. 메인 이미지 및 모자이크 오버레이 영역 */}
       <View className="flex-1 justify-center items-center">
-        <View className="relative w-full aspect-square bg-zinc-900">
-          <Image
-            source={{ uri }}
-            style={StyleSheet.absoluteFill}
-            contentFit="contain"
-          />
+        <ViewShot
+          ref={viewShotRef}
+          options={{ format: "jpg", quality: 0.9 }}
+          style={{ width: "100%", aspectRatio: 1 }}
+        >
+          <View className="relative w-full aspect-square bg-zinc-900">
+            <Image
+              source={{ uri }}
+              style={StyleSheet.absoluteFill}
+              contentFit="contain"
+            />
 
-          {/* 생성된 모자이크들 렌더링 */}
-          {mosaics.map((item) => (
-            <MosaicItem key={item.id} item={item} />
-          ))}
-        </View>
+            {/* 생성된 모자이크들 렌더링 */}
+            {mosaics.map((item) => (
+              <MosaicItem key={item.id} item={item} />
+            ))}
+          </View>
+        </ViewShot>
       </View>
 
       {/* 2. 하단 전용 툴바 (기획안 반영) */}
@@ -104,7 +128,10 @@ export default function MosaicTool({ uri }: MosaicToolProps) {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity className="bg-yellow-400 py-4 rounded-xl">
+        <TouchableOpacity
+          onPress={handleComplete} // 여기서 저장 로직 호출
+          className="bg-yellow-400 py-4 rounded-xl"
+        >
           <Text className="text-center font-bold text-lg">완료</Text>
         </TouchableOpacity>
       </View>

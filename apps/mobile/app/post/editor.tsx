@@ -1,27 +1,11 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Dimensions,
-  StyleSheet,
-  Image as RNImage,
-} from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { useLocalSearchParams, router } from "expo-router";
 import { Image } from "expo-image";
-import * as ImageManipulator from "expo-image-manipulator";
-import {
-  GestureDetector,
-  Gesture,
-  GestureHandlerRootView,
-} from "react-native-gesture-handler";
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-} from "react-native-reanimated";
-
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const CANVAS_SIZE = SCREEN_WIDTH; // 이미지가 표시되는 영역
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import CropTool from "@/components/post/CropTool";
+import MosaicTool from "@/components/post/MosaicTool";
+import TextTool from "@/components/post/TextTool";
 
 export default function EditorScreen() {
   const { uri } = useLocalSearchParams<{ uri: string; index: string }>();
@@ -30,59 +14,40 @@ export default function EditorScreen() {
   >("none");
   const [currentUri, setCurrentUri] = useState(uri);
 
-  // 1. 크롭 박스 제스처 상태값
-  const boxX = useSharedValue(50);
-  const boxY = useSharedValue(50);
-  const boxWidth = useSharedValue(200);
-  const boxHeight = useSharedValue(200);
-
-  // 2. 제스처 정의
-  const moveGesture = Gesture.Pan().onChange((e) => {
-    boxX.value += e.changeX;
-    boxY.value += e.changeY;
-  });
-
-  const resizeGesture = Gesture.Pan().onChange((e) => {
-    boxWidth.value = Math.max(50, boxWidth.value + e.changeX);
-    boxHeight.value = Math.max(50, boxHeight.value + e.changeY);
-  });
-
-  const boxStyle = useAnimatedStyle(() => ({
-    top: boxY.value,
-    left: boxX.value,
-    width: boxWidth.value,
-    height: boxHeight.value,
-  }));
-
-  // 3. 실제 자르기 실행 (Scale 계산 포함)
-  const handleCropComplete = async () => {
-    // 원본 이미지 정보 가져오기
-    await new Promise<{ width: number; height: number }>((resolve, reject) => {
-      RNImage.getSize(
-        currentUri,
-        (width, height) => resolve({ width, height }),
-        reject
-      );
-    }).then(async (asset) => {
-      const scale = asset.width / CANVAS_SIZE; // 화면 대비 원본 비율
-
-      const cropConfig = {
-        originX: boxX.value * scale,
-        originY: boxY.value * scale,
-        width: boxWidth.value * scale,
-        height: boxHeight.value * scale,
-      };
-
-      const result = await ImageManipulator.manipulateAsync(
-        currentUri,
-        [{ crop: cropConfig }],
-        { format: ImageManipulator.SaveFormat.JPEG }
-      );
-
-      setCurrentUri(result.uri);
-      setCurrentMode("none");
-    });
+  // 수정 완료 핸들러
+  const handleEditSave = (editedUri: string) => {
+    setCurrentUri(editedUri);
+    setCurrentMode("none");
   };
+
+  // 크롭 모드일 때는 CropTool 컴포넌트 사용
+  if (currentMode === "crop") {
+    return (
+      <CropTool
+        uri={currentUri}
+        onSave={handleEditSave}
+        onCancel={() => setCurrentMode("none")}
+      />
+    );
+  }
+  if (currentMode === "mosaic") {
+    return (
+      <MosaicTool
+        uri={currentUri}
+        onSave={handleEditSave}
+        onCancel={() => setCurrentMode("none")}
+      />
+    );
+  }
+  if (currentMode === "text") {
+    return (
+      <TextTool
+        uri={currentUri}
+        onSave={handleEditSave}
+        onCancel={() => setCurrentMode("none")}
+      />
+    );
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: "#000" }}>
@@ -94,11 +59,9 @@ export default function EditorScreen() {
         <Text className="text-white font-bold">
           {currentMode === "none"
             ? "이미지 편집"
-            : currentMode === "crop"
-              ? "자르기"
-              : currentMode === "mosaic"
-                ? "모자이크"
-                : "텍스트"}
+            : currentMode === "mosaic"
+              ? "모자이크"
+              : "텍스트"}
         </Text>
         <TouchableOpacity
           onPress={() => {
@@ -110,93 +73,26 @@ export default function EditorScreen() {
       </View>
 
       {/* 메인 캔버스 */}
-      <View
-        style={{ width: CANVAS_SIZE, height: CANVAS_SIZE }}
-        className="relative self-center"
-      >
+      <View className="flex-1 justify-center items-center">
         <Image
           source={{ uri: currentUri }}
-          style={StyleSheet.absoluteFill}
+          style={{ width: "100%", height: "100%" }}
           contentFit="contain"
         />
-
-        {currentMode === "crop" && (
-          <>
-            {/* 어두운 배경 */}
-            <View style={StyleSheet.absoluteFill} className="bg-black/60" />
-
-            {/* 크롭 박스 */}
-            <GestureDetector gesture={moveGesture}>
-              <Animated.View style={[styles.cropBox, boxStyle]}>
-                {/* 격자 무늬 */}
-                <View className="flex-1 border border-white/50 flex-row">
-                  <View className="flex-1 border-r border-white/20" />
-                  <View className="flex-1 border-r border-white/20" />
-                  <View className="flex-1" />
-                </View>
-
-                {/* 크기 조절 핸들 (우측 하단) */}
-                <GestureDetector gesture={resizeGesture}>
-                  <View style={styles.handle} />
-                </GestureDetector>
-              </Animated.View>
-            </GestureDetector>
-          </>
-        )}
       </View>
 
       {/* 하단 툴바 */}
-      <View className="flex-1 justify-end pb-10">
-        {currentMode === "none" ? (
-          <View className="flex-row justify-around p-6 bg-zinc-900">
-            <TouchableOpacity onPress={() => setCurrentMode("crop")}>
-              <Text className="text-white">자르기</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setCurrentMode("mosaic")}>
-              <Text className="text-white">모자이크</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setCurrentMode("text")}>
-              <Text className="text-white">텍스트</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View className="p-6 bg-zinc-900">
-            {currentMode === "crop" && (
-              <View>
-                <Text className="text-white text-center mb-4">
-                  영역을 드래그하여 조절하세요
-                </Text>
-                <TouchableOpacity
-                  onPress={handleCropComplete}
-                  className="bg-yellow-400 py-4 rounded-lg"
-                >
-                  <Text className="text-center font-bold">자르기 적용</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        )}
+      <View className="flex-row justify-around p-6 bg-zinc-900">
+        <TouchableOpacity onPress={() => setCurrentMode("crop")}>
+          <Text className="text-white">자르기</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setCurrentMode("mosaic")}>
+          <Text className="text-white">모자이크</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setCurrentMode("text")}>
+          <Text className="text-white">텍스트</Text>
+        </TouchableOpacity>
       </View>
     </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  cropBox: {
-    position: "absolute",
-    borderWidth: 2,
-    borderColor: "#fff",
-    backgroundColor: "transparent",
-  },
-  handle: {
-    position: "absolute",
-    right: -10,
-    bottom: -10,
-    width: 30,
-    height: 30,
-    backgroundColor: "#fff",
-    borderRadius: 15,
-    borderWidth: 2,
-    borderColor: "#000",
-  },
-});
