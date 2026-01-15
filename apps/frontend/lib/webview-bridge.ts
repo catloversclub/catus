@@ -1,15 +1,25 @@
 import { Comment } from "@catus/constants"
 import { WEBVIEW_MESSAGE_TYPE } from "@catus/constants"
+
+// React Native WebView 인터페이스 정의
+interface ReactNativeWebView {
+  postMessage: (message: string) => void
+}
+
+interface WindowWithWebView extends Window {
+  ReactNativeWebView?: ReactNativeWebView
+}
+
 // WebView 환경인지 확인
 export function isInWebView(): boolean {
   if (typeof window === "undefined") return false
-  return !!(window as any).ReactNativeWebView
+  return !!(window as WindowWithWebView).ReactNativeWebView
 }
 
 // React Native로 메시지 전송
-export function sendToReactNative(type: string, payload?: any) {
-  if (typeof window !== "undefined" && (window as any).ReactNativeWebView) {
-    ;(window as any).ReactNativeWebView.postMessage(
+export function sendToReactNative(type: string, payload?: unknown) {
+  if (typeof window !== "undefined" && (window as WindowWithWebView).ReactNativeWebView) {
+    ;(window as WindowWithWebView).ReactNativeWebView!.postMessage(
       JSON.stringify({
         type,
         payload,

@@ -28,8 +28,11 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "permissions": ["android.permission.RECORD_AUDIO"],
-      "usesCleartextTraffic": true
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
+      "usesCleartextTraffic": true,
+      "package": "com.catus.app"
     },
     "web": {
       "output": "static",
