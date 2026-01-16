@@ -43,4 +43,5 @@ app-example
 /android
 
 # Ignore the constants/url.ts file
-constants/url.ts
+# 추척이 안돼서 앱배포시 문제가됩니다....
+# constants/url.ts
