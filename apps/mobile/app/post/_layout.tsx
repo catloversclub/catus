@@ -1,7 +1,7 @@
 import { Stack, router } from "expo-router";
 import { TouchableOpacity, useColorScheme } from "react-native";
-import { Image } from "expo-image";
 import { DarkTheme, DefaultTheme } from "@react-navigation/native";
+import ArrowLeftIcon from "@/assets/icons/arrow-left.svg";
 
 export default function PostLayout() {
   const colorScheme = useColorScheme();
@@ -18,10 +18,7 @@ export default function PostLayout() {
         },
         headerLeft: () => (
           <TouchableOpacity onPress={() => router.back()} className="p-2">
-            <Image
-              source={require("@/assets/icons/arrow-left.svg")}
-              style={{ width: 24, height: 24 }}
-            />
+            <ArrowLeftIcon width={24} height={24} />
           </TouchableOpacity>
         ),
       }}

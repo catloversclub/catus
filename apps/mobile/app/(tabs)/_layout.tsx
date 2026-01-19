@@ -5,7 +5,11 @@ import * as ImagePicker from "expo-image-picker";
 import { HapticTab } from "@/components/haptic-tab";
 import { Colors } from "@/constants/theme";
 
-import { Image } from "expo-image";
+import HouseIcon from "@/assets/icons/house.svg";
+import ExploreIcon from "@/assets/icons/explore.svg";
+import CameraIcon from "@/assets/icons/camera.svg";
+import BellIcon from "@/assets/icons/bell.svg";
+import PersonIcon from "@/assets/icons/person.svg";
 import { useColorScheme, View, Alert, TouchableOpacity } from "react-native";
 
 export default function TabLayout() {
@@ -60,10 +64,7 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => (
-            <Image
-              source={require("@/assets/icons/house.svg")}
-              style={{ width: 20, height: 20, tintColor: color }}
-            />
+            <HouseIcon width={20} height={20} color={color} />
           ),
         }}
       />
@@ -73,10 +74,7 @@ export default function TabLayout() {
         options={{
           title: "Explore",
           tabBarIcon: ({ color }) => (
-            <Image
-              source={require("@/assets/icons/explore.svg")}
-              style={{ width: 20, height: 20, tintColor: color }}
-            />
+            <ExploreIcon width={20} height={20} color={color} />
           ),
         }}
       />
@@ -86,10 +84,7 @@ export default function TabLayout() {
         options={{
           tabBarIcon: ({ color }) => (
             <View className="h-11 w-20 bg-yellow-300 rounded-full items-center justify-center">
-              <Image
-                source={require("@/assets/icons/camera.svg")}
-                style={{ width: 20, height: 20, tintColor: color }}
-              />
+              <CameraIcon width={20} height={20} color={color} />
             </View>
           ),
           tabBarButton: ({ children, style }) => (
@@ -104,10 +99,7 @@ export default function TabLayout() {
         options={{
           title: "Notifications",
           tabBarIcon: ({ color }) => (
-            <Image
-              source={require("@/assets/icons/bell.svg")}
-              style={{ width: 16, height: 20, tintColor: color }}
-            />
+            <BellIcon width={16} height={20} color={color} />
           ),
         }}
       />
@@ -116,10 +108,7 @@ export default function TabLayout() {
         options={{
           title: "My",
           tabBarIcon: ({ color }) => (
-            <Image
-              source={require("@/assets/icons/person.svg")}
-              style={{ width: 20, height: 20, tintColor: color }}
-            />
+            <PersonIcon width={20} height={20} color={color} />
           ),
         }}
       />
