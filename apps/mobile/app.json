@@ -4,7 +4,7 @@
     "slug": "catus",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/icons/icon.png",
     "scheme": "mobile",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -42,7 +42,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#232323",
+          "backgroundColor": "#FFFFFF",
           "image": "./assets/icons/splash-icon.png",
           "dark": {
             "image": "./assets/icons/splash-icon-dark.png",
