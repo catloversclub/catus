@@ -15,7 +15,7 @@ import {
   BottomSheetView,
   TouchableWithoutFeedback,
 } from "@gorhom/bottom-sheet";
-import { Image } from "expo-image";
+import ArrowUpIcon from "@/assets/icons/arrow-up.svg";
 import CommentItem from "./comment-item";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Comment } from "@catus/constants";
@@ -48,7 +48,7 @@ export default function CommentSheet({
         ))}
       </View>
     ),
-    []
+    [],
   );
   return (
     <BottomSheetModal
@@ -105,10 +105,7 @@ export default function CommentSheet({
                     multiline
                   />
                   <TouchableOpacity className="w-9 h-9 rounded-full items-center justify-center ml-2 bg-yellow-400">
-                    <Image
-                      source={require("@/assets/icons/arrow-up.svg")}
-                      className="w-5 h-5"
-                    />
+                    <ArrowUpIcon width={20} height={20} />
                   </TouchableOpacity>
                 </View>
               </View>

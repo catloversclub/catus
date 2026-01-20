@@ -2,6 +2,53 @@ import type { NextAuthOptions } from "next-auth"
 import KakaoProvider from "next-auth/providers/kakao"
 import type { KakaoProfile, RefreshableToken } from "./types"
 
+type OidcExchangeResponse = {
+  onboardingRequired: boolean
+  accessToken: string
+  refreshToken: string | null
+}
+
+type RefreshResponse = {
+  accessToken: string
+  refreshToken: string
+}
+
+function getApiBaseUrl() {
+  return (process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.catus.app").replace(/\/$/, "")
+}
+
+function decodeJwtPayload<T = unknown>(jwt: string): T | null {
+  const parts = jwt.split(".")
+  if (parts.length < 2) return null
+
+  const base64Url = parts[1]
+  const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/")
+  const pad = base64.length % 4 === 0 ? "" : "=".repeat(4 - (base64.length % 4))
+
+  try {
+    const json = Buffer.from(base64 + pad, "base64").toString("utf8")
+    return JSON.parse(json) as T
+  } catch {
+    return null
+  }
+}
+
+function getJwtExpMs(jwt: string): number | null {
+  const payload = decodeJwtPayload<{ exp?: number }>(jwt)
+  return payload?.exp ? payload.exp * 1000 : null
+}
+
+function getJwtSub(jwt: string): string | null {
+  const payload = decodeJwtPayload<{ sub?: string }>(jwt)
+  const sub = payload?.sub?.trim()
+  return sub && sub.length > 0 ? sub : null
+}
+
+function getJwtTyp(jwt: string): string | null {
+  const payload = decodeJwtPayload<{ typ?: string }>(jwt)
+  return payload?.typ ?? null
+}
+
 export const authOptions: NextAuthOptions = {
   providers: [
     KakaoProvider({
@@ -43,12 +90,55 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, account, profile }) {
       // Initial sign in
       if (account) {
-        token.accessToken = account.access_token ?? (token.accessToken as string | undefined)
-        token.refreshToken = account.refresh_token ?? (token.refreshToken as string | undefined)
         token.idToken = account.id_token ?? (token.idToken as string | undefined)
-        token.accessTokenExpires = account.expires_at
-          ? account.expires_at * 1000
-          : ((token.accessTokenExpires as number | undefined) ?? Date.now() + 60 * 60 * 1000)
+        token.onboardingRequired = undefined
+        // Clear any legacy tokens from previous versions (e.g. Kakao refresh token)
+        token.refreshToken = undefined
+
+        // Exchange OIDC id_token -> app-issued access/refresh tokens.
+        if (token.idToken) {
+          const apiBaseUrl = getApiBaseUrl()
+          try {
+            const res = await fetch(`${apiBaseUrl}/auth/oidc/exchange`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                idToken: token.idToken,
+                provider: account.provider,
+              }),
+            })
+
+            if (!res.ok) {
+              const text = await res.text().catch(() => "")
+              console.error("[auth] oidc exchange failed", { status: res.status, body: text })
+              // Fallback (backend still accepts OIDC id_token as Bearer during migration)
+              token.accessToken = token.idToken
+              token.refreshToken = undefined
+              token.onboardingRequired = undefined
+              token.accessTokenExpires =
+                getJwtExpMs(token.idToken as string) ??
+                ((token.accessTokenExpires as number | undefined) ?? Date.now() + 60 * 60 * 1000)
+              token.error = "OidcExchangeFailed"
+            } else {
+              const exchanged = (await res.json()) as OidcExchangeResponse
+              token.accessToken = exchanged.accessToken
+              token.refreshToken = exchanged.refreshToken ?? undefined
+              token.onboardingRequired = exchanged.onboardingRequired
+              token.accessTokenExpires =
+                getJwtExpMs(exchanged.accessToken) ?? Date.now() + 15 * 60 * 1000
+            }
+          } catch (e) {
+            console.error("[auth] oidc exchange request failed", e)
+            // Fallback (backend still accepts OIDC id_token as Bearer during migration)
+            token.accessToken = token.idToken
+            token.refreshToken = undefined
+            token.onboardingRequired = undefined
+            token.accessTokenExpires =
+              getJwtExpMs(token.idToken as string) ??
+              ((token.accessTokenExpires as number | undefined) ?? Date.now() + 60 * 60 * 1000)
+            token.error = "OidcExchangeFetchFailed"
+          }
+        }
 
         const profileData = profile as KakaoProfile | undefined
         const profileId =
@@ -57,6 +147,12 @@ export const authOptions: NextAuthOptions = {
           account.providerAccountId
         if (profileId) {
           token.userId = profileId.toString()
+        }
+
+        // If app access token includes a user id (sub), prefer it.
+        const appUserId = token.accessToken ? getJwtSub(token.accessToken as string) : null
+        if (appUserId) {
+          token.userId = appUserId
         }
 
         const name =
@@ -74,8 +170,45 @@ export const authOptions: NextAuthOptions = {
         }
       }
 
+      // Defensive: if refreshToken is not an app-issued JWT refresh token, drop it.
+      if (token.refreshToken) {
+        const typ = getJwtTyp(token.refreshToken as string)
+        if (typ !== "refresh") {
+          token.refreshToken = undefined
+        }
+      }
+
+      // If accessTokenExpires is missing but token is a JWT, infer from exp.
+      if (!token.accessTokenExpires && token.accessToken) {
+        const expMs = getJwtExpMs(token.accessToken as string)
+        if (expMs) token.accessTokenExpires = expMs
+      }
+
+      // If onboarding just finished, the previously issued access token may still have sub=null.
+      // Re-run OIDC exchange with the stored idToken to "upgrade" to a user-bound access/refresh token.
+      if (token.onboardingRequired && token.idToken) {
+        const apiBaseUrl = getApiBaseUrl()
+        try {
+          const res = await fetch(`${apiBaseUrl}/auth/oidc/exchange`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idToken: token.idToken }),
+          })
+
+          if (res.ok) {
+            const exchanged = (await res.json()) as OidcExchangeResponse
+            token.accessToken = exchanged.accessToken
+            token.refreshToken = exchanged.refreshToken ?? undefined
+            token.onboardingRequired = exchanged.onboardingRequired
+            token.accessTokenExpires = getJwtExpMs(exchanged.accessToken) ?? Date.now() + 15 * 60 * 1000
+          }
+        } catch (e) {
+          console.error("[auth] oidc re-exchange failed", e)
+        }
+      }
+
       // Return previous token if the access token has not expired yet
-      if (Date.now() < (token.accessTokenExpires as number)) {
+      if (Date.now() < (token.accessTokenExpires as number) - 30_000) {
         return token
       }
 
@@ -85,6 +218,9 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       session.accessToken = token.accessToken as string | undefined
       session.idToken = token.idToken as string | undefined
+      session.refreshToken = token.refreshToken as string | undefined
+      session.accessTokenExpires = token.accessTokenExpires as number | undefined
+      session.onboardingRequired = token.onboardingRequired as boolean | undefined
 
       session.user = session.user ?? { id: "" }
       if (token.userId) {
@@ -108,20 +244,22 @@ export const authOptions: NextAuthOptions = {
 
 async function refreshAccessToken(token: RefreshableToken) {
   try {
-    const response = await fetch("https://kauth.kakao.com/oauth/token", {
+    if (!token.refreshToken || getJwtTyp(token.refreshToken as string) !== "refresh") {
+      return { ...token, error: "RefreshAccessTokenError" }
+    }
+
+    const apiBaseUrl = getApiBaseUrl()
+    const response = await fetch(`${apiBaseUrl}/auth/refresh`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Content-Type": "application/json",
       },
-      body: new URLSearchParams({
-        grant_type: "refresh_token",
-        client_id: process.env.KAKAO_CLIENT_ID!,
-        client_secret: process.env.KAKAO_CLIENT_SECRET!,
-        refresh_token: token.refreshToken as string,
+      body: JSON.stringify({
+        refreshToken: token.refreshToken as string,
       }),
     })
 
-    const refreshedTokens = await response.json()
+    const refreshedTokens = (await response.json()) as RefreshResponse
 
     if (!response.ok) {
       throw refreshedTokens
@@ -129,14 +267,41 @@ async function refreshAccessToken(token: RefreshableToken) {
 
     return {
       ...token,
-      accessToken: refreshedTokens.access_token,
-      accessTokenExpires: Date.now() + refreshedTokens.expires_in * 1000,
-      refreshToken: refreshedTokens.refresh_token ?? (token.refreshToken as string), // Fall back to old refresh token
+      accessToken: refreshedTokens.accessToken,
+      accessTokenExpires: getJwtExpMs(refreshedTokens.accessToken) ?? Date.now() + 15 * 60 * 1000,
+      refreshToken: refreshedTokens.refreshToken ?? (token.refreshToken as string),
     }
   } catch (error) {
     console.error("Error refreshing access token:", error)
+
+    // If refresh token is invalid/rotated, try re-exchange with stored idToken (if any).
+    if (token.idToken) {
+      try {
+        const apiBaseUrl = getApiBaseUrl()
+        const res = await fetch(`${apiBaseUrl}/auth/oidc/exchange`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ idToken: token.idToken }),
+        })
+        if (res.ok) {
+          const exchanged = (await res.json()) as OidcExchangeResponse
+          return {
+            ...token,
+            accessToken: exchanged.accessToken,
+            accessTokenExpires: getJwtExpMs(exchanged.accessToken) ?? Date.now() + 15 * 60 * 1000,
+            refreshToken: exchanged.refreshToken ?? undefined,
+            onboardingRequired: exchanged.onboardingRequired,
+            error: undefined,
+          }
+        }
+      } catch (e) {
+        console.error("[auth] oidc re-exchange after refresh failure failed", e)
+      }
+    }
+
     return {
       ...token,
+      refreshToken: undefined,
       error: "RefreshAccessTokenError",
     }
   }

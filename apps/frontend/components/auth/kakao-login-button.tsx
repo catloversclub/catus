@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 
 export function KakaoLoginButton() {
   const handleKakaoLogin = () => {
-    signIn("kakao", { callbackUrl: "/" })
+    signIn("kakao", { callbackUrl: "/post-login" })
   }
 
   return (

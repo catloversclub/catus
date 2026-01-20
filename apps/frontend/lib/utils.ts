@@ -24,7 +24,9 @@ export const fetcherWithAuth = fetcher.extend({
     beforeRequest: [
       async (request: Request) => {
         const session = (await getSession()) as ExtendedSession | null
-        const token = session?.idToken
+        // During onboarding, accessToken may be sub=null and blocked by backend guard.
+        // Use idToken until tokens are upgraded.
+        const token = session?.onboardingRequired ? session?.idToken : session?.accessToken
         if (token) {
           request.headers.set("Authorization", `Bearer ${token}`)
         }
@@ -34,7 +36,7 @@ export const fetcherWithAuth = fetcher.extend({
       async (request: Request, options: Options, response: Response) => {
         if (response.status === 401) {
           const session = (await getSession()) as ExtendedSession | null
-          const token = session?.idToken
+          const token = session?.onboardingRequired ? session?.idToken : session?.accessToken
           if (token) {
             request.headers.set("Authorization", `Bearer ${token}`)
             return fetcher(request, { ...options, hooks: {} })

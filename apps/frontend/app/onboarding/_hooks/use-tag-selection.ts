@@ -48,8 +48,14 @@ export function useTagSelection({
       return
     }
 
+    const totalSelected = selectedPersonality.length + selectedAppearance.length
+    if (totalSelected >= 4) {
+      toast.error("4개를 모두 선택했어요")
+      return
+    }
+
     if (selected.length >= 2) {
-      toast("최대 2개까지 선택할 수 있어요.")
+      toast.error("최대 2개까지 선택할 수 있어요.")
       return
     }
 
@@ -73,4 +79,3 @@ export function useTagSelection({
     toInterestStrings,
   }
 }
-

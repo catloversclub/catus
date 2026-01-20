@@ -8,7 +8,7 @@ import { useOnboarding } from "@/components/onboarding/onboarding-context"
 export function useCompleteOnboarding() {
   const router = useRouter()
   const { draft, setInterests } = useOnboarding()
-  const { data: session } = useSession()
+  const { data: session, update } = useSession()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const submit = async (params: {
@@ -20,7 +20,7 @@ export function useCompleteOnboarding() {
       return
     }
 
-    if (!session?.idToken) {
+    if (!session?.accessToken) {
       toast.error("세션 정보가 만료되었어요. 다시 로그인 해주세요.")
       return
     }
@@ -44,6 +44,13 @@ export function useCompleteOnboarding() {
         ...params.favoriteAppearances.map((id) => `appearance:${id}`),
       ]
       setInterests(combined)
+
+      // Important:
+      // Before onboarding, /auth/oidc/exchange can return accessToken with sub=null (onboardingRequired=true).
+      // After user is created, we must re-run exchange to "upgrade" to a user-bound access/refresh token.
+      // Trigger a session update so NextAuth's jwt callback can re-exchange.
+      await update().catch(() => {})
+
       router.push("/onboarding/complete")
     } catch {
       toast.error("저장에 실패했어요. 잠시 후 다시 시도해 주세요.")
