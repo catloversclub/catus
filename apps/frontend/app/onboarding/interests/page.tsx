@@ -1,6 +1,5 @@
 "use client"
 
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Chip } from "@/components/ui/chip"
 import { useOnboarding } from "@/components/onboarding/onboarding-context"
@@ -10,7 +9,6 @@ import { useCompleteOnboarding } from "@/app/onboarding/_hooks/use-complete-onbo
 import { renderTagRows } from "@/app/onboarding/_libs/utils"
 
 export default function OnboardingInterestsPage() {
-  const router = useRouter()
   const { draft, setInterests } = useOnboarding()
   const { personalityOptions, appearanceOptions } = useTagOptions()
   const { selectedPersonality, selectedAppearance, toggleTag, hasSelection } = useTagSelection({
@@ -20,9 +18,12 @@ export default function OnboardingInterestsPage() {
   })
   const { submit, isSubmitting } = useCompleteOnboarding()
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
     setInterests([])
-    router.push("/")
+    await submit({
+      favoritePersonalities: [],
+      favoriteAppearances: [],
+    })
   }
 
   const handleSave = async () => {
@@ -101,7 +102,7 @@ export default function OnboardingInterestsPage() {
         <Button className="w-full" disabled={!hasSelection || isSubmitting} onClick={handleSave}>
           {isSubmitting ? "저장 중..." : "다음으로"}
         </Button>
-        <Button variant="ghost" className="w-full" onClick={handleSkip}>
+        <Button variant="ghost" className="w-full" disabled={isSubmitting} onClick={handleSkip}>
           건너뛰기
         </Button>
       </div>

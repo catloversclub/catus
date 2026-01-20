@@ -7,6 +7,9 @@ import { redirect } from "next/navigation"
 export default async function Login() {
   const session = await getServerSession()
   if (session) {
+    if (session.onboardingRequired) {
+      redirect("/onboarding/nickname")
+    }
     redirect("/")
   }
   return (

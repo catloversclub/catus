@@ -47,6 +47,16 @@ export function navigateToPost(postId: string) {
   sendToReactNative(WEBVIEW_MESSAGE_TYPE.NAVIGATE_TO_POST, { postId })
 }
 
+// React Native 온보딩 완료 알림
+export function notifyOnboardingComplete() {
+  sendToReactNative(WEBVIEW_MESSAGE_TYPE.ONBOARDING_COMPLETE)
+}
+
+// React Native 온보딩 화면 전환
+export function navigateOnboarding(route: string) {
+  sendToReactNative(WEBVIEW_MESSAGE_TYPE.ONBOARDING_NAVIGATE, { route })
+}
+
 // React Native로부터 메시지 수신 리스너 등록
 export function addWebViewMessageListener(callback: (event: MessageEvent) => void): () => void {
   if (typeof window === "undefined") return () => {}
