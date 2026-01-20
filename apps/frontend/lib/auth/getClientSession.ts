@@ -7,11 +7,14 @@ export const auth = () => {
 
   return async () => {
     const extendedSession = session as ExtendedSession | null
-    const isExpired = extendedSession?.token?.accessTokenExpires
-      ? extendedSession.token.accessTokenExpires < Date.now()
-      : true
+    const isExpired =
+      extendedSession?.accessTokenExpires != null
+        ? extendedSession.accessTokenExpires < Date.now()
+        : true
 
-    if (!session || isExpired) {
+    // While onboardingRequired, keep session fresh so the server can "upgrade" tokens
+    // after /user is created (re-exchange id_token -> app tokens with userId + refreshToken).
+    if (!session || isExpired || extendedSession?.onboardingRequired) {
       session = await getSession()
     }
 

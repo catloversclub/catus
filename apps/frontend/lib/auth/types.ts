@@ -3,9 +3,9 @@ import type { JWT } from "next-auth/jwt"
 import type { Profile as NextAuthProfile } from "next-auth"
 
 export interface ExtendedSession extends Session {
-  token?: {
-    accessTokenExpires?: number
-  }
+  refreshToken?: string
+  accessTokenExpires?: number
+  onboardingRequired?: boolean
 }
 
 export type KakaoProfile = NextAuthProfile & {
@@ -26,4 +26,5 @@ export type RefreshableToken = JWT & {
   refreshToken?: string
   accessToken?: string
   accessTokenExpires?: number
+  onboardingRequired?: boolean
 }
