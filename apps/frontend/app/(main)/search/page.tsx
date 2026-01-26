@@ -1,12 +1,11 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Search as SearchIcon } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Search as SearchIcon } from "lucide-react"
 import Image from "next/image"
 
 export default function Search() {
-  const router = useRouter()
+  // const router = useRouter()
   const [searchQuery, setSearchQuery] = useState("")
   const [submittedQuery, setSubmittedQuery] = useState("")
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([])

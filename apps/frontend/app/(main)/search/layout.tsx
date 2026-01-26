@@ -1,5 +1,4 @@
 import { DefaultHeader } from "@/components/layout/default-header"
-import { FeedHeader } from "@/components/layout/feed-header"
 
 export default function HomeLayout({
   children,

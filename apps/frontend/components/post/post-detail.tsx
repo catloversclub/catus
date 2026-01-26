@@ -4,7 +4,6 @@ import Image from "next/image"
 import { MoreVertical } from "lucide-react"
 import { useState, useEffect } from "react"
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel"
-import { FeedActionButtons } from "@/components/feed/feed-action-buttons"
 import { CommentList } from "./comment-list"
 
 interface PostDetailProps {
@@ -14,8 +13,8 @@ interface PostDetailProps {
 export function PostDetail({ postId }: PostDetailProps) {
   const [api, setApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
-  const [liked, setLiked] = useState(false)
-  const [bookmarked, setBookmarked] = useState(false)
+  // const [liked, setLiked] = useState(false)
+  // const [bookmarked, setBookmarked] = useState(false)
 
   useEffect(() => {
     if (!api) return

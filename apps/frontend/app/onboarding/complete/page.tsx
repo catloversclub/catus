@@ -1,9 +1,5 @@
 "use client"
-declare global {
-  interface Window {
-    ReactNativeWebView: any
-  }
-}
+
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { isInWebView, notifyOnboardingComplete } from "@/lib/webview-bridge"
