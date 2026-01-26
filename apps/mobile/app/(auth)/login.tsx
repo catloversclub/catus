@@ -39,9 +39,9 @@ export default function LoginScreen() {
           data.user,
         );
 
-        if (!data.onboardingRequired) {
-          router.replace("/(tabs)");
-        }
+        // if (!data.onboardingRequired) {
+        router.replace("/(tabs)");
+        // }
         return; // 여기서 함수 종료
       }
 
