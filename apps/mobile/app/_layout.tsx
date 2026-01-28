@@ -57,12 +57,10 @@ function RootLayoutNav() {
   );
 }
 
-// 4. 최상위 레이아웃 (Providers 감싸기)
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView style={{ flex: 1 }}>
-        {/* AuthProvider가 가장 바깥쪽(또는 UI Provider 안쪽)에 있어야 합니다 */}
         <AuthProvider>
           <RootLayoutNav />
         </AuthProvider>

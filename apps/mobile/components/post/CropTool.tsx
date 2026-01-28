@@ -48,7 +48,7 @@ export default function CropTool({ uri, onSave, onCancel }: CropToolProps) {
         const size = Math.min(
           CANVAS_SIZE - 100,
           boxWidth.value,
-          boxHeight.value
+          boxHeight.value,
         );
         boxWidth.value = size;
         boxHeight.value = size;
@@ -106,7 +106,7 @@ export default function CropTool({ uri, onSave, onCancel }: CropToolProps) {
         const avgChange = (e.changeX + e.changeY) / 2;
         boxWidth.value = Math.max(
           50,
-          Math.min(CANVAS_SIZE - boxX.value, boxWidth.value + avgChange)
+          Math.min(CANVAS_SIZE - boxX.value, boxWidth.value + avgChange),
         );
         boxHeight.value = boxWidth.value / ratio;
       }
@@ -135,7 +135,7 @@ export default function CropTool({ uri, onSave, onCancel }: CropToolProps) {
       RNImage.getSize(
         uri,
         (width, height) => resolve({ width, height }),
-        reject
+        reject,
       );
     })
       .then(async (asset) => {
@@ -151,7 +151,7 @@ export default function CropTool({ uri, onSave, onCancel }: CropToolProps) {
         const result = await ImageManipulator.manipulateAsync(
           uri,
           [{ crop: cropConfig }],
-          { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
+          { compress: 1, format: ImageManipulator.SaveFormat.JPEG },
         );
 
         onSave(result.uri);

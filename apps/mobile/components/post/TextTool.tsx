@@ -16,7 +16,16 @@ import Animated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 
-function TextItem({ content, color, canvasSize }: any) {
+function TextItem({
+  content,
+  color,
+  canvasSize,
+}: {
+  content: string;
+  color: string;
+  canvasSize: number;
+}) {
+  // 제스처 상태값
   const x = useSharedValue(0);
   const y = useSharedValue(0);
   const scale = useSharedValue(1);
@@ -46,7 +55,7 @@ function TextItem({ content, color, canvasSize }: any) {
       })
       .onEnd(() => {
         savedRotation.value = rotation.value;
-      })
+      }),
   );
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -88,7 +97,9 @@ interface TextToolProps {
 }
 
 export default function TextTool({ uri, onSave, onCancel }: TextToolProps) {
-  const [texts, setTexts] = useState<any[]>([]);
+  const [texts, setTexts] = useState<
+    { id: number; content: string; color: string }[]
+  >([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [inputText, setInputText] = useState("");
   const viewShotRef = useRef<ViewShot>(null);
