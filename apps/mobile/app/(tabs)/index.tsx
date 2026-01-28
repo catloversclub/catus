@@ -1,5 +1,5 @@
 import { WEBVIEW_MESSAGE_TYPE } from "@catus/constants";
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import { WebViewMessageEvent } from "react-native-webview";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
@@ -14,6 +14,8 @@ import BottomSheet from "@/components/bottom-sheet";
 import { Text } from "react-native";
 import CommentSheet from "../../components/comment-sheet";
 import { WEBVIEW_URL } from "../../constants/url";
+import * as Notifications from "expo-notifications";
+import Constants from "expo-constants";
 
 export default function App() {
   const pagerRef = useRef<PagerView>(null);
