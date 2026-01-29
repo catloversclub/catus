@@ -21,9 +21,8 @@ export function PostLoginClient() {
         // 2. RN 앱으로 메시지 전송
         window.ReactNativeWebView.postMessage(JSON.stringify(message))
       }
-
-      handleSession()
     }
+    handleSession()
   }, [])
 
   return (
