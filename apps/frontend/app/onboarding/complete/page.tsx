@@ -8,11 +8,11 @@ export default function OnboardingCompletePage() {
   const router = useRouter()
 
   const handleStart = () => {
-    // 1. 웹뷰 환경이면 RN으로 신호 전송
     if (isInWebView()) {
+      // 1. 웹뷰: RN에게 "끝났어, 탭화면으로 넘겨줘" 신호 전송
       notifyOnboardingComplete()
     } else {
-      // 2. 브라우저면 그냥 이동 (테스트 용도 등)
+      // 2. 웹 브라우저: 그냥 홈으로 이동
       router.push("/")
     }
   }
@@ -28,16 +28,7 @@ export default function OnboardingCompletePage() {
       </div>
 
       <div className="flex flex-shrink-0 pt-4">
-        {/* onClick 핸들러 교체 */}
         <Button onClick={handleStart}>시작하기</Button>
-
-        <Button
-          variant="ghost"
-          className="w-full underline"
-          onClick={() => router.push("/support")}
-        >
-          CatUS 사용법 자세히 알아보기
-        </Button>
       </div>
     </div>
   )

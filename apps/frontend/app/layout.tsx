@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/providers/session-provider"
 import { Toaster } from "@/components/ui/sonner"
 
 import localFont from "next/font/local"
+import { AuthSync } from "@/components/auth/AuthSync"
 
 const pretendard = localFont({
   src: "../fonts/PretendardVariable.woff2",
@@ -29,6 +30,7 @@ export default function RootLayout({
         <AuthProvider>
           <MobileWrapper>{children}</MobileWrapper>
           <Toaster />
+          <AuthSync />
         </AuthProvider>
       </body>
     </html>

@@ -1,7 +1,8 @@
+// lib/webview-bridge.ts
 import { Comment } from "@catus/constants"
 import { WEBVIEW_MESSAGE_TYPE } from "@catus/constants"
 
-// React Native WebView 인터페이스 정의
+// Types
 interface ReactNativeWebView {
   postMessage: (message: string) => void
 }
@@ -10,25 +11,50 @@ interface WindowWithWebView extends Window {
   ReactNativeWebView?: ReactNativeWebView
 }
 
-// WebView 환경인지 확인
+interface LoginPayload {
+  accessToken?: string
+  refreshToken?: string
+  onboardingRequired?: boolean
+  user?: any
+}
+
+// 1. 유틸리티: WebView 환경 체크
 export function isInWebView(): boolean {
   if (typeof window === "undefined") return false
   return !!(window as WindowWithWebView).ReactNativeWebView
 }
 
-// React Native로 메시지 전송
+// 2. 유틸리티: 메시지 전송 공통 함수
 export function sendToReactNative(type: string, payload?: unknown) {
   if (typeof window !== "undefined" && (window as WindowWithWebView).ReactNativeWebView) {
     ;(window as WindowWithWebView).ReactNativeWebView!.postMessage(
-      JSON.stringify({
-        type,
-        payload,
-      })
+      JSON.stringify({ type, payload })
     )
   }
 }
 
-// React Native 댓글 모달 열기
+/* -------------------------------------------------------------------------- */
+/* Auth & Onboarding                            */
+/* -------------------------------------------------------------------------- */
+
+// [수정] 문자열 리터럴 대신 상수를 사용
+export function notifyLoginSuccess(payload: LoginPayload) {
+  sendToReactNative(WEBVIEW_MESSAGE_TYPE.LOGIN_SUCCESS, payload)
+}
+
+// [수정] 상수를 사용 (payload 타입 정의 강화)
+export function notifyOnboardingComplete(payload?: { accessToken?: string }) {
+  sendToReactNative(WEBVIEW_MESSAGE_TYPE.ONBOARDING_COMPLETE, payload)
+}
+
+export function navigateOnboarding(route: string) {
+  sendToReactNative(WEBVIEW_MESSAGE_TYPE.ONBOARDING_NAVIGATE, { route })
+}
+
+/* -------------------------------------------------------------------------- */
+/* Features                                  */
+/* -------------------------------------------------------------------------- */
+
 export interface CommentSheetPayload {
   postId: string
   comments: Comment[]
@@ -42,28 +68,6 @@ export function openAdditionSheet() {
   sendToReactNative(WEBVIEW_MESSAGE_TYPE.OPEN_ADDITION_SHEET)
 }
 
-// React Native Post 상세 화면으로 이동
 export function navigateToPost(postId: string) {
   sendToReactNative(WEBVIEW_MESSAGE_TYPE.NAVIGATE_TO_POST, { postId })
-}
-
-// React Native 온보딩 완료 알림
-export function notifyOnboardingComplete() {
-  sendToReactNative(WEBVIEW_MESSAGE_TYPE.ONBOARDING_COMPLETE)
-}
-
-// React Native 온보딩 화면 전환
-export function navigateOnboarding(route: string) {
-  sendToReactNative(WEBVIEW_MESSAGE_TYPE.ONBOARDING_NAVIGATE, { route })
-}
-
-// React Native로부터 메시지 수신 리스너 등록
-export function addWebViewMessageListener(callback: (event: MessageEvent) => void): () => void {
-  if (typeof window === "undefined") return () => {}
-
-  window.addEventListener("message", callback)
-
-  return () => {
-    window.removeEventListener("message", callback)
-  }
 }
