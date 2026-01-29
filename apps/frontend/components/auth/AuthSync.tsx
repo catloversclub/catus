@@ -14,7 +14,6 @@ export function AuthSync() {
         accessToken: session.accessToken,
         refreshToken: session.refreshToken,
         onboardingRequired: session.onboardingRequired,
-        user: session.user,
       })
     }
   }, [session])

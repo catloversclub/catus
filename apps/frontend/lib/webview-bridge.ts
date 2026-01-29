@@ -3,33 +3,26 @@ import { Comment } from "@catus/constants"
 import { WEBVIEW_MESSAGE_TYPE } from "@catus/constants"
 
 // Types
-interface ReactNativeWebView {
-  postMessage: (message: string) => void
-}
-
-interface WindowWithWebView extends Window {
-  ReactNativeWebView?: ReactNativeWebView
-}
 
 interface LoginPayload {
   accessToken?: string
   refreshToken?: string
   onboardingRequired?: boolean
-  user?: any
 }
 
 // 1. 유틸리티: WebView 환경 체크
 export function isInWebView(): boolean {
   if (typeof window === "undefined") return false
-  return !!(window as WindowWithWebView).ReactNativeWebView
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return !!(window as any).ReactNativeWebView
 }
 
 // 2. 유틸리티: 메시지 전송 공통 함수
 export function sendToReactNative(type: string, payload?: unknown) {
-  if (typeof window !== "undefined" && (window as WindowWithWebView).ReactNativeWebView) {
-    ;(window as WindowWithWebView).ReactNativeWebView!.postMessage(
-      JSON.stringify({ type, payload })
-    )
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  if (typeof window !== "undefined" && (window as any).ReactNativeWebView) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ;(window as any).ReactNativeWebView.postMessage(JSON.stringify({ type, payload }))
   }
 }
 

@@ -1,31 +1,13 @@
 import { getServerSession } from "@/lib/auth/getServerSession"
-// import { redirect } from "next/navigation"
+import { PostLoginClient } from "./PostLoginClient"
 
 export default async function PostLoginPage() {
   const session = await getServerSession()
 
-  // if (!session) {
-  //   redirect("/login")
-  // }
+  if (!session) {
+    return <div>로그인 정보를 불러올 수 없습니다.</div>
+  }
 
-  // if (session.onboardingRequired) {
-  //   redirect("/onboarding/nickname")
-  // }
-
-  // redirect("/")
-
-  if (!session) return <div>Login Failed</div>
-
-  // 화면에는 JSON 데이터만 깔끔하게 출력합니다.
-  // RN 웹뷰가 이 텍스트를 읽어갈 것입니다.
-  return (
-    <pre id="session-data">
-      {JSON.stringify({
-        accessToken: session.accessToken,
-        refreshToken: session.refreshToken,
-        user: session.user,
-        onboardingRequired: session.onboardingRequired,
-      })}
-    </pre>
-  )
+  // 서버에서 받은 session 데이터를 클라이언트 컴포넌트로 넘겨줍니다.
+  return <PostLoginClient sessionData={session} />
 }
