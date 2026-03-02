@@ -1,5 +1,3 @@
-"use client"
-
 import { KakaoLogoutButton } from "@/components/auth/kakao-logout-button"
 
 export default function LogoutPage() {
@@ -11,4 +9,3 @@ export default function LogoutPage() {
     </div>
   )
 }
-

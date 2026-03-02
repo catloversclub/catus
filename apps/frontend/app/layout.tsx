@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner"
 
 import localFont from "next/font/local"
 import { AuthSync } from "@/components/auth/AuthSync"
+import { QueryProvider } from "@/components/providers/query-provider"
 
 const pretendard = localFont({
   src: "../fonts/PretendardVariable.woff2",
@@ -27,11 +28,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`antialiased ${pretendard.variable}`}>
-        <AuthProvider>
-          <MobileWrapper>{children}</MobileWrapper>
-          <Toaster />
-          <AuthSync />
-        </AuthProvider>
+        <QueryProvider>
+          <AuthProvider>
+            <MobileWrapper>{children}</MobileWrapper>
+            <Toaster />
+            <AuthSync />
+          </AuthProvider>
+        </QueryProvider>
       </body>
     </html>
   )
