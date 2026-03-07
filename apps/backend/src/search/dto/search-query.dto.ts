@@ -1,5 +1,5 @@
-import { Transform } from "class-transformer"
-import { IsEnum, IsNotEmpty, IsString } from "class-validator"
+import { Transform, Type } from "class-transformer"
+import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, Min } from "class-validator"
 
 export enum SearchTypeDto {
   POST = "post",
@@ -14,4 +14,22 @@ export class SearchQueryDto {
   @IsString()
   @IsNotEmpty()
   query!: string
+
+  @IsString()
+  @IsOptional()
+  cursor?: string
+
+  @IsString()
+  @IsOptional()
+  userCursor?: string
+
+  @IsString()
+  @IsOptional()
+  catCursor?: string
+
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  take?: number
 }
