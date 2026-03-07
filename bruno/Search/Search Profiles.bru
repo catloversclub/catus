@@ -1,0 +1,16 @@
+meta {
+  name: Search Profiles
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/search?type=profile&query=na
+  body: none
+  auth: inherit
+}
+
+params:query {
+  type: profile
+  query: na
+}

@@ -1,0 +1,16 @@
+meta {
+  name: Search Posts
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/search?type=post&query=na
+  body: none
+  auth: inherit
+}
+
+params:query {
+  type: post
+  query: na
+}
