@@ -1,10 +1,12 @@
 import { Injectable } from "@nestjs/common"
 import { PrismaService } from "@app/prisma/prisma.service"
 import { SearchQueryDto, SearchTypeDto } from "./dto/search-query.dto"
+import { SearchAutocompleteQueryDto } from "./dto/search-autocomplete-query.dto"
 
 @Injectable()
 export class SearchService {
   private static readonly DEFAULT_TAKE = 20
+  private static readonly AUTOCOMPLETE_TAKE = 5
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -22,6 +24,136 @@ export class SearchService {
       searchQueryDto.catCursor ?? null,
       take,
     )
+  }
+
+  async autocomplete(searchAutocompleteQueryDto: SearchAutocompleteQueryDto) {
+    const rawKeyword = searchAutocompleteQueryDto.query.trimStart()
+    const keyword = rawKeyword.trim()
+
+    const [profileResult, postResult] = await Promise.all([
+      this.autocompleteProfiles(keyword),
+      this.autocompletePosts(rawKeyword),
+    ])
+
+    return {
+      profile: profileResult,
+      post: postResult,
+    }
+  }
+
+  private async autocompleteProfiles(keyword: string) {
+    const [users, cats] = await Promise.all([
+      this.prisma.user.findMany({
+        take: SearchService.AUTOCOMPLETE_TAKE,
+        where: {
+          nickname: {
+            startsWith: keyword,
+            mode: "insensitive",
+          },
+        },
+        orderBy: { id: "desc" },
+        select: {
+          nickname: true,
+          profileImageUrl: true,
+        },
+      }),
+      this.prisma.cat.findMany({
+        take: SearchService.AUTOCOMPLETE_TAKE,
+        where: {
+          OR: [
+            {
+              name: {
+                startsWith: keyword,
+                mode: "insensitive",
+              },
+            },
+            {
+              breed: {
+                startsWith: keyword,
+                mode: "insensitive",
+              },
+            },
+          ],
+        },
+        orderBy: { id: "desc" },
+        select: {
+          name: true,
+          profileImageUrl: true,
+        },
+      }),
+    ])
+
+    return {
+      users: users.map((user) => ({
+        profileName: user.nickname,
+        profileImageUrl: user.profileImageUrl,
+      })),
+      cats: cats.map((cat) => ({
+        profileName: cat.name,
+        profileImageUrl: cat.profileImageUrl,
+      })),
+    }
+  }
+
+  private async autocompletePosts(rawKeyword: string) {
+    const searchKeyword = rawKeyword.trimStart()
+
+    if (!searchKeyword.trim()) {
+      return { keywords: [] }
+    }
+
+    const posts = await this.prisma.post.findMany({
+      take: SearchService.AUTOCOMPLETE_TAKE * 5,
+      where: {
+        content: {
+          startsWith: searchKeyword,
+          mode: "insensitive",
+        },
+      },
+      orderBy: { id: "desc" },
+      select: {
+        content: true,
+      },
+    })
+
+    const keywords = Array.from(
+      new Set(
+        posts
+          .map((post) => (post.content ?? "").trim())
+          .filter(Boolean)
+          .map((content) => this.buildAutocompletePostKeyword(content, searchKeyword))
+          .filter(Boolean),
+      ),
+    ).slice(0, SearchService.AUTOCOMPLETE_TAKE)
+
+    return {
+      keywords,
+    }
+  }
+
+  private buildAutocompletePostKeyword(content: string, query: string) {
+    const contentTokens = content.split(/\s+/).filter(Boolean)
+    const queryEndsWithSpace = /\s$/.test(query)
+    const queryTokens = query.trim().split(/\s+/).filter(Boolean)
+
+    if (contentTokens.length === 0 || queryTokens.length === 0) {
+      return ""
+    }
+
+    const typedTokenCount = queryTokens.length
+    const currentTokenIndex = typedTokenCount - 1
+    const currentQueryToken = queryTokens[currentTokenIndex]?.toLowerCase() ?? ""
+    const currentContentToken = contentTokens[currentTokenIndex]?.toLowerCase() ?? ""
+    const shouldExpandToNextToken =
+      queryEndsWithSpace ||
+      (currentQueryToken.length > 0 && currentQueryToken === currentContentToken)
+
+    const tokenCount = Math.min(
+      typedTokenCount + (shouldExpandToNextToken ? 1 : 0),
+      contentTokens.length,
+    )
+
+    return contentTokens.slice(0, tokenCount).join(" ")
   }
 
   private searchPosts(keyword: string, cursor?: string | null, take = SearchService.DEFAULT_TAKE) {

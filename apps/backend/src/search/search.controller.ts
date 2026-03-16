@@ -2,6 +2,7 @@ import { JwtAuthGuard } from "@app/auth/guards/jwt-auth.guard"
 import { Controller, Get, Query, UseGuards } from "@nestjs/common"
 import { SearchService } from "./search.service"
 import { SearchQueryDto } from "./dto/search-query.dto"
+import { SearchAutocompleteQueryDto } from "./dto/search-autocomplete-query.dto"
 
 @Controller("search")
 @UseGuards(JwtAuthGuard)
@@ -11,5 +12,10 @@ export class SearchController {
   @Get("")
   search(@Query() query: SearchQueryDto) {
     return this.searchService.search(query)
+  }
+
+  @Get("autocomplete")
+  autocomplete(@Query() query: SearchAutocompleteQueryDto) {
+    return this.searchService.autocomplete(query)
   }
 }
