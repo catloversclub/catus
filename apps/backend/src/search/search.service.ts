@@ -44,7 +44,7 @@ export class SearchService {
   private async autocompleteProfiles(keyword: string) {
     const [users, cats] = await Promise.all([
       this.prisma.user.findMany({
-        take: SearchService.AUTOCOMPLETE_TAKE,
+        take: SearchService.AUTOCOMPLETE_TAKE * 5,
         where: {
           nickname: {
             startsWith: keyword,
@@ -58,7 +58,7 @@ export class SearchService {
         },
       }),
       this.prisma.cat.findMany({
-        take: SearchService.AUTOCOMPLETE_TAKE,
+        take: SearchService.AUTOCOMPLETE_TAKE * 5,
         where: {
           OR: [
             {
@@ -83,15 +83,25 @@ export class SearchService {
       }),
     ])
 
-    return {
-      users: users.map((user) => ({
+    const sortedUsers = users
+      .map((user) => ({
         profileName: user.nickname,
         profileImageUrl: user.profileImageUrl,
-      })),
-      cats: cats.map((cat) => ({
+      }))
+      .sort((a, b) => this.compareByLengthThenName(a.profileName, b.profileName))
+      .slice(0, SearchService.AUTOCOMPLETE_TAKE)
+
+    const sortedCats = cats
+      .map((cat) => ({
         profileName: cat.name,
         profileImageUrl: cat.profileImageUrl,
-      })),
+      }))
+      .sort((a, b) => this.compareByLengthThenName(a.profileName, b.profileName))
+      .slice(0, SearchService.AUTOCOMPLETE_TAKE)
+
+    return {
+      users: sortedUsers,
+      cats: sortedCats,
     }
   }
 
@@ -124,7 +134,9 @@ export class SearchService {
           .map((content) => this.buildAutocompletePostKeyword(content, searchKeyword))
           .filter(Boolean),
       ),
-    ).slice(0, SearchService.AUTOCOMPLETE_TAKE)
+    )
+      .sort((a, b) => this.compareByLengthThenName(a, b))
+      .slice(0, SearchService.AUTOCOMPLETE_TAKE)
 
     return {
       keywords,
@@ -154,6 +166,10 @@ export class SearchService {
     )
 
     return contentTokens.slice(0, tokenCount).join(" ")
+  }
+
+  private compareByLengthThenName(a: string, b: string) {
+    return a.length - b.length || a.localeCompare(b)
   }
 
   private searchPosts(keyword: string, cursor?: string | null, take = SearchService.DEFAULT_TAKE) {
