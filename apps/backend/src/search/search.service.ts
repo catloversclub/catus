@@ -3,6 +3,10 @@ import { PrismaService } from "@app/prisma/prisma.service"
 import { SearchQueryDto, SearchTypeDto } from "./dto/search-query.dto"
 import { SearchAutocompleteQueryDto } from "./dto/search-autocomplete-query.dto"
 
+type PostWithViewerLike = {
+  likes: Array<{ userId: string }>
+}
+
 @Injectable()
 export class SearchService {
   private static readonly DEFAULT_TAKE = 20
@@ -10,12 +14,12 @@ export class SearchService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  search(searchQueryDto: SearchQueryDto) {
+  search(viewerId: string, searchQueryDto: SearchQueryDto) {
     const keyword = searchQueryDto.query.trim()
     const take = searchQueryDto.take ?? SearchService.DEFAULT_TAKE
 
     if (searchQueryDto.type === SearchTypeDto.POST) {
-      return this.searchPosts(keyword, searchQueryDto.cursor ?? null, take)
+      return this.searchPosts(keyword, viewerId, searchQueryDto.cursor ?? null, take)
     }
 
     return this.searchProfiles(
@@ -24,6 +28,33 @@ export class SearchService {
       searchQueryDto.catCursor ?? null,
       take,
     )
+  }
+
+  private getPostInclude(viewerId: string) {
+    return {
+      cat: true,
+      author: {
+        select: {
+          id: true,
+          nickname: true,
+          profileImageUrl: true,
+        },
+      },
+      images: true,
+      likes: {
+        where: { userId: viewerId },
+        select: { userId: true },
+      },
+    } as const
+  }
+
+  private attachLikeState<T extends PostWithViewerLike>(post: T) {
+    const { likes, ...rest } = post
+
+    return {
+      ...rest,
+      isLikedByMe: likes.length > 0,
+    }
   }
 
   async autocomplete(searchAutocompleteQueryDto: SearchAutocompleteQueryDto) {
@@ -172,7 +203,12 @@ export class SearchService {
     return a.length - b.length || a.localeCompare(b)
   }
 
-  private searchPosts(keyword: string, cursor?: string | null, take = SearchService.DEFAULT_TAKE) {
+  private searchPosts(
+    keyword: string,
+    viewerId: string,
+    cursor?: string | null,
+    take = SearchService.DEFAULT_TAKE,
+  ) {
     const pagination = this.prisma.getPaginator(cursor ?? null)
 
     return this.prisma.post
@@ -187,20 +223,12 @@ export class SearchService {
         },
         orderBy: { id: "desc" },
         include: {
-          cat: true,
-          author: {
-            select: {
-              id: true,
-              nickname: true,
-              profileImageUrl: true,
-            },
-          },
-          images: true,
+          ...this.getPostInclude(viewerId),
         },
       })
       .then((posts) => ({
         type: SearchTypeDto.POST,
-        posts,
+        posts: posts.map((post) => this.attachLikeState(post)),
       }))
   }
 

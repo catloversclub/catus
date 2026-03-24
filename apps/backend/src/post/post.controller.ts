@@ -40,7 +40,7 @@ export class PostController {
     @Query("cursor") cursor?: string,
     @Query("take", new DefaultValuePipe(20), ParseIntPipe) take?: number,
   ) {
-    return this.postService.getUserPosts(req.user.id!, cursor ?? null, take)
+    return this.postService.getMyPosts(req.user.id!, cursor ?? null, take)
   }
 
   @Get("feed")
@@ -58,8 +58,8 @@ export class PostController {
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.postService.findOne(id)
+  findOne(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
+    return this.postService.findOne(id, req.user.id!)
   }
 
   @Patch(":id")
@@ -94,11 +94,12 @@ export class UserPostController {
 
   @Get(":id/post")
   getUserPosts(
+    @Req() req: AuthenticatedRequest,
     @Param("id") userId: string,
     @Query("cursor") cursor?: string,
     @Query("take", new DefaultValuePipe(20), ParseIntPipe) take?: number,
   ) {
-    return this.postService.getUserPosts(userId, cursor ?? null, take)
+    return this.postService.getUserPosts(userId, req.user.id!, cursor ?? null, take)
   }
 }
 
@@ -109,10 +110,11 @@ export class CatPostController {
 
   @Get(":id/post")
   getCatPosts(
+    @Req() req: AuthenticatedRequest,
     @Param("id") catId: string,
     @Query("cursor") cursor?: string,
     @Query("take", new DefaultValuePipe(20), ParseIntPipe) take?: number,
   ) {
-    return this.postService.getCatPosts(catId, cursor ?? null, take)
+    return this.postService.getCatPosts(catId, req.user.id!, cursor ?? null, take)
   }
 }

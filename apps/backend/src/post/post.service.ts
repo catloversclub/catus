@@ -6,6 +6,10 @@ import { StorageService } from "@app/storage/storage.service"
 import { ConfigService } from "@nestjs/config"
 import { uuidv7 } from "uuidv7"
 
+type PostWithViewerLike = {
+  likes: Array<{ userId: string }>
+}
+
 @Injectable()
 export class PostService {
   private readonly bucket: string
@@ -16,6 +20,37 @@ export class PostService {
     private readonly config: ConfigService,
   ) {
     this.bucket = this.config.get<string>("S3_BUCKET") ?? "catus-media"
+  }
+
+  private getPostInclude(viewerId: string) {
+    return {
+      cat: true,
+      author: {
+        select: {
+          id: true,
+          nickname: true,
+          profileImageUrl: true,
+        },
+      },
+      images: true,
+      likes: {
+        where: { userId: viewerId },
+        select: { userId: true },
+      },
+    } as const
+  }
+
+  private attachLikeState<T extends PostWithViewerLike>(post: T) {
+    const { likes, ...rest } = post
+
+    return {
+      ...rest,
+      isLikedByMe: likes.length > 0,
+    }
+  }
+
+  private attachLikeStateList<T extends PostWithViewerLike>(posts: T[]) {
+    return posts.map((post) => this.attachLikeState(post))
   }
 
   async create(authorId: string, createPostDto: CreatePostDto) {
@@ -61,19 +96,12 @@ export class PostService {
         }
       }
 
-      return this.prisma.post.findUniqueOrThrow({
+      const createdPost = await this.prisma.post.findUniqueOrThrow({
         where: { id: post.id },
-        include: {
-          cat: true,
-          author: {
-            select: {
-              id: true,
-              nickname: true,
-            },
-          },
-          images: true,
-        },
+        include: this.getPostInclude(authorId),
       })
+
+      return this.attachLikeState(createdPost)
     } catch (err) {
       await this.prisma.post.delete({
         where: { id: post.id },
@@ -82,48 +110,36 @@ export class PostService {
     }
   }
 
-  getUserPosts(userId: string, cursor?: string | null, take = 20) {
+  async getUserPosts(userId: string, viewerId: string, cursor?: string | null, take = 20) {
     const pagination = this.prisma.getPaginator(cursor ?? null)
 
-    return this.prisma.post.findMany({
+    const posts = await this.prisma.post.findMany({
       ...pagination,
       take,
       where: { authorId: userId },
       orderBy: { id: "desc" },
-      include: {
-        cat: true,
-        author: {
-          select: {
-            id: true,
-            nickname: true,
-            profileImageUrl: true,
-          },
-        },
-        images: true,
-      },
+      include: this.getPostInclude(viewerId),
     })
+
+    return this.attachLikeStateList(posts)
   }
 
-  getCatPosts(catId: string, cursor?: string | null, take = 20) {
+  getMyPosts(viewerId: string, cursor?: string | null, take = 20) {
+    return this.getUserPosts(viewerId, viewerId, cursor, take)
+  }
+
+  async getCatPosts(catId: string, viewerId: string, cursor?: string | null, take = 20) {
     const pagination = this.prisma.getPaginator(cursor ?? null)
 
-    return this.prisma.post.findMany({
+    const posts = await this.prisma.post.findMany({
       ...pagination,
       take,
       where: { catId },
       orderBy: { id: "desc" },
-      include: {
-        cat: true,
-        author: {
-          select: {
-            id: true,
-            nickname: true,
-            profileImageUrl: true,
-          },
-        },
-        images: true,
-      },
+      include: this.getPostInclude(viewerId),
     })
+
+    return this.attachLikeStateList(posts)
   }
 
   async getRecommendedFeed(userId: string, cursor?: string | null, take = 20) {
@@ -140,7 +156,7 @@ export class PostService {
     const favoriteAppearanceIds = user.favoriteAppearances.map((a) => a.id)
     const favoritePersonalityIds = user.favoritePersonalities.map((p) => p.id)
 
-    return this.prisma.post.findMany({
+    const posts = await this.prisma.post.findMany({
       ...pagination,
       take,
       where: {
@@ -164,24 +180,16 @@ export class PostService {
         },
       },
       orderBy: { id: "desc" },
-      include: {
-        cat: true,
-        author: {
-          select: {
-            id: true,
-            nickname: true,
-            profileImageUrl: true,
-          },
-        },
-        images: true,
-      },
+      include: this.getPostInclude(userId),
     })
+
+    return this.attachLikeStateList(posts)
   }
 
-  getFollowingFeed(userId: string, cursor?: string | null, take = 20) {
+  async getFollowingFeed(userId: string, cursor?: string | null, take = 20) {
     const pagination = this.prisma.getPaginator(cursor ?? null)
 
-    return this.prisma.post.findMany({
+    const posts = await this.prisma.post.findMany({
       ...pagination,
       take,
       where: {
@@ -194,56 +202,32 @@ export class PostService {
         },
       },
       orderBy: { id: "desc" },
-      include: {
-        cat: true,
-        author: {
-          select: {
-            id: true,
-            nickname: true,
-            profileImageUrl: true,
-          },
-        },
-        images: true,
-      },
+      include: this.getPostInclude(userId),
     })
+
+    return this.attachLikeStateList(posts)
   }
 
-  findAll(cursor?: string | null, take = 20) {
+  async findAll(viewerId: string, cursor?: string | null, take = 20) {
     const pagination = this.prisma.getPaginator(cursor ?? null)
 
-    return this.prisma.post.findMany({
+    const posts = await this.prisma.post.findMany({
       ...pagination,
       take,
       orderBy: { id: "desc" },
-      include: {
-        cat: true,
-        author: {
-          select: {
-            id: true,
-            nickname: true,
-            profileImageUrl: true,
-          },
-        },
-        images: true,
-      },
+      include: this.getPostInclude(viewerId),
     })
+
+    return this.attachLikeStateList(posts)
   }
 
-  findOne(id: string) {
-    return this.prisma.post.findUniqueOrThrow({
+  async findOne(id: string, viewerId: string) {
+    const post = await this.prisma.post.findUniqueOrThrow({
       where: { id },
-      include: {
-        cat: true,
-        author: {
-          select: {
-            id: true,
-            nickname: true,
-            profileImageUrl: true,
-          },
-        },
-        images: true,
-      },
+      include: this.getPostInclude(viewerId),
     })
+
+    return this.attachLikeState(post)
   }
 
   private async assertMyPost(id: string, userId: string) {
@@ -262,24 +246,16 @@ export class PostService {
 
     const { catId, ...rest } = updatePostDto
 
-    return this.prisma.post.update({
+    const post = await this.prisma.post.update({
       where: { id },
       data: {
         ...rest,
         ...(catId !== undefined && { catId: catId ?? null }),
       },
-      include: {
-        cat: true,
-        author: {
-          select: {
-            id: true,
-            nickname: true,
-            profileImageUrl: true,
-          },
-        },
-        images: true,
-      },
+      include: this.getPostInclude(userId),
     })
+
+    return this.attachLikeState(post)
   }
 
   async delete(id: string, userId: string) {
