@@ -1,0 +1,126 @@
+/* styles/colors.css */
+@layer base {
+  :root {
+    /* Background */
+    --semantic-bg-primary: #ffffff;
+    --semantic-bg-secondary: #f4f4f5;
+
+    /* Text */
+    --semantic-text-primary: #18181b;
+    --semantic-text-secondary: #444444;
+    --semantic-text-tertiary: #a1a1aa;
+    --semantic-text-success: #0284c7;
+    --semantic-text-error: #ef4444;
+
+    /* Icon */
+    --semantic-icon-primary: #18181b;
+    --semantic-icon-secondary: #71717a;
+    --semantic-icon-tertiary: #a1a1aa;
+    --semantic-icon-minor: #d4d4d8;
+    --semantic-icon-accent: #facc15;
+    --semantic-icon-success: #0284c7;
+    --semantic-icon-error: #ef4444;
+
+    /* Border */
+    --semantic-border-primary: #e4e4e7;
+    --semantic-border-secondary: #f4f4f5;
+    --semantic-border-disabled: #f4f4f5;
+    --semantic-border-accent: #facc15;
+    --semantic-border-error: #ef4444;
+
+    /* Button-Primary */
+    --semantic-button-primary-background: #facc15;
+    --semantic-button-primary-text: #18181b;
+    --semantic-button-primary-background-pressed: #eab308;
+    --semantic-button-primary-text-pressed: #18181b;
+    --semantic-button-primary-background-disabled: #e4e4e7;
+    --semantic-button-primary-text-disabled: #a1a1aa;
+
+    /* Button-Ghost */
+    --semantic-button-ghost-background: transparent;
+    --semantic-button-ghost-text: #52525b;
+    --semantic-button-ghost-background-pressed: #f4f4f5;
+    --semantic-button-ghost-text-pressed: #18181b;
+
+    /* Button-Outline */
+    --semantic-button-outline-background: transparent;
+    --semantic-button-outline-text: #52525b;
+    --semantic-button-outline-background-pressed: #f4f4f5;
+    --semantic-button-outline-text-pressed: #18181b;
+    --semantic-button-outline-background-disabled: transparent;
+    --semantic-button-outline-text-disabled: #a1a1aa;
+
+    /* Chips */
+    --semantic-chips-primary-background: #f4f4f5;
+    --semantic-chips-primary-text: #71717a;
+    --semantic-chips-primary-background-pressed: #e4e4e7;
+    --semantic-chips-primary-text-pressed: #18181b;
+    --semantic-chips-primary-background-selected: #facc15;
+    --semantic-chips-primary-text-selected: #18181b;
+
+    /* Dimmed */
+    --semantic-dimmed-primary: rgba(24, 24, 27, 0.2); /* #18181B Opacity 20% */
+  }
+
+  .dark:root {
+    /* Background */
+    --semantic-bg-primary: #18181b;
+    --semantic-bg-secondary: #27272a;
+
+    /* Text */
+    --semantic-text-primary: #fafafa;
+    --semantic-text-secondary: #a1a1aa;
+    --semantic-text-tertiary: #52525b;
+    --semantic-text-success: #38bdf8;
+    --semantic-text-error: #f87171;
+
+    /* Icon */
+    --semantic-icon-primary: #fafafa;
+    --semantic-icon-secondary: #a1a1aa;
+    --semantic-icon-tertiary: #52525b;
+    --semantic-icon-minor: #3f3f46;
+    --semantic-icon-accent: #facc15;
+    --semantic-icon-success: #38bdf8;
+    --semantic-icon-error: #f87171;
+
+    /* Border */
+    --semantic-border-primary: #3f3f46;
+    --semantic-border-secondary: #27272a;
+    --semantic-border-disabled: #52525b;
+    --semantic-border-accent: #facc15;
+    --semantic-border-error: #f87171;
+
+    /* Button-Primary */
+    --semantic-button-primary-background: #facc15;
+    --semantic-button-primary-text: #18181b;
+    --semantic-button-primary-background-pressed: #eab308;
+    --semantic-button-primary-text-pressed: #000000;
+    --semantic-button-primary-background-disabled: #3f3f46;
+    --semantic-button-primary-text-disabled: #71717a;
+
+    /* Button-Ghost */
+    --semantic-button-ghost-background: transparent;
+    --semantic-button-ghost-text: #a1a1aa;
+    --semantic-button-ghost-background-pressed: #27272a;
+    --semantic-button-ghost-text-pressed: #fafafa;
+
+    /* Button-Outline */
+    --semantic-button-outline-background: transparent;
+    --semantic-button-outline-text: #a1a1aa;
+    --semantic-button-outline-background-pressed: #27272a;
+    --semantic-button-outline-text-pressed: #fafafa;
+    --semantic-button-outline-background-disabled: transparent;
+    --semantic-button-outline-text-disabled: #71717a;
+
+    /* Chips */
+    --semantic-chips-primary-background: #27272a;
+    --semantic-chips-primary-text: #a1a1aa;
+    --semantic-chips-primary-background-pressed: #3f3f46;
+    --semantic-chips-primary-text-pressed: #fafafa;
+    --semantic-chips-primary-background-selected: #facc15;
+    --semantic-chips-primary-text-selected: #18181b;
+
+    /* Dimmed */
+    --semantic-dimmed-primary: rgba(0, 0, 0, 0.5); /* #000000 Opacity 50% */
+  }
+}

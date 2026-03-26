@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState } from "react"
 import {
   View,
   Text,
@@ -7,49 +7,43 @@ import {
   Platform,
   StyleSheet,
   Keyboard,
-} from "react-native";
+} from "react-native"
 import {
   BottomSheetFlatList,
   BottomSheetModal,
   BottomSheetTextInput,
   BottomSheetView,
   TouchableWithoutFeedback,
-} from "@gorhom/bottom-sheet";
-import ArrowUpIcon from "@/assets/icons/arrow-up.svg";
-import CommentItem from "./comment-item";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Comment } from "@catus/constants";
+} from "@gorhom/bottom-sheet"
+import ArrowUpIcon from "@/assets/icons/arrow-up.svg"
+import CommentItem from "./comment-item"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
+import { Comment } from "@catus/constants"
 
 interface CommentSheetProps {
-  commentSheetRef: React.RefObject<BottomSheetModal | null>;
-  comments: Comment[];
+  commentSheetRef: React.RefObject<BottomSheetModal | null>
+  comments: Comment[]
 }
 
-export default function CommentSheet({
-  commentSheetRef,
-  comments,
-}: CommentSheetProps) {
-  const [commentText, setCommentText] = useState("");
+export default function CommentSheet({ commentSheetRef, comments }: CommentSheetProps) {
+  const [commentText, setCommentText] = useState("")
   const [replyingTo, setReplyingTo] = useState<{
-    id: string;
-    author: string;
-  } | null>(null);
-  const insets = useSafeAreaInsets();
+    id: string
+    author: string
+  } | null>(null)
+  const insets = useSafeAreaInsets()
 
   const renderItem = useCallback(
     ({ item }: { item: Comment }) => (
       <View className="mb-2">
-        <CommentItem
-          item={item}
-          onReply={(id, author) => setReplyingTo({ id, author })}
-        />
+        <CommentItem item={item} onReply={(id, author) => setReplyingTo({ id, author })} />
         {item.replies?.map((reply) => (
           <CommentItem key={reply.id} item={reply} isReply />
         ))}
       </View>
     ),
     [],
-  );
+  )
   return (
     <BottomSheetModal
       ref={commentSheetRef}
@@ -58,11 +52,9 @@ export default function CommentSheet({
       // keyboardBlurBehavior="restore"
       // android_keyboardInputMode="adjustResize"
     >
-      <BottomSheetView className="flex-1 relative">
-        <View className="items-center py-4 border-b border-gray-100">
-          <Text className="text-base font-semibold text-gray-500">
-            댓글 {comments?.length}
-          </Text>
+      <BottomSheetView className="relative flex-1">
+        <View className="items-center border-b border-gray-100 py-4">
+          <Text className="text-base font-semibold text-gray-500">댓글 {comments?.length}</Text>
         </View>
 
         <BottomSheetFlatList
@@ -74,7 +66,7 @@ export default function CommentSheet({
           renderItem={renderItem}
         />
         <View
-          className="absolute bottom-10 left-0 right-0 bg-white border-t border-gray-100 px-4 pt-2"
+          className="absolute bottom-10 left-0 right-0 border-t border-gray-100 bg-white px-4 pt-2"
           style={{ paddingBottom: insets.bottom + 0 }}
         >
           <KeyboardAvoidingView
@@ -84,27 +76,25 @@ export default function CommentSheet({
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
               <View>
                 {replyingTo && (
-                  <View className="flex-row justify-between mb-2 px-1">
+                  <View className="mb-2 flex-row justify-between px-1">
                     <Text className="text-sm text-gray-400">
                       @{replyingTo.author}님에게 답글 남기는 중
                     </Text>
                     <TouchableOpacity onPress={() => setReplyingTo(null)}>
-                      <Text className="text-sm text-blue-500 font-semibold">
-                        취소
-                      </Text>
+                      <Text className="text-sm font-semibold text-blue-500">취소</Text>
                     </TouchableOpacity>
                   </View>
                 )}
-                <View className="flex-row items-end bg-gray-100 rounded-2xl px-3 py-2">
+                <View className="flex-row items-end rounded-2xl bg-gray-100 px-3 py-2">
                   <BottomSheetTextInput
-                    className="flex-1 text-[15px] max-h-24 p-0 text-black"
+                    className="max-h-24 flex-1 p-0 text-[15px] text-black"
                     placeholder="댓글 남기기..."
                     placeholderTextColor="#9ca3af"
                     value={commentText}
                     onChangeText={setCommentText}
                     multiline
                   />
-                  <TouchableOpacity className="w-9 h-9 rounded-full items-center justify-center ml-2 bg-yellow-400">
+                  <TouchableOpacity className="ml-2 h-9 w-9 items-center justify-center rounded-full bg-yellow-400">
                     <ArrowUpIcon width={20} height={20} />
                   </TouchableOpacity>
                 </View>
@@ -116,7 +106,7 @@ export default function CommentSheet({
         {/* 하단 댓글 입력창 */}
       </BottomSheetView>
     </BottomSheetModal>
-  );
+  )
 }
 const styles = StyleSheet.create({
   container: {
@@ -141,4 +131,4 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     marginTop: 12,
   },
-});
+})
