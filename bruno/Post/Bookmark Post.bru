@@ -1,0 +1,14 @@
+meta {
+  name: Bookmark Post
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrl}}/post/:id/bookmark
+  auth: inherit
+}
+
+params:path {
+  id:
+}

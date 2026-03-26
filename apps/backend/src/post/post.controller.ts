@@ -43,6 +43,15 @@ export class PostController {
     return this.postService.getMyPosts(req.user.id!, cursor ?? null, take)
   }
 
+  @Get("bookmark/my")
+  getMyBookmarkedPosts(
+    @Req() req: AuthenticatedRequest,
+    @Query("cursor") cursor?: string,
+    @Query("take", new DefaultValuePipe(20), ParseIntPipe) take?: number,
+  ) {
+    return this.postService.getMyBookmarkedPosts(req.user.id!, cursor ?? null, take)
+  }
+
   @Get("feed")
   getFeed(
     @Req() req: AuthenticatedRequest,
@@ -84,6 +93,16 @@ export class PostController {
   @Delete(":id/like")
   unlikePost(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
     return this.postService.unlikePost(id, req.user.id!)
+  }
+
+  @Post(":id/bookmark")
+  bookmarkPost(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
+    return this.postService.bookmarkPost(id, req.user.id!)
+  }
+
+  @Delete(":id/bookmark")
+  unbookmarkPost(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
+    return this.postService.unbookmarkPost(id, req.user.id!)
   }
 }
 

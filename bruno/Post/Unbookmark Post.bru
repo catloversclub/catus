@@ -1,0 +1,14 @@
+meta {
+  name: Unbookmark Post
+  type: http
+  seq: 16
+}
+
+delete {
+  url: {{baseUrl}}/post/:id/bookmark
+  auth: inherit
+}
+
+params:path {
+  id:
+}

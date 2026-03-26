@@ -3,8 +3,9 @@ import { PrismaService } from "@app/prisma/prisma.service"
 import { SearchQueryDto, SearchTypeDto } from "./dto/search-query.dto"
 import { SearchAutocompleteQueryDto } from "./dto/search-autocomplete-query.dto"
 
-type PostWithViewerLike = {
+type PostWithViewerState = {
   likes: Array<{ userId: string }>
+  bookmarks: Array<{ userId: string }>
 }
 
 @Injectable()
@@ -45,15 +46,20 @@ export class SearchService {
         where: { userId: viewerId },
         select: { userId: true },
       },
+      bookmarks: {
+        where: { userId: viewerId },
+        select: { userId: true },
+      },
     } as const
   }
 
-  private attachLikeState<T extends PostWithViewerLike>(post: T) {
-    const { likes, ...rest } = post
+  private attachViewerState<T extends PostWithViewerState>(post: T) {
+    const { likes, bookmarks, ...rest } = post
 
     return {
       ...rest,
       isLikedByMe: likes.length > 0,
+      isBookmarkedByMe: bookmarks.length > 0,
     }
   }
 
@@ -228,7 +234,7 @@ export class SearchService {
       })
       .then((posts) => ({
         type: SearchTypeDto.POST,
-        posts: posts.map((post) => this.attachLikeState(post)),
+        posts: posts.map((post) => this.attachViewerState(post)),
       }))
   }
 

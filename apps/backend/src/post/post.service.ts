@@ -6,8 +6,9 @@ import { StorageService } from "@app/storage/storage.service"
 import { ConfigService } from "@nestjs/config"
 import { uuidv7 } from "uuidv7"
 
-type PostWithViewerLike = {
+type PostWithViewerState = {
   likes: Array<{ userId: string }>
+  bookmarks: Array<{ userId: string }>
 }
 
 @Injectable()
@@ -37,20 +38,25 @@ export class PostService {
         where: { userId: viewerId },
         select: { userId: true },
       },
+      bookmarks: {
+        where: { userId: viewerId },
+        select: { userId: true },
+      },
     } as const
   }
 
-  private attachLikeState<T extends PostWithViewerLike>(post: T) {
-    const { likes, ...rest } = post
+  private attachViewerState<T extends PostWithViewerState>(post: T) {
+    const { likes, bookmarks, ...rest } = post
 
     return {
       ...rest,
       isLikedByMe: likes.length > 0,
+      isBookmarkedByMe: bookmarks.length > 0,
     }
   }
 
-  private attachLikeStateList<T extends PostWithViewerLike>(posts: T[]) {
-    return posts.map((post) => this.attachLikeState(post))
+  private attachViewerStateList<T extends PostWithViewerState>(posts: T[]) {
+    return posts.map((post) => this.attachViewerState(post))
   }
 
   async create(authorId: string, createPostDto: CreatePostDto) {
@@ -105,7 +111,7 @@ export class PostService {
         include: this.getPostInclude(authorId),
       })
 
-      return this.attachLikeState(createdPost)
+      return this.attachViewerState(createdPost)
     } catch (err) {
       await this.prisma.post.delete({
         where: { id: post.id },
@@ -125,11 +131,31 @@ export class PostService {
       include: this.getPostInclude(viewerId),
     })
 
-    return this.attachLikeStateList(posts)
+    return this.attachViewerStateList(posts)
   }
 
   getMyPosts(viewerId: string, cursor?: string | null, take = 20) {
     return this.getUserPosts(viewerId, viewerId, cursor, take)
+  }
+
+  async getMyBookmarkedPosts(viewerId: string, cursor?: string | null, take = 20) {
+    const pagination = this.prisma.getPaginator(cursor ?? null)
+
+    const posts = await this.prisma.post.findMany({
+      ...pagination,
+      take,
+      where: {
+        bookmarks: {
+          some: {
+            userId: viewerId,
+          },
+        },
+      },
+      orderBy: { id: "desc" },
+      include: this.getPostInclude(viewerId),
+    })
+
+    return this.attachViewerStateList(posts)
   }
 
   async getCatPosts(catId: string, viewerId: string, cursor?: string | null, take = 20) {
@@ -143,7 +169,7 @@ export class PostService {
       include: this.getPostInclude(viewerId),
     })
 
-    return this.attachLikeStateList(posts)
+    return this.attachViewerStateList(posts)
   }
 
   async getRecommendedFeed(userId: string, cursor?: string | null, take = 20) {
@@ -187,7 +213,7 @@ export class PostService {
       include: this.getPostInclude(userId),
     })
 
-    return this.attachLikeStateList(posts)
+    return this.attachViewerStateList(posts)
   }
 
   async getFollowingFeed(userId: string, cursor?: string | null, take = 20) {
@@ -209,7 +235,7 @@ export class PostService {
       include: this.getPostInclude(userId),
     })
 
-    return this.attachLikeStateList(posts)
+    return this.attachViewerStateList(posts)
   }
 
   async findAll(viewerId: string, cursor?: string | null, take = 20) {
@@ -222,7 +248,7 @@ export class PostService {
       include: this.getPostInclude(viewerId),
     })
 
-    return this.attachLikeStateList(posts)
+    return this.attachViewerStateList(posts)
   }
 
   async findOne(id: string, viewerId: string) {
@@ -231,7 +257,7 @@ export class PostService {
       include: this.getPostInclude(viewerId),
     })
 
-    return this.attachLikeState(post)
+    return this.attachViewerState(post)
   }
 
   private async assertMyPost(id: string, userId: string) {
@@ -259,7 +285,7 @@ export class PostService {
       include: this.getPostInclude(userId),
     })
 
-    return this.attachLikeState(post)
+    return this.attachViewerState(post)
   }
 
   async delete(id: string, userId: string) {
@@ -364,6 +390,74 @@ export class PostService {
 
       return {
         likeCount,
+      }
+    })
+  }
+
+  async bookmarkPost(postId: string, userId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const post = await tx.post.findUnique({
+        where: { id: postId },
+        select: { id: true },
+      })
+
+      if (!post) {
+        throw new BadRequestException("post not found")
+      }
+
+      try {
+        await tx.postBookmark.create({
+          data: { postId, userId },
+        })
+      } catch (err: any) {
+        if (err.code !== "P2002") {
+          throw err
+        }
+      }
+
+      return {
+        isBookmarkedByMe: true,
+      }
+    })
+  }
+
+  async unbookmarkPost(postId: string, userId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const post = await tx.post.findUnique({
+        where: { id: postId },
+        select: { id: true },
+      })
+
+      if (!post) {
+        throw new BadRequestException("post not found")
+      }
+
+      const existing = await tx.postBookmark.findUnique({
+        where: {
+          postId_userId: {
+            postId,
+            userId,
+          },
+        },
+      })
+
+      if (!existing) {
+        return {
+          isBookmarkedByMe: false,
+        }
+      }
+
+      await tx.postBookmark.delete({
+        where: {
+          postId_userId: {
+            postId,
+            userId,
+          },
+        },
+      })
+
+      return {
+        isBookmarkedByMe: false,
       }
     })
   }
