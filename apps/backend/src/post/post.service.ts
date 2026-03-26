@@ -6,6 +6,11 @@ import { StorageService } from "@app/storage/storage.service"
 import { ConfigService } from "@nestjs/config"
 import { uuidv7 } from "uuidv7"
 
+type PostWithViewerState = {
+  likes: Array<{ userId: string }>
+  bookmarks: Array<{ userId: string }>
+}
+
 @Injectable()
 export class PostService {
   private readonly bucket: string
@@ -16,6 +21,42 @@ export class PostService {
     private readonly config: ConfigService,
   ) {
     this.bucket = this.config.get<string>("S3_BUCKET") ?? "catus-media"
+  }
+
+  private getPostInclude(viewerId: string) {
+    return {
+      cat: true,
+      author: {
+        select: {
+          id: true,
+          nickname: true,
+          profileImageUrl: true,
+        },
+      },
+      images: true,
+      likes: {
+        where: { userId: viewerId },
+        select: { userId: true },
+      },
+      bookmarks: {
+        where: { userId: viewerId },
+        select: { userId: true },
+      },
+    } as const
+  }
+
+  private attachViewerState<T extends PostWithViewerState>(post: T) {
+    const { likes, bookmarks, ...rest } = post
+
+    return {
+      ...rest,
+      isLikedByMe: likes.length > 0,
+      isBookmarkedByMe: bookmarks.length > 0,
+    }
+  }
+
+  private attachViewerStateList<T extends PostWithViewerState>(posts: T[]) {
+    return posts.map((post) => this.attachViewerState(post))
   }
 
   async create(authorId: string, createPostDto: CreatePostDto) {
@@ -32,10 +73,14 @@ export class PostService {
     try {
       if (imageUrls && imageUrls.length > 0) {
         const images = await Promise.all(
-          imageUrls.map(async (tmpKey, index) => {
-            if (!tmpKey.startsWith(`tmp/post/${authorId}/`)) {
+          imageUrls.map(async (tmpUrl, index) => {
+            const prefix = `https://storage.catus.app/catus-media/`
+
+            if (!tmpUrl.startsWith(`${prefix}tmp/post/${authorId}/`)) {
               throw new BadRequestException("invalid image key")
             }
+
+            const tmpKey = tmpUrl.replace(prefix, "")
 
             const fileName = tmpKey.split("/").pop()
             if (!fileName) {
@@ -61,19 +106,12 @@ export class PostService {
         }
       }
 
-      return this.prisma.post.findUniqueOrThrow({
+      const createdPost = await this.prisma.post.findUniqueOrThrow({
         where: { id: post.id },
-        include: {
-          cat: true,
-          author: {
-            select: {
-              id: true,
-              nickname: true,
-            },
-          },
-          images: true,
-        },
+        include: this.getPostInclude(authorId),
       })
+
+      return this.attachViewerState(createdPost)
     } catch (err) {
       await this.prisma.post.delete({
         where: { id: post.id },
@@ -82,48 +120,56 @@ export class PostService {
     }
   }
 
-  getUserPosts(userId: string, cursor?: string | null, take = 20) {
+  async getUserPosts(userId: string, viewerId: string, cursor?: string | null, take = 20) {
     const pagination = this.prisma.getPaginator(cursor ?? null)
 
-    return this.prisma.post.findMany({
+    const posts = await this.prisma.post.findMany({
       ...pagination,
       take,
       where: { authorId: userId },
       orderBy: { id: "desc" },
-      include: {
-        cat: true,
-        author: {
-          select: {
-            id: true,
-            nickname: true,
-            profileImageUrl: true,
-          },
-        },
-        images: true,
-      },
+      include: this.getPostInclude(viewerId),
     })
+
+    return this.attachViewerStateList(posts)
   }
 
-  getCatPosts(catId: string, cursor?: string | null, take = 20) {
+  getMyPosts(viewerId: string, cursor?: string | null, take = 20) {
+    return this.getUserPosts(viewerId, viewerId, cursor, take)
+  }
+
+  async getMyBookmarkedPosts(viewerId: string, cursor?: string | null, take = 20) {
     const pagination = this.prisma.getPaginator(cursor ?? null)
 
-    return this.prisma.post.findMany({
+    const posts = await this.prisma.post.findMany({
+      ...pagination,
+      take,
+      where: {
+        bookmarks: {
+          some: {
+            userId: viewerId,
+          },
+        },
+      },
+      orderBy: { id: "desc" },
+      include: this.getPostInclude(viewerId),
+    })
+
+    return this.attachViewerStateList(posts)
+  }
+
+  async getCatPosts(catId: string, viewerId: string, cursor?: string | null, take = 20) {
+    const pagination = this.prisma.getPaginator(cursor ?? null)
+
+    const posts = await this.prisma.post.findMany({
       ...pagination,
       take,
       where: { catId },
       orderBy: { id: "desc" },
-      include: {
-        cat: true,
-        author: {
-          select: {
-            id: true,
-            nickname: true,
-            profileImageUrl: true,
-          },
-        },
-        images: true,
-      },
+      include: this.getPostInclude(viewerId),
     })
+
+    return this.attachViewerStateList(posts)
   }
 
   async getRecommendedFeed(userId: string, cursor?: string | null, take = 20) {
@@ -140,7 +186,7 @@ export class PostService {
     const favoriteAppearanceIds = user.favoriteAppearances.map((a) => a.id)
     const favoritePersonalityIds = user.favoritePersonalities.map((p) => p.id)
 
-    return this.prisma.post.findMany({
+    const posts = await this.prisma.post.findMany({
       ...pagination,
       take,
       where: {
@@ -164,24 +210,16 @@ export class PostService {
         },
       },
       orderBy: { id: "desc" },
-      include: {
-        cat: true,
-        author: {
-          select: {
-            id: true,
-            nickname: true,
-            profileImageUrl: true,
-          },
-        },
-        images: true,
-      },
+      include: this.getPostInclude(userId),
     })
+
+    return this.attachViewerStateList(posts)
   }
 
-  getFollowingFeed(userId: string, cursor?: string | null, take = 20) {
+  async getFollowingFeed(userId: string, cursor?: string | null, take = 20) {
     const pagination = this.prisma.getPaginator(cursor ?? null)
 
-    return this.prisma.post.findMany({
+    const posts = await this.prisma.post.findMany({
       ...pagination,
       take,
       where: {
@@ -194,56 +232,32 @@ export class PostService {
         },
       },
       orderBy: { id: "desc" },
-      include: {
-        cat: true,
-        author: {
-          select: {
-            id: true,
-            nickname: true,
-            profileImageUrl: true,
-          },
-        },
-        images: true,
-      },
+      include: this.getPostInclude(userId),
     })
+
+    return this.attachViewerStateList(posts)
   }
 
-  findAll(cursor?: string | null, take = 20) {
+  async findAll(viewerId: string, cursor?: string | null, take = 20) {
     const pagination = this.prisma.getPaginator(cursor ?? null)
 
-    return this.prisma.post.findMany({
+    const posts = await this.prisma.post.findMany({
       ...pagination,
       take,
       orderBy: { id: "desc" },
-      include: {
-        cat: true,
-        author: {
-          select: {
-            id: true,
-            nickname: true,
-            profileImageUrl: true,
-          },
-        },
-        images: true,
-      },
+      include: this.getPostInclude(viewerId),
     })
+
+    return this.attachViewerStateList(posts)
   }
 
-  findOne(id: string) {
-    return this.prisma.post.findUniqueOrThrow({
+  async findOne(id: string, viewerId: string) {
+    const post = await this.prisma.post.findUniqueOrThrow({
       where: { id },
-      include: {
-        cat: true,
-        author: {
-          select: {
-            id: true,
-            nickname: true,
-            profileImageUrl: true,
-          },
-        },
-        images: true,
-      },
+      include: this.getPostInclude(viewerId),
     })
+
+    return this.attachViewerState(post)
   }
 
   private async assertMyPost(id: string, userId: string) {
@@ -262,24 +276,16 @@ export class PostService {
 
     const { catId, ...rest } = updatePostDto
 
-    return this.prisma.post.update({
+    const post = await this.prisma.post.update({
       where: { id },
       data: {
         ...rest,
         ...(catId !== undefined && { catId: catId ?? null }),
       },
-      include: {
-        cat: true,
-        author: {
-          select: {
-            id: true,
-            nickname: true,
-            profileImageUrl: true,
-          },
-        },
-        images: true,
-      },
+      include: this.getPostInclude(userId),
     })
+
+    return this.attachViewerState(post)
   }
 
   async delete(id: string, userId: string) {
@@ -384,6 +390,74 @@ export class PostService {
 
       return {
         likeCount,
+      }
+    })
+  }
+
+  async bookmarkPost(postId: string, userId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const post = await tx.post.findUnique({
+        where: { id: postId },
+        select: { id: true },
+      })
+
+      if (!post) {
+        throw new BadRequestException("post not found")
+      }
+
+      try {
+        await tx.postBookmark.create({
+          data: { postId, userId },
+        })
+      } catch (err: any) {
+        if (err.code !== "P2002") {
+          throw err
+        }
+      }
+
+      return {
+        isBookmarkedByMe: true,
+      }
+    })
+  }
+
+  async unbookmarkPost(postId: string, userId: string) {
+    return this.prisma.$transaction(async (tx) => {
+      const post = await tx.post.findUnique({
+        where: { id: postId },
+        select: { id: true },
+      })
+
+      if (!post) {
+        throw new BadRequestException("post not found")
+      }
+
+      const existing = await tx.postBookmark.findUnique({
+        where: {
+          postId_userId: {
+            postId,
+            userId,
+          },
+        },
+      })
+
+      if (!existing) {
+        return {
+          isBookmarkedByMe: false,
+        }
+      }
+
+      await tx.postBookmark.delete({
+        where: {
+          postId_userId: {
+            postId,
+            userId,
+          },
+        },
+      })
+
+      return {
+        isBookmarkedByMe: false,
       }
     })
   }

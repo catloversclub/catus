@@ -27,8 +27,8 @@ export class AppJwtService {
   constructor(private readonly config: ConfigService) {
     const access = this.config.get<string>("JWT_ACCESS_SECRET")
     const refresh = this.config.get<string>("JWT_REFRESH_SECRET")
-    if (!access) throw new Error("JWT_ACCESS_SECRET is not configured")
-    if (!refresh) throw new Error("JWT_REFRESH_SECRET is not configured")
+    if (!access) throw new Error("JWT_ACCESS_SECRET is not configured!")
+    if (!refresh) throw new Error("JWT_REFRESH_SECRET is not configured!")
 
     this.accessSecret = new TextEncoder().encode(access)
     this.refreshSecret = new TextEncoder().encode(refresh)

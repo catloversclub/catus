@@ -16,21 +16,21 @@ headers {
 
 auth:oauth2 {
   grant_type: authorization_code
-  callback_url: http://127.0.0.1/oauth
+  callback_url: 
   authorization_url: https://accounts.google.com/o/oauth2/v2/auth
   access_token_url: https://oauth2.googleapis.com/token
-  refresh_token_url: https://oauth2.googleapis.com/token
+  refresh_token_url: 
   client_id: {{process.env.GOOGLE_CLIENT_ID}}
   client_secret: {{process.env.GOOGLE_CLIENT_SECRET}}
   scope: openid email profile
   state: 
-  pkce: false
+  pkce: true
   credentials_placement: body
   credentials_id: google
   token_placement: url
   token_query_key: ignore
   auto_fetch_token: true
-  auto_refresh_token: true
+  auto_refresh_token: false
 }
 
 body:json {

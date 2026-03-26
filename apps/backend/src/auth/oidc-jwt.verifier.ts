@@ -50,18 +50,34 @@ const PROVIDERS: ProviderConfig[] = [
   },
 ]
 
+function parseAudiences(raw: string | undefined): string[] | null {
+  if (!raw) return null
+
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+
+  const audiences = trimmed
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+
+  return audiences.length ? audiences : null
+}
+
 @Injectable()
 export class OidcJwtVerifier {
   private readonly logger = new Logger(OidcJwtVerifier.name)
 
   private readonly jwksClientMap = new Map<string, JWKGetter>()
-  private readonly audienceByProvider: Partial<Record<Provider, string>> = {}
+  private readonly audiencesByProvider: Partial<Record<Provider, string[]>> = {}
 
   constructor(private readonly config: ConfigService) {
     for (const p of PROVIDERS) {
-      const aud = this.config.get<string>(p.audienceEnv)
-      if (aud) {
-        this.audienceByProvider[p.provider] = aud
+      const raw = this.config.get<string>(p.audienceEnv)
+      const audiences = parseAudiences(raw)
+
+      if (audiences) {
+        this.audiencesByProvider[p.provider] = audiences
       } else {
         this.logger.warn(`Missing OIDC audience config: ${p.audienceEnv}`)
       }
@@ -73,7 +89,7 @@ export class OidcJwtVerifier {
     try {
       const decoded = decodeJwt(idToken)
       iss = decoded.iss
-    } catch (e) {
+    } catch {
       throw new UnauthorizedException("Malformed token")
     }
 
@@ -84,8 +100,8 @@ export class OidcJwtVerifier {
       throw new UnauthorizedException(`Unsupported token issuer: ${iss}`)
     }
 
-    const audience = this.audienceByProvider[providerConfig.provider]
-    if (!audience) {
+    const audiences = this.audiencesByProvider[providerConfig.provider]
+    if (!audiences?.length) {
       throw new InternalServerErrorException(
         `OIDC audience not configured for ${providerConfig.provider}`,
       )
@@ -96,20 +112,19 @@ export class OidcJwtVerifier {
     try {
       const { payload } = await jwtVerify(idToken, jwks, {
         issuer: providerConfig.validIssuers,
-        audience,
+        audience: audiences,
       })
 
       return { provider: providerConfig.provider, payload }
     } catch (error) {
-      this.logger.error(`Token verification failed: ${error}`)
+      this.logger.error(`Token verification failed: ${String(error)}`)
       throw new UnauthorizedException("Invalid token signature or claims")
     }
   }
 
   private getJwksClient(config: ProviderConfig): JWKGetter {
-    if (this.jwksClientMap.has(config.issuer)) {
-      return this.jwksClientMap.get(config.issuer)!
-    }
+    const cached = this.jwksClientMap.get(config.issuer)
+    if (cached) return cached
 
     const newClient = createRemoteJWKSet(new URL(config.jwksUrl), {
       cacheMaxAge: 600000,

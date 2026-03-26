@@ -10,7 +10,7 @@ datasource db {
 model User {
   id               String   @id @default(uuid(7))
   //TODO: Use UserIdentity instead
-  kakaoId          String?  @unique @map("kakao_id") 
+  kakaoId          String?  @unique @map("kakao_id")
   nickname         String   @unique
   isLivingWithCat  Boolean  @default(false) @map("is_living_with_cat")
   hasAgreedToTerms Boolean  @default(false) @map("has_agreed_to_term")
@@ -29,6 +29,7 @@ model User {
   posts                 Post[]
   comments              Comment[]
   postLikes             PostLike[]
+  postBookmarks         PostBookmark[]
   commentLikes          CommentLike[]
   UserIdentity          UserIdentity[]
   refreshTokens         RefreshToken[]
@@ -71,8 +72,8 @@ enum Provider {
 }
 
 model UserIdentity {
-  id       String
-  provider Provider
+  id        String
+  provider  Provider
   createdAt DateTime @default(now())
 
   userId String
@@ -140,9 +141,10 @@ model Post {
   catId    String? @map("cat_id")
   cat      Cat?    @relation(fields: [catId], references: [id], onDelete: SetNull)
 
-  images   PostImage[]
-  comments Comment[]
-  likes    PostLike[]
+  images    PostImage[]
+  comments  Comment[]
+  likes     PostLike[]
+  bookmarks PostBookmark[]
 
   @@index([authorId, id])
   @@index([catId, id])
@@ -192,6 +194,19 @@ model PostLike {
 
   @@id([postId, userId])
   @@map("post_like")
+}
+
+model PostBookmark {
+  postId    String   @map("post_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([postId, userId])
+  @@index([userId, postId])
+  @@map("post_bookmark")
 }
 
 model CommentLike {
