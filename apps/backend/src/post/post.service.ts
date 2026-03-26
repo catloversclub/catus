@@ -67,10 +67,14 @@ export class PostService {
     try {
       if (imageUrls && imageUrls.length > 0) {
         const images = await Promise.all(
-          imageUrls.map(async (tmpKey, index) => {
-            if (!tmpKey.startsWith(`https://storage.catus.app/catus-media/tmp/post/${authorId}/`)) {
+          imageUrls.map(async (tmpUrl, index) => {
+            const prefix = `https://storage.catus.app/catus-media/`
+
+            if (!tmpUrl.startsWith(`${prefix}tmp/post/${authorId}/`)) {
               throw new BadRequestException("invalid image key")
             }
+
+            const tmpKey = tmpUrl.replace(prefix, "")
 
             const fileName = tmpKey.split("/").pop()
             if (!fileName) {
