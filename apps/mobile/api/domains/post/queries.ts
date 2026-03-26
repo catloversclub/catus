@@ -8,6 +8,7 @@ import {
 } from "@tanstack/react-query"
 
 import {
+  bookmarkPost,
   createPost,
   deletePost,
   getCatPosts,
@@ -18,6 +19,7 @@ import {
   getRecommendedFeed,
   getUserPosts,
   likePost,
+  unbookmarkPost,
   unlikePost,
   updatePost,
   uploadPostImage,
@@ -275,6 +277,142 @@ export const useUnlikePostMutation = () => {
 
     onSettled: (data, error, variables) => {
       // 최종 동기화
+      queryClient.invalidateQueries({ queryKey: postKeys.followingFeed() })
+      queryClient.invalidateQueries({ queryKey: postKeys.recommendedFeed() })
+      queryClient.invalidateQueries({ queryKey: postKeys.detail(variables.postId) })
+    },
+  })
+}
+
+export const useBookmarkMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ postId }: { postId: string }) => bookmarkPost(postId),
+
+    onMutate: async ({ postId }) => {
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: postKeys.followingFeed() }),
+        queryClient.cancelQueries({ queryKey: postKeys.recommendedFeed() }),
+        queryClient.cancelQueries({ queryKey: postKeys.detail(postId) }),
+      ])
+
+      const prevFollowing = queryClient.getQueryData<InfiniteData<Post[]>>(postKeys.followingFeed())
+      const prevRecommended = queryClient.getQueryData<InfiniteData<Post[]>>(
+        postKeys.recommendedFeed(),
+      )
+      const prevDetail = queryClient.getQueryData<Post>(postKeys.detail(postId))
+
+      const updateFeed = (
+        oldData: InfiniteData<Post[]> | undefined,
+      ): InfiniteData<Post[]> | undefined => {
+        if (!oldData) return undefined
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) =>
+            page.map((post) =>
+              post.id === postId
+                ? {
+                    ...post,
+                    isBookmarkedByMe: true,
+                  }
+                : post,
+            ),
+          ),
+        }
+      }
+
+      queryClient.setQueryData<InfiniteData<Post[]>>(postKeys.followingFeed(), updateFeed)
+      queryClient.setQueryData<InfiniteData<Post[]>>(postKeys.recommendedFeed(), updateFeed)
+      queryClient.setQueryData<Post>(postKeys.detail(postId), (old) =>
+        old
+          ? {
+              ...old,
+              isBookmarkedByMe: true,
+            }
+          : old,
+      )
+
+      return { prevFollowing, prevRecommended, prevDetail }
+    },
+
+    onError: (err, variables, context) => {
+      if (context) {
+        queryClient.setQueryData(postKeys.followingFeed(), context.prevFollowing)
+        queryClient.setQueryData(postKeys.recommendedFeed(), context.prevRecommended)
+        queryClient.setQueryData(postKeys.detail(variables.postId), context.prevDetail)
+      }
+    },
+
+    onSettled: (data, error, variables) => {
+      queryClient.invalidateQueries({ queryKey: postKeys.followingFeed() })
+      queryClient.invalidateQueries({ queryKey: postKeys.recommendedFeed() })
+      queryClient.invalidateQueries({ queryKey: postKeys.detail(variables.postId) })
+    },
+  })
+}
+
+export const useUnbookmarkMutation = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ postId }: { postId: string }) => unbookmarkPost(postId),
+
+    onMutate: async ({ postId }) => {
+      await Promise.all([
+        queryClient.cancelQueries({ queryKey: postKeys.followingFeed() }),
+        queryClient.cancelQueries({ queryKey: postKeys.recommendedFeed() }),
+        queryClient.cancelQueries({ queryKey: postKeys.detail(postId) }),
+      ])
+
+      const prevFollowing = queryClient.getQueryData<InfiniteData<Post[]>>(postKeys.followingFeed())
+      const prevRecommended = queryClient.getQueryData<InfiniteData<Post[]>>(
+        postKeys.recommendedFeed(),
+      )
+      const prevDetail = queryClient.getQueryData<Post>(postKeys.detail(postId))
+
+      const updateFeed = (
+        oldData: InfiniteData<Post[]> | undefined,
+      ): InfiniteData<Post[]> | undefined => {
+        if (!oldData) return undefined
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) =>
+            page.map((post) =>
+              post.id === postId
+                ? {
+                    ...post,
+                    isBookmarkedByMe: false,
+                  }
+                : post,
+            ),
+          ),
+        }
+      }
+
+      queryClient.setQueryData<InfiniteData<Post[]>>(postKeys.followingFeed(), updateFeed)
+      queryClient.setQueryData<InfiniteData<Post[]>>(postKeys.recommendedFeed(), updateFeed)
+      queryClient.setQueryData<Post>(postKeys.detail(postId), (old) =>
+        old
+          ? {
+              ...old,
+              isBookmarkedByMe: false,
+            }
+          : old,
+      )
+
+      return { prevFollowing, prevRecommended, prevDetail }
+    },
+
+    onError: (err, variables, context) => {
+      if (context) {
+        queryClient.setQueryData(postKeys.followingFeed(), context.prevFollowing)
+        queryClient.setQueryData(postKeys.recommendedFeed(), context.prevRecommended)
+        queryClient.setQueryData(postKeys.detail(variables.postId), context.prevDetail)
+      }
+    },
+
+    onSettled: (data, error, variables) => {
       queryClient.invalidateQueries({ queryKey: postKeys.followingFeed() })
       queryClient.invalidateQueries({ queryKey: postKeys.recommendedFeed() })
       queryClient.invalidateQueries({ queryKey: postKeys.detail(variables.postId) })

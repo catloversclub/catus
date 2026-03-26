@@ -23,6 +23,7 @@ const POST_ENDPOINTS = {
   FOLLOWING_FEED: `${BASE_URL}/feed`,
   RECOMMENDED_FEED: `${BASE_URL}/feed/?type=recommended`,
   LIKE: (postId: string) => `${BASE_URL}/${postId}/like`,
+  BOOKMARK: (postId: string) => `${BASE_URL}/${postId}/bookmark`,
   IMAGE_UPLOAD_URL: `${BASE_URL}/image/upload-url`,
   IMAGE_UPLOAD: `${BASE_URL}/image`,
 } as const
@@ -96,6 +97,14 @@ export const likePost = async (postId: string): Promise<void> => {
 
 export const unlikePost = async (postId: string): Promise<void> => {
   await apiClient.delete(POST_ENDPOINTS.LIKE(postId))
+}
+
+export const bookmarkPost = async (postId: string): Promise<void> => {
+  await apiClient.post(POST_ENDPOINTS.BOOKMARK(postId))
+}
+
+export const unbookmarkPost = async (postId: string): Promise<void> => {
+  await apiClient.delete(POST_ENDPOINTS.BOOKMARK(postId))
 }
 
 export const getPostImageUploadUrl = async (): Promise<PresignedUrlResponse> => {

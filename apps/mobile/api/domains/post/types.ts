@@ -10,6 +10,7 @@ export interface Post {
   cat: Cat
   images: PostImage[]
   isLikedByMe: boolean
+  isBookmarkedByMe: boolean
 }
 
 export interface Author {

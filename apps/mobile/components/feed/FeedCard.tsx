@@ -7,7 +7,12 @@ import { Post, PostImage } from "@/api/domains/post/types"
 import { CAROUSEL_CONFIG } from "@/constants/config"
 import { formatRelativeTime, getMediaUrl } from "@/lib/utils"
 import { Heart, MessageCircle, Bookmark, MoreVertical } from "@/lib/icons"
-import { useLikePostMutation, useUnlikePostMutation } from "@/api/domains/post/queries"
+import {
+  useBookmarkMutation,
+  useLikePostMutation,
+  useUnbookmarkMutation,
+  useUnlikePostMutation,
+} from "@/api/domains/post/queries"
 import { LinearGradient } from "expo-linear-gradient"
 
 export function FeedCard({ post }: { post: Post }) {
@@ -29,6 +34,9 @@ export function FeedCard({ post }: { post: Post }) {
   const { mutate: likePost } = useLikePostMutation()
   const { mutate: unlikePost } = useUnlikePostMutation()
 
+  const { mutate: bookmarkPost } = useBookmarkMutation()
+  const { mutate: unbookmarkPost } = useUnbookmarkMutation()
+
   const handleLike = () => {
     // 좋아요 여부에 따라 적절한 mutation 호출
     if (post.isLikedByMe) {
@@ -39,11 +47,10 @@ export function FeedCard({ post }: { post: Post }) {
   }
 
   const handleBookmark = () => {
-    try {
-      // TODO: const response = await postApi.toggleBookmark(post.id);
-      console.log(`${post.id} 북마크 API 호출`)
-    } catch (error) {
-      console.error("북마크 실패:", error)
+    if (post.isBookmarkedByMe) {
+      unbookmarkPost({ postId: post.id })
+    } else {
+      bookmarkPost({ postId: post.id })
     }
   }
 
@@ -56,10 +63,8 @@ export function FeedCard({ post }: { post: Post }) {
   const catImage = post.cat.profileImageUrl || require("@/assets/images/default-avatar.png")
   const daysAgo = formatRelativeTime(post.createdAt)
 
-  console.log("리렌더링")
-
   return (
-    <View className="flex-col gap-4 px-4">
+    <View className="mb-5 flex-col gap-4 px-4">
       <View className="relative overflow-hidden rounded-md">
         <FlatList
           data={post.images}
@@ -120,7 +125,7 @@ export function FeedCard({ post }: { post: Post }) {
             <Bookmark
               size={20}
               className={
-                post.isLikedByMe // 추후 북마크 상태로 변경!
+                post.isBookmarkedByMe // 추후 북마크 상태로 변경!
                   ? "fill-semantic-icon-accent text-semantic-icon-accent"
                   : "text-white"
               }
