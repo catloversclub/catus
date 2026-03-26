@@ -24,7 +24,6 @@ export class CatController {
   findOne(@Param("id") id: string) {
     return this.catService.findOne(id)
   }
-
   @Patch(":id")
   update(
     @Req() req: AuthenticatedRequest,
@@ -46,5 +45,16 @@ export class CatController {
     @Body("contentType") contentType?: string,
   ) {
     return this.catService.getProfileImageUploadUrl(id, req.user.id!, contentType)
+  }
+}
+
+@Controller("user")
+@UseGuards(JwtAuthGuard)
+export class UserCatController {
+  constructor(private readonly catService: CatService) {}
+
+  @Get(":id/cats")
+  getUserCats(@Param("id") userId: string) {
+    return this.catService.getUserCats(userId)
   }
 }

@@ -10,6 +10,11 @@ import { uuidv7 } from "uuidv7"
 @Injectable()
 export class CatService {
   private readonly bucket: string
+  private readonly catProfileInclude = {
+    appearances: true,
+    personalities: true,
+  } as const
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly storage: StorageService,
@@ -41,10 +46,18 @@ export class CatService {
     })
   }
 
+  getUserCats(userId: string) {
+    return this.prisma.cat.findMany({
+      where: { butlerId: userId },
+      orderBy: { id: "desc" },
+      include: this.catProfileInclude,
+    })
+  }
+
   findOne(id: string) {
     return this.prisma.cat.findUniqueOrThrow({
       where: { id },
-      include: { appearances: true, personalities: true },
+      include: this.catProfileInclude,
     })
   }
 
