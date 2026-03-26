@@ -1,5 +1,6 @@
 {
   "extends": [
+    "../../.eslintrc.js",
     "next/core-web-vitals",
     "plugin:@typescript-eslint/recommended",
     "eslint-config-prettier"

@@ -1,10 +1,18 @@
-const { hairlineWidth } = require("nativewind/theme");
+const { hairlineWidth } = require("nativewind/theme")
+const semanticColors = require("./styles/semantic-colors")
+const baseColors = require("./styles/base-colors")
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: "class",
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   presets: [require("nativewind/preset")],
+  safelist: [
+    // semantic colors - JIT 모드에서도 항상 생성되도록 보장
+    {
+      pattern: /^(bg|text|border)-(semantic-.+)$/,
+    },
+  ],
   theme: {
     extend: {
       colors: {
@@ -41,6 +49,8 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        ...semanticColors,
+        ...baseColors,
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -70,4 +80,4 @@ module.exports = {
     hoverOnlyWhenSupported: true,
   },
   plugins: [require("tailwindcss-animate")],
-};
+}

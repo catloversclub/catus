@@ -1,0 +1,8 @@
+node_modules
+dist
+build
+.next
+.expo
+out
+coverage
+public

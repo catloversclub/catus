@@ -64,7 +64,7 @@ export function FeedCard({
                 <CarouselItem key={index} className="overflow-hidden pl-0">
                   <div className="relative bg-gray-100">
                     <Image
-                      src={image}
+                      src={`https://storage.catus.app/catus-media/${image}`}
                       alt={`${catName} photo ${index + 1}`}
                       width={800}
                       height={800}
