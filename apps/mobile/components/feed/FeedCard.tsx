@@ -15,7 +15,12 @@ import {
 } from "@/api/domains/post/queries"
 import { LinearGradient } from "expo-linear-gradient"
 
-export function FeedCard({ post }: { post: Post }) {
+interface FeedCardProps {
+  post: Post
+  isDetail?: boolean // 선택적 prop으로 설정
+}
+
+export function FeedCard({ post, isDetail = false }: FeedCardProps) {
   const [current, setCurrent] = useState(0)
 
   const { width } = useWindowDimensions()
@@ -63,8 +68,25 @@ export function FeedCard({ post }: { post: Post }) {
   const catImage = post.cat.profileImageUrl || require("@/assets/images/default-avatar.png")
   const daysAgo = formatRelativeTime(post.createdAt)
 
+  const ProfileInfo = (
+    <View className="flex-row items-center justify-between">
+      <View className="flex-row items-center gap-3">
+        <Image
+          source={catImage}
+          style={{ width: 36, height: 36, borderRadius: 36 }}
+          contentFit="cover"
+        />
+        <View className="flex-col">
+          <Text className="typo-body3 text-semantic-text-primary">{catName}</Text>
+          <Text className="typo-label1 text-semantic-text-secondary">{daysAgo}</Text>
+        </View>
+      </View>
+    </View>
+  )
+
   return (
     <View className="mb-5 flex-col gap-4 px-4">
+      {isDetail && ProfileInfo}
       <View className="relative overflow-hidden rounded-md">
         <FlatList
           data={post.images}
@@ -86,13 +108,11 @@ export function FeedCard({ post }: { post: Post }) {
             </Link>
           )}
         />
-
         <LinearGradient
           colors={["transparent", "rgba(0,0,0,0.6)"]}
           style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 80 }}
           pointerEvents="none" // ✨ 필수
         />
-
         {post.images.length > 1 && (
           <View
             className="absolute right-1.5 top-1.5 z-10 rounded bg-semantic-dimmed-primary px-2 py-1.5"
@@ -103,35 +123,36 @@ export function FeedCard({ post }: { post: Post }) {
             </Text>
           </View>
         )}
-
         {/* 액션 버튼들 */}
-        <View className="absolute bottom-[18px] right-[14px] z-10 flex-row items-center gap-4">
-          <Pressable onPress={handleLike} className="active:opacity-60">
-            <Heart
-              size={20}
-              className={
-                post.isLikedByMe
-                  ? "fill-semantic-icon-error text-semantic-icon-error"
-                  : "text-white"
-              }
-            />
-          </Pressable>
+        {!isDetail && (
+          <View className="absolute bottom-[18px] right-[14px] z-10 flex-row items-center gap-4">
+            <Pressable onPress={handleLike} className="active:opacity-60">
+              <Heart
+                size={20}
+                className={
+                  post.isLikedByMe
+                    ? "fill-semantic-icon-error text-semantic-icon-error"
+                    : "text-semantic-text-tertiary"
+                }
+              />
+            </Pressable>
 
-          <Pressable onPress={handleCommentPress} className="active:opacity-60">
-            <MessageCircle size={20} className="text-white" />
-          </Pressable>
+            <Pressable onPress={handleCommentPress} className="active:opacity-60">
+              <MessageCircle size={20} className="text-semantic-text-tertiary" />
+            </Pressable>
 
-          <Pressable onPress={handleBookmark} className="active:opacity-60">
-            <Bookmark
-              size={20}
-              className={
-                post.isBookmarkedByMe // 추후 북마크 상태로 변경!
-                  ? "fill-semantic-icon-accent text-semantic-icon-accent"
-                  : "text-white"
-              }
-            />
-          </Pressable>
-        </View>
+            <Pressable onPress={handleBookmark} className="active:opacity-60">
+              <Bookmark
+                size={20}
+                className={
+                  post.isBookmarkedByMe // 추후 북마크 상태로 변경!
+                    ? "fill-semantic-icon-accent text-semantic-icon-accent"
+                    : "text-white"
+                }
+              />
+            </Pressable>
+          </View>
+        )}
       </View>
 
       {/* 이미지 네비게이션 도트 (하단 중앙) */}
@@ -148,19 +169,38 @@ export function FeedCard({ post }: { post: Post }) {
         </View>
       )}
       {/* 프로필 정보 (이미지 하단) */}
-      <View className="flex-row items-center justify-between">
-        <View className="flex-row items-center gap-3">
-          <Image
-            source={catImage}
-            style={{ width: 36, height: 36, borderRadius: 36 }}
-            contentFit="cover"
-          />
-          <View className="flex-col">
-            <Text className="typo-body3 text-semantic-text-primary">{catName}</Text>
-            <Text className="typo-label1 text-semantic-text-secondary">{daysAgo}</Text>
+      {!isDetail && ProfileInfo}
+
+      {isDetail && (
+        <>
+          <View className="typo-body4">
+            <Text>{post.content}</Text>
           </View>
-        </View>
-      </View>
+          <View className="flex-row items-center justify-end gap-4">
+            <Pressable onPress={handleLike} className="active:opacity-60">
+              <Heart
+                size={20}
+                className={
+                  post.isLikedByMe
+                    ? "fill-semantic-icon-error text-semantic-icon-error"
+                    : "text-semantic-text-tertiary"
+                }
+              />
+            </Pressable>
+
+            <Pressable onPress={handleBookmark} className="active:opacity-60">
+              <Bookmark
+                size={20}
+                className={
+                  post.isBookmarkedByMe // 추후 북마크 상태로 변경!
+                    ? "fill-semantic-icon-accent text-semantic-icon-accent"
+                    : "text-semantic-text-tertiary"
+                }
+              />
+            </Pressable>
+          </View>
+        </>
+      )}
     </View>
   )
 }

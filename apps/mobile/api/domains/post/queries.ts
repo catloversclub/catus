@@ -5,6 +5,7 @@ import {
   useQuery,
   useQueryClient,
   useSuspenseInfiniteQuery,
+  useSuspenseQuery,
 } from "@tanstack/react-query"
 
 import {
@@ -38,10 +39,9 @@ export const postKeys = {
 }
 
 export const usePostByIdQuery = (postId: string) => {
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: postKeys.detail(postId),
     queryFn: () => getPostById(postId),
-    enabled: !!postId,
   })
 }
 
@@ -53,10 +53,9 @@ export const useMyPostsQuery = () => {
 }
 
 export const useUserPostsQuery = (userId: string) => {
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: postKeys.userPosts(userId),
     queryFn: () => getUserPosts(userId),
-    enabled: !!userId,
   })
 }
 

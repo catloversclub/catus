@@ -1,14 +1,24 @@
-export interface Comment {
-  commentId: number
-  postId: number
-  content: string
-  likeCount?: number
-  likedByMe?: boolean
+import { Author } from "@/api/domains/post/types"
+
+export interface CommentLike {
+  userId: string
 }
 
-export interface GetPostCommentsResponse {
-  comments: Comment[]
+export interface Comment {
+  id: string
+  postId: string
+  authorId: string
+  parentId: string | null
+  content: string
+  likeCount: number
+  isLikedByMe: boolean
+  createdAt: string
+  author: Author
+  commentLikes: CommentLike[]
+  replies?: Comment[]
 }
+
+export type GetPostCommentsResponse = Comment[]
 
 export interface CreateCommentRequest {
   content: string
