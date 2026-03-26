@@ -64,16 +64,27 @@ export class UserService {
     })
   }
 
-  getOne(userId: string) {
-    return this.prisma.user.findUniqueOrThrow({
+  async getOne(userId: string, viewerId: string) {
+    const user = await this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
       select: {
         nickname: true,
         profileImageUrl: true,
         followerCount: true,
         followingCount: true,
+        followers: {
+          where: { followerId: viewerId },
+          select: { followerId: true },
+        },
       },
     })
+
+    const { followers, ...rest } = user
+
+    return {
+      ...rest,
+      isFollowing: followers.length > 0,
+    }
   }
 
   async follow(followerId: string, followingId: string) {

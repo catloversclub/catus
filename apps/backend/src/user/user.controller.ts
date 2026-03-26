@@ -40,8 +40,8 @@ export class UserController {
   }
 
   @Get(":id")
-  getOne(@Param("id") id: string) {
-    return this.userService.getOne(id)
+  getOne(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
+    return this.userService.getOne(id, req.user.id!)
   }
 
   @Post(":id/follow")
