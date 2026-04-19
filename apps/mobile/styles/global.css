@@ -1,8 +1,0 @@
-/* styles/global.css */
-@import "./theme.css";
-@import "./semantic-colors.css";
-@import "./typography.css";
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
