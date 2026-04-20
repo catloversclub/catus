@@ -52,6 +52,7 @@ model RefreshToken {
 }
 
 model Follow {
+  id          Int      @id @default(autoincrement())
   followerId  String   @map("follower_id")
   followingId String   @map("following_id")
   createdAt   DateTime @default(now()) @map("created_at")
@@ -59,7 +60,7 @@ model Follow {
   follower  User @relation("Follows", fields: [followerId], references: [id], onDelete: Cascade)
   following User @relation("FollowedBy", fields: [followingId], references: [id], onDelete: Cascade)
 
-  @@id([followerId, followingId])
+  @@unique([followerId, followingId])
   @@index([followerId])
   @@index([followingId])
   @@map("follow")
