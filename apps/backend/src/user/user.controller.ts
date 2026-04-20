@@ -42,21 +42,6 @@ export class UserController {
     return this.userService.getMe(req.user.id!)
   }
 
-  @Get(":id")
-  getOne(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
-    return this.userService.getOne(id, req.user.id!)
-  }
-
-  @Post(":id/follow")
-  follow(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
-    return this.userService.follow(req.user.id!, id)
-  }
-
-  @Delete(":id/follow")
-  unfollow(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
-    return this.userService.unfollow(req.user.id!, id)
-  }
-
   @Get(":id/followers")
   getFollowers(
     @Req() req: AuthenticatedRequest,
@@ -75,6 +60,21 @@ export class UserController {
     @Query("take", new DefaultValuePipe(20), ParseIntPipe) take?: number,
   ) {
     return this.userService.getFollowings(req.user.id!, userId, cursor, take)
+  }
+
+  @Get(":id")
+  getOne(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
+    return this.userService.getOne(id, req.user.id!)
+  }
+
+  @Post(":id/follow")
+  follow(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
+    return this.userService.follow(req.user.id!, id)
+  }
+
+  @Delete(":id/follow")
+  unfollow(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
+    return this.userService.unfollow(req.user.id!, id)
   }
 
   @Patch("/me")
