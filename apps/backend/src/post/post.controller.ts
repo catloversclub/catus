@@ -52,6 +52,15 @@ export class PostController {
     return this.postService.getMyBookmarkedPosts(req.user.id!, cursor ?? null, take)
   }
 
+  @Get("liked/my")
+  getMyLikedPosts(
+    @Req() req: AuthenticatedRequest,
+    @Query("cursor") cursor?: string,
+    @Query("take", new DefaultValuePipe(20), ParseIntPipe) take?: number,
+  ) {
+    return this.postService.getMyLikedPosts(req.user.id!, cursor ?? null, take)
+  }
+
   @Get("feed")
   getFeed(
     @Req() req: AuthenticatedRequest,

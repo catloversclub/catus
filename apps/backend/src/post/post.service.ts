@@ -158,6 +158,26 @@ export class PostService {
     return this.attachViewerStateList(posts)
   }
 
+  async getMyLikedPosts(viewerId: string, cursor?: string | null, take = 20) {
+    const pagination = this.prisma.getPaginator(cursor ?? null)
+
+    const posts = await this.prisma.post.findMany({
+      ...pagination,
+      take,
+      where: {
+        likes: {
+          some: {
+            userId: viewerId,
+          },
+        },
+      },
+      orderBy: { id: "desc" },
+      include: this.getPostInclude(viewerId),
+    })
+
+    return this.attachViewerStateList(posts)
+  }
+
   async getCatPosts(catId: string, viewerId: string, cursor?: string | null, take = 20) {
     const pagination = this.prisma.getPaginator(cursor ?? null)
 
