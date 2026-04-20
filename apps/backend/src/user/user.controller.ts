@@ -9,6 +9,9 @@ import {
   UseGuards,
   Req,
   Query,
+  DefaultValuePipe,
+  ParseIntPipe,
+  Optional,
 } from "@nestjs/common"
 import { UserService } from "./user.service"
 import { CreateUserDto } from "./dto/create-user.dto"
@@ -52,6 +55,26 @@ export class UserController {
   @Delete(":id/follow")
   unfollow(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
     return this.userService.unfollow(req.user.id!, id)
+  }
+
+  @Get(":id/followers")
+  getFollowers(
+    @Req() req: AuthenticatedRequest,
+    @Param("id") userId: string,
+    @Query("cursor", new ParseIntPipe({ optional: true })) cursor?: number,
+    @Query("take", new DefaultValuePipe(20), ParseIntPipe) take?: number,
+  ) {
+    return this.userService.getFollowers(req.user.id!, userId, cursor, take)
+  }
+
+  @Get(":id/followings")
+  getFollowings(
+    @Req() req: AuthenticatedRequest,
+    @Param("id") userId: string,
+    @Query("cursor", new ParseIntPipe({ optional: true })) cursor?: number,
+    @Query("take", new DefaultValuePipe(20), ParseIntPipe) take?: number,
+  ) {
+    return this.userService.getFollowings(req.user.id!, userId, cursor, take)
   }
 
   @Patch("/me")

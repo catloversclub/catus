@@ -159,6 +159,112 @@ export class UserService {
     })
   }
 
+  async getFollowers(myId: string, userId: string, cursor?: number | null, take = 20) {
+    const pagination = this.prisma.getPaginator(cursor ?? null)
+
+    const followers = await this.prisma.follow.findMany({
+      ...pagination,
+      take,
+      where: {
+        followingId: userId,
+      },
+      select: {
+        id: true,
+        follower: {
+          select: {
+            id: true,
+            nickname: true,
+            profileImageUrl: true,
+          },
+        },
+      },
+      orderBy: {
+        id: "desc",
+      },
+    })
+
+    const followerIds = followers.map((item) => item.follower.id)
+
+    const myFollowings = followerIds.length
+      ? await this.prisma.follow.findMany({
+          where: {
+            followerId: myId,
+            followingId: {
+              in: followerIds,
+            },
+          },
+          select: {
+            followingId: true,
+          },
+        })
+      : []
+
+    const followedSet = new Set(myFollowings.map((item) => item.followingId))
+
+    return followers.map((item) => ({
+      id: item.follower.id,
+      nickname: item.follower.nickname,
+      profileImageUrl: item.follower.profileImageUrl,
+      isFollowedByMe: followedSet.has(item.follower.id),
+      cursor: item.id,
+    }))
+  }
+
+  async getFollowings(myId: string, userId: string, cursor?: number | null, take = 20) {
+    const pagination = this.prisma.getPaginator(cursor ?? null)
+
+    const followers = await this.prisma.follow.findMany({
+      ...pagination,
+      take,
+      where: {
+        followerId: userId,
+      },
+      select: {
+        id: true,
+        following: {
+          select: {
+            id: true,
+            nickname: true,
+            profileImageUrl: true,
+          },
+        },
+      },
+      orderBy: {
+        id: "desc",
+      },
+    })
+
+    let followedSet: Set<string>
+
+    if (myId !== userId) {
+      const followerIds = followers.map((item) => item.following.id)
+
+      const myFollowings = followerIds.length
+        ? await this.prisma.follow.findMany({
+            where: {
+              followerId: myId,
+              followingId: {
+                in: followerIds,
+              },
+            },
+            select: {
+              followingId: true,
+            },
+          })
+        : []
+
+      followedSet = new Set(myFollowings.map((item) => item.followingId))
+    }
+
+    return followers.map((item) => ({
+      id: item.following.id,
+      nickname: item.following.nickname,
+      profileImageUrl: item.following.profileImageUrl,
+      isFollowedByMe: myId === userId ? true : followedSet.has(item.following.id),
+      cursor: item.id,
+    }))
+  }
+
   update(userId: string, updateUserDto: UpdateUserDto) {
     const { favoritePersonalities, favoriteAppearances, ...rest } = updateUserDto
 
