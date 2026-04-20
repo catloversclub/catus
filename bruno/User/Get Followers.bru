@@ -1,0 +1,20 @@
+meta {
+  name: Get Followers
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/user/:id/followers?take=20
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+params:query {
+  take: 20
+  ~cursor:
+}
