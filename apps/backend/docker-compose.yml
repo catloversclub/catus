@@ -26,7 +26,7 @@ services:
     restart: unless-stopped
 
   api:
-    image: ghcr.io/catloversclub/catus:latest
+    image: ghcr.io/catloversclub/catus-server:latest
     env_file: [.env]
     environment:
       - NODE_ENV=production
