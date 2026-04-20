@@ -136,10 +136,11 @@ model Post {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  authorId String  @map("author_id")
-  author   User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  catId    String? @map("cat_id")
-  cat      Cat?    @relation(fields: [catId], references: [id], onDelete: SetNull)
+  authorId    String  @map("author_id")
+  author      User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  catId       String? @map("cat_id")
+  cat         Cat?    @relation(fields: [catId], references: [id], onDelete: SetNull)
+  reportCount Int     @default(0) @map("report_count")
 
   images    PostImage[]
   comments  Comment[]
