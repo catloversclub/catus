@@ -61,6 +61,10 @@ export class UserService {
   getMe(userId: string) {
     return this.prisma.user.findUniqueOrThrow({
       where: { id: userId },
+      include: {
+        favoriteAppearances: true,
+        favoritePersonalities: true,
+      },
     })
   }
 
