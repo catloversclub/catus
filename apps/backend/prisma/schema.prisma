@@ -33,6 +33,7 @@ model User {
   commentLikes          CommentLike[]
   UserIdentity          UserIdentity[]
   refreshTokens         RefreshToken[]
+  Report                Report[]
 
   @@map("user")
 }
@@ -147,6 +148,7 @@ model Post {
   comments  Comment[]
   likes     PostLike[]
   bookmarks PostBookmark[]
+  Report    Report[]
 
   @@index([authorId, id])
   @@index([catId, id])
@@ -221,4 +223,15 @@ model CommentLike {
 
   @@id([commentId, userId])
   @@map("comment_like")
+}
+
+model Report {
+  postId     String @map("post_id")
+  reporterId String @map("reporter_id")
+
+  post     Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  reporter User @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+
+  @@id([postId, reporterId])
+  @@map("report")
 }
