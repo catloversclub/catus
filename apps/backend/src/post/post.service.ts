@@ -482,6 +482,15 @@ export class PostService {
     })
   }
 
+  reportPost(id: string, reporterId: string) {
+    return this.prisma.report.create({
+      data: {
+        postId: id,
+        reporterId,
+      },
+    })
+  }
+
   async getImageUploadUrls(userId: string, count: number) {
     if (!count || count < 1) {
       throw new BadRequestException("count must be at least 1")

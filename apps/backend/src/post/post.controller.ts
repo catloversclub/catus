@@ -113,6 +113,11 @@ export class PostController {
   unbookmarkPost(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
     return this.postService.unbookmarkPost(id, req.user.id!)
   }
+
+  @Post(":id/report")
+  reportPost(@Req() req: AuthenticatedRequest, @Param("id") id: string) {
+    return this.postService.reportPost(id, req.user.id!)
+  }
 }
 
 @Controller("user")
