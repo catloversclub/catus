@@ -5,6 +5,7 @@ import { PrismaService } from "@app/prisma/prisma.service"
 import { StorageService } from "@app/storage/storage.service"
 import { ConfigService } from "@nestjs/config"
 import { uuidv7 } from "uuidv7"
+import axios from "axios"
 
 type PostWithViewerState = {
   likes: Array<{ userId: string }>
@@ -14,6 +15,7 @@ type PostWithViewerState = {
 @Injectable()
 export class PostService {
   private readonly bucket: string
+  private readonly webhookUrl: string
 
   constructor(
     private readonly prisma: PrismaService,
@@ -21,6 +23,7 @@ export class PostService {
     private readonly config: ConfigService,
   ) {
     this.bucket = this.config.get<string>("S3_BUCKET") ?? "catus-media"
+    this.webhookUrl = this.config.get<string>("DISCORD_WEBHOOK_URL_REPORT")!
   }
 
   private getPostInclude(viewerId: string) {
@@ -482,12 +485,107 @@ export class PostService {
     })
   }
 
-  reportPost(id: string, reporterId: string) {
-    return this.prisma.report.create({
-      data: {
-        postId: id,
-        reporterId,
-      },
+  async reportPost(id: string, reporterId: string) {
+    const [reportResult, reportCount] = await this.prisma.$transaction([
+      this.prisma.report.create({
+        data: {
+          postId: id,
+          reporterId,
+        },
+        select: {
+          reporter: {
+            select: {
+              nickname: true,
+            },
+          },
+          post: {
+            select: {
+              id: true,
+              content: true,
+              author: {
+                select: {
+                  nickname: true,
+                },
+              },
+              images: {
+                select: {
+                  url: true,
+                  order: true,
+                },
+                orderBy: {
+                  order: "asc",
+                },
+              },
+            },
+          },
+        },
+      }),
+      this.prisma.report.count({
+        where: {
+          postId: id,
+        },
+      }),
+    ])
+
+    const imageUrls = reportResult.post.images.map((image) => image.url)
+    const firstImageUrl = imageUrls[0]
+
+    await axios.post(this.webhookUrl, {
+      embeds: [
+        {
+          title: "🚨 게시글 신고 접수",
+          color: 0xff3b30,
+          fields: [
+            {
+              name: "게시글 ID",
+              value: `\`${reportResult.post.id}\``,
+              inline: false,
+            },
+            {
+              name: "작성자",
+              value: reportResult.post.author.nickname,
+              inline: true,
+            },
+            {
+              name: "신고자",
+              value: reportResult.reporter.nickname,
+              inline: true,
+            },
+            {
+              name: "누적 신고 수",
+              value: String(reportCount),
+              inline: true,
+            },
+            {
+              name: "게시글 내용",
+              value: reportResult.post.content ?? "(내용 없음)",
+              inline: false,
+            },
+            {
+              name: "게시글 이미지",
+              value:
+                imageUrls.length > 0
+                  ? imageUrls
+                      .map((url, index) => `${index + 1}. ${url}`)
+                      .join("\n")
+                      .slice(0, 1024)
+                  : "(이미지 없음)",
+              inline: false,
+            },
+          ],
+          ...(firstImageUrl
+            ? {
+                image: {
+                  url: firstImageUrl,
+                },
+              }
+            : {}),
+          timestamp: new Date().toISOString(),
+          footer: {
+            text: "Post Report Webhook",
+          },
+        },
+      ],
     })
   }
 
