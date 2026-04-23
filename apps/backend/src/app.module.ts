@@ -10,7 +10,8 @@ import { PrismaExceptionFilter } from "./common/filters/prisma-exception.filter"
 import { PostModule } from "./post/post.module"
 import { CommentModule } from "./comment/comment.module"
 import { AttributeModule } from "./attribute/attribute.module"
-import { SearchModule } from './search/search.module';
+import { SearchModule } from "./search/search.module"
+import { NotificationModule } from "./notification/notification.module"
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { SearchModule } from './search/search.module';
     CommentModule,
     AttributeModule,
     SearchModule,
+    NotificationModule,
   ],
   providers: [{ provide: APP_FILTER, useClass: PrismaExceptionFilter }],
 })
