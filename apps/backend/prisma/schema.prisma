@@ -34,6 +34,7 @@ model User {
   UserIdentity          UserIdentity[]
   refreshTokens         RefreshToken[]
   Report                Report[]
+  PushToken             PushToken[]
 
   @@map("user")
 }
@@ -138,11 +139,10 @@ model Post {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  authorId    String  @map("author_id")
-  author      User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  catId       String? @map("cat_id")
-  cat         Cat?    @relation(fields: [catId], references: [id], onDelete: SetNull)
-  reportCount Int     @default(0) @map("report_count")
+  authorId String  @map("author_id")
+  author   User    @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  catId    String? @map("cat_id")
+  cat      Cat?    @relation(fields: [catId], references: [id], onDelete: SetNull)
 
   images    PostImage[]
   comments  Comment[]
@@ -234,4 +234,24 @@ model Report {
 
   @@id([postId, reporterId])
   @@map("report")
+}
+
+model PushToken {
+  token      String       @id
+  userId     String       @map("user_id")
+  platform   PushPlatform
+  enabled    Boolean      @default(true)
+  lastUsedAt DateTime?    @map("last_used_at")
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_token")
+}
+
+enum PushPlatform {
+  ios
+  android
 }
