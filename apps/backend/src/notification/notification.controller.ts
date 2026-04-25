@@ -16,4 +16,9 @@ export class NotificationController {
   ) {
     return this.notificationService.registerPushToken(req.user.id!, dto.token, dto.platform)
   }
+
+  @Post("test")
+  sendDevTestPush() {
+    return this.notificationService.sendDevTestNotificationToAllTokens()
+  }
 }
