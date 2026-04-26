@@ -1,0 +1,22 @@
+meta {
+  name: Set Push Token Enabled
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/notification/push-token/enabled
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "token": "token_example",
+    "enabled": false
+  }
+}
