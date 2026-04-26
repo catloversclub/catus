@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common"
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common"
 import { PrismaService } from "@app/prisma/prisma.service"
 import type { PushPlatform } from "@prisma/client"
 import Expo from "expo-server-sdk"
@@ -34,6 +34,27 @@ export class NotificationService {
         lastUsedAt: now,
       },
     })
+  }
+
+  async setPushTokenEnabled(userId: string, token: string, enabled: boolean) {
+    const updated = await this.prisma.pushToken.updateMany({
+      where: {
+        token,
+        userId,
+      },
+      data: {
+        enabled,
+      },
+    })
+
+    if (updated.count === 0) {
+      throw new NotFoundException("Push token not found")
+    }
+
+    return {
+      token,
+      enabled,
+    }
   }
 
   async sendDevTestNotificationToAllTokens() {
