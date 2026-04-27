@@ -6,7 +6,7 @@ import Expo from "expo-server-sdk"
 @Injectable()
 export class NotificationService {
   private readonly expo = new Expo()
-  
+
   constructor(private readonly prisma: PrismaService) {}
 
   registerPushToken(userId: string, token: string, platform: PushPlatform) {
@@ -34,6 +34,29 @@ export class NotificationService {
         lastUsedAt: now,
       },
     })
+  }
+
+  async getPushToken(userId: string, token: string) {
+    const pushToken = await this.prisma.pushToken.findFirst({
+      where: {
+        token,
+        userId,
+      },
+      select: {
+        token: true,
+        platform: true,
+        enabled: true,
+        lastUsedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    })
+
+    if (!pushToken) {
+      throw new NotFoundException("Push token not found")
+    }
+
+    return pushToken
   }
 
   async setPushTokenEnabled(userId: string, token: string, enabled: boolean) {
