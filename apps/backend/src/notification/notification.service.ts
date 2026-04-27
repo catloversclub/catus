@@ -59,7 +59,7 @@ export class NotificationService {
     return pushToken
   }
 
-  async setPushTokenEnabled(userId: string, token: string, enabled: boolean) {
+  async updatePushToken(userId: string, token: string, enabled: boolean) {
     const updated = await this.prisma.pushToken.updateMany({
       where: {
         token,

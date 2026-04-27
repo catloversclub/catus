@@ -2,7 +2,7 @@ import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from "@nest
 import { JwtAuthGuard } from "@app/auth/guards/jwt-auth.guard"
 import type { AuthenticatedRequest } from "@app/auth/authenticated-request.interface"
 import { RegisterPushTokenDto } from "./dto/register-push-token.dto"
-import { SetPushTokenEnabledDto } from "./dto/set-push-token-enabled.dto"
+import { UpdatePushTokenDto } from "./dto/update-push-token.dto"
 import { NotificationService } from "./notification.service"
 
 @Controller("notification")
@@ -23,12 +23,13 @@ export class NotificationController {
     return this.notificationService.getPushToken(req.user.id!, token)
   }
 
-  @Patch("push-token/enabled")
-  setPushTokenEnabled(
+  @Patch("push-token/:token")
+  updatePushToken(
     @Req() req: AuthenticatedRequest,
-    @Body() dto: SetPushTokenEnabledDto,
+    @Param("token") token: string,
+    @Body() dto: UpdatePushTokenDto,
   ) {
-    return this.notificationService.setPushTokenEnabled(req.user.id!, dto.token, dto.enabled)
+    return this.notificationService.updatePushToken(req.user.id!, token, dto.enabled)
   }
 
   @Post("test")

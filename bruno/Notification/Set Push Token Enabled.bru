@@ -5,9 +5,13 @@ meta {
 }
 
 patch {
-  url: {{baseUrl}}/notification/push-token/enabled
+  url: {{baseUrl}}/notification/push-token/:token
   body: json
   auth: inherit
+}
+
+params:path {
+  token: 
 }
 
 headers {
@@ -16,7 +20,6 @@ headers {
 
 body:json {
   {
-    "token": "token_example",
     "enabled": false
   }
 }
