@@ -5,6 +5,11 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/notification/push-token/token_example
+  url: {{baseUrl}}/notification/push-token/:token
+  body: none
   auth: inherit
+}
+
+params:path {
+  token: 
 }
