@@ -11,7 +11,6 @@ import {
   Query,
   DefaultValuePipe,
   ParseIntPipe,
-  Optional,
 } from "@nestjs/common"
 import { UserService } from "./user.service"
 import { CreateUserDto } from "./dto/create-user.dto"
@@ -92,6 +91,7 @@ export class UserController {
   }
 
   @Post("/me/image/upload-url")
+  @OnboardingBypass()
   getProfileImageUploadUrl(
     @Req() req: AuthenticatedRequest,
     @Body("contentType") contentType?: string,
