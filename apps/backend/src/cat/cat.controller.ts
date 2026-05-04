@@ -4,7 +4,6 @@ import { CreateCatDto } from "./dto/create-cat.dto"
 import { UpdateCatDto } from "./dto/update-cat.dto"
 import { JwtAuthGuard } from "@app/auth/guards/jwt-auth.guard"
 import type { AuthenticatedRequest } from "@app/auth/authenticated-request.interface"
-import { OnboardingBypass } from "@app/auth/decorators/onboarding-bypass.decorator"
 
 @Controller("cat")
 @UseGuards(JwtAuthGuard)
@@ -17,7 +16,6 @@ export class CatController {
   }
 
   @Get("my")
-  @OnboardingBypass()
   getMyCats(@Req() req: AuthenticatedRequest) {
     return this.catService.getMyCats(req.user.id!)
   }
