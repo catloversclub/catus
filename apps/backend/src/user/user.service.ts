@@ -5,6 +5,7 @@ import type { CreateUserDto } from "./dto/create-user.dto"
 import type { UpdateUserDto } from "./dto/update-user.dto"
 import { PrismaService } from "@app/prisma/prisma.service"
 import { StorageService } from "@app/storage/storage.service"
+import { NotificationService } from "@app/notification/notification.service"
 import { uuidv7 } from "uuidv7"
 import type { Provider } from "@prisma/client"
 
@@ -15,6 +16,7 @@ export class UserService {
     private readonly prisma: PrismaService,
     private readonly storage: StorageService,
     private readonly config: ConfigService,
+    private readonly notificationService: NotificationService,
   ) {
     this.bucket = this.config.get<string>("S3_BUCKET") ?? "catus-media"
   }
@@ -96,9 +98,12 @@ export class UserService {
       throw new BadRequestException("You cannot follow yourself")
     }
 
-    return this.prisma.$transaction(async (tx) => {
-      await Promise.all([
-        tx.user.findUniqueOrThrow({ where: { id: followerId }, select: { id: true } }),
+    const result = await this.prisma.$transaction(async (tx) => {
+      const [followerUser] = await Promise.all([
+        tx.user.findUniqueOrThrow({
+          where: { id: followerId },
+          select: { id: true, nickname: true },
+        }),
         tx.user.findUniqueOrThrow({ where: { id: followingId }, select: { id: true } }),
       ])
 
@@ -122,8 +127,20 @@ export class UserService {
       return {
         follower,
         target,
+        notification: {
+          recipientId: followingId,
+          followerId,
+          followerNickname: followerUser.nickname,
+        },
       }
     })
+
+    await this.notificationService.sendNewFollowerNotification(result.notification)
+
+    return {
+      follower: result.follower,
+      target: result.target,
+    }
   }
 
   async unfollow(followerId: string, followingId: string) {

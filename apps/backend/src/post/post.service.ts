@@ -4,6 +4,7 @@ import { UpdatePostDto } from "./dto/update-post.dto"
 import { PrismaService } from "@app/prisma/prisma.service"
 import { StorageService } from "@app/storage/storage.service"
 import { ConfigService } from "@nestjs/config"
+import { NotificationService } from "@app/notification/notification.service"
 import { uuidv7 } from "uuidv7"
 import axios from "axios"
 
@@ -21,6 +22,7 @@ export class PostService {
     private readonly prisma: PrismaService,
     private readonly storage: StorageService,
     private readonly config: ConfigService,
+    private readonly notificationService: NotificationService,
   ) {
     this.bucket = this.config.get<string>("S3_BUCKET") ?? "catus-media"
     this.webhookUrl = this.config.get<string>("DISCORD_WEBHOOK_URL_REPORT")!
@@ -318,17 +320,24 @@ export class PostService {
   }
 
   async likePost(postId: string, userId: string) {
-    return this.prisma.$transaction(async (tx) => {
-      const post = await tx.post.findUnique({
-        where: { id: postId },
-        select: { id: true },
-      })
+    const result = await this.prisma.$transaction(async (tx) => {
+      const [post, actor] = await Promise.all([
+        tx.post.findUnique({
+          where: { id: postId },
+          select: { id: true, authorId: true },
+        }),
+        tx.user.findUniqueOrThrow({
+          where: { id: userId },
+          select: { nickname: true },
+        }),
+      ])
 
       if (!post) {
         throw new BadRequestException("post not found")
       }
 
       let likeCount: number
+      let shouldNotify = false
 
       try {
         await tx.postLike.create({
@@ -342,6 +351,7 @@ export class PostService {
         })
 
         likeCount = updated.likeCount
+        shouldNotify = post.authorId !== userId
       } catch (err: any) {
         if (err.code !== "P2002") {
           throw err
@@ -357,8 +367,24 @@ export class PostService {
 
       return {
         likeCount,
+        notification: shouldNotify
+          ? {
+              recipientId: post.authorId,
+              actorId: userId,
+              actorNickname: actor.nickname,
+              postId,
+            }
+          : null,
       }
     })
+
+    if (result.notification) {
+      await this.notificationService.sendPostLikeNotification(result.notification)
+    }
+
+    return {
+      likeCount: result.likeCount,
+    }
   }
 
   async unlikePost(postId: string, userId: string) {

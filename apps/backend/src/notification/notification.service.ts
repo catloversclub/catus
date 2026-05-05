@@ -5,6 +5,8 @@ import Expo, { type ExpoPushMessage, type ExpoPushTicket } from "expo-server-sdk
 
 type PushNotificationPayload = Omit<ExpoPushMessage, "to" | "badge">
 
+const NOTIFICATION_PREVIEW_MAX_LENGTH = 32
+
 @Injectable()
 export class NotificationService {
   private readonly expo = new Expo()
@@ -124,6 +126,160 @@ export class NotificationService {
     return this.sendPushNotificationToUsers([userId], message)
   }
 
+  sendPostLikeNotification(params: {
+    recipientId: string
+    actorId: string
+    actorNickname: string
+    postId: string
+  }) {
+    if (params.recipientId === params.actorId) {
+      return this.sendPushNotificationToUsers([], {})
+    }
+
+    return this.sendPushNotificationToUser(params.recipientId, {
+      title: params.actorNickname,
+      body: "회원님의 게시물을 좋아합니다",
+      data: {
+        type: "POST_LIKE",
+        actorId: params.actorId,
+        postId: params.postId,
+      },
+    })
+  }
+
+  sendCommentNotification(params: {
+    recipientId: string
+    actorId: string
+    actorNickname: string
+    postId: string
+    commentId: string
+    content: string
+  }) {
+    if (params.recipientId === params.actorId) {
+      return this.sendPushNotificationToUsers([], {})
+    }
+
+    return this.sendPushNotificationToUser(params.recipientId, {
+      title: `${params.actorNickname}님이 댓글을 남겼습니다`,
+      body: this.preview(params.content),
+      data: {
+        type: "COMMENT_CREATED",
+        actorId: params.actorId,
+        postId: params.postId,
+        commentId: params.commentId,
+      },
+    })
+  }
+
+  sendReplyNotification(params: {
+    recipientId: string
+    actorId: string
+    actorNickname: string
+    postId: string
+    commentId: string
+    parentCommentId: string
+    content: string
+  }) {
+    if (params.recipientId === params.actorId) {
+      return this.sendPushNotificationToUsers([], {})
+    }
+
+    return this.sendPushNotificationToUser(params.recipientId, {
+      title: `${params.actorNickname}님이 회원님의 댓글에 답글을 남겼습니다`,
+      body: this.preview(params.content),
+      data: {
+        type: "REPLY_CREATED",
+        actorId: params.actorId,
+        postId: params.postId,
+        commentId: params.commentId,
+        parentCommentId: params.parentCommentId,
+      },
+    })
+  }
+
+  sendNewFollowerNotification(params: {
+    recipientId: string
+    followerId: string
+    followerNickname: string
+  }) {
+    return this.sendPushNotificationToUser(params.recipientId, {
+      title: "새로운 팔로워",
+      body: `${params.followerNickname}님이 회원님을 팔로우하기 시작했습니다`,
+      data: {
+        type: "USER_FOLLOWED",
+        followerId: params.followerId,
+      },
+    })
+  }
+
+  sendCatFollowerNotification(params: {
+    recipientId: string
+    followerId: string
+    followerNickname: string
+    catId: string
+    catName: string
+  }) {
+    return this.sendPushNotificationToUser(params.recipientId, {
+      title: params.catName,
+      body: `${params.followerNickname}님이 팔로우하기 시작했습니다`,
+      data: {
+        type: "CAT_FOLLOWED",
+        followerId: params.followerId,
+        catId: params.catId,
+      },
+    })
+  }
+
+  sendFollowedCatPostNotification(params: {
+    recipientIds: string[]
+    catId: string
+    catName: string
+    postId: string
+  }) {
+    return this.sendPushNotificationToUsers(params.recipientIds, {
+      title: params.catName,
+      body: "새로운 게시글이 올라왔어요",
+      data: {
+        type: "FOLLOWED_CAT_POST_CREATED",
+        catId: params.catId,
+        postId: params.postId,
+      },
+    })
+  }
+
+  sendNoticeNotificationToUsers(params: {
+    recipientIds: string[]
+    noticeId?: string
+    title: string
+    body: string
+  }) {
+    return this.sendPushNotificationToUsers(params.recipientIds, {
+      title: `[공지] ${params.title}`,
+      body: params.body,
+      data: {
+        type: "NOTICE",
+        ...(params.noticeId ? { noticeId: params.noticeId } : {}),
+      },
+    })
+  }
+
+  async sendNoticeNotificationToAllUsers(params: {
+    noticeId?: string
+    title: string
+    body: string
+  }) {
+    const users = await this.prisma.user.findMany({
+      select: {
+        id: true,
+      },
+    })
+
+    return this.sendNoticeNotificationToUsers({
+      ...params,
+      recipientIds: users.map(({ id }) => id),
+    })
+  }
+
   async sendPushNotificationToUsers(userIds: string[], message: PushNotificationPayload) {
     const normalizedUserIds = [...new Set(userIds.filter(Boolean))]
 
@@ -186,6 +342,10 @@ export class NotificationService {
         ({ userId, token }): ExpoPushMessage => ({
           sound: "default",
           ...message,
+          data: {
+            ...(message.data ?? {}),
+            unreadCount: unreadCountByUserId.get(userId) ?? 0,
+          },
           badge: unreadCountByUserId.get(userId) ?? 0,
           to: token,
         }),
@@ -248,5 +408,9 @@ export class NotificationService {
     }
 
     return tickets
+  }
+
+  private preview(content: string) {
+    return content.replace(/\s+/g, " ").trim().slice(0, NOTIFICATION_PREVIEW_MAX_LENGTH)
   }
 }

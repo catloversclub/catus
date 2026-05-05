@@ -1,10 +1,14 @@
 import { BadRequestException, ForbiddenException, Injectable } from "@nestjs/common"
 import { PrismaService } from "@app/prisma/prisma.service"
+import { NotificationService } from "@app/notification/notification.service"
 import { CreateCommentDto } from "./dto/create-comment.dto"
 
 @Injectable()
 export class CommentService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationService: NotificationService,
+  ) {}
 
   async create(postId: string, authorId: string, dto: CreateCommentDto) {
     const { content, parentId } = dto
@@ -12,16 +16,28 @@ export class CommentService {
       throw new BadRequestException("content is required")
     }
 
-    const post = await this.prisma.post.findUnique({ where: { id: postId }, select: { id: true } })
+    const [post, actor] = await Promise.all([
+      this.prisma.post.findUnique({
+        where: { id: postId },
+        select: { id: true, authorId: true },
+      }),
+      this.prisma.user.findUniqueOrThrow({
+        where: { id: authorId },
+        select: { nickname: true },
+      }),
+    ])
+
     if (!post) {
       throw new BadRequestException("post not found")
     }
 
     let normalizedParentId: string | null = null
+    let parent: { id: string; postId: string; authorId: string } | null = null
+
     if (parentId) {
-      const parent = await this.prisma.comment.findUnique({
+      parent = await this.prisma.comment.findUnique({
         where: { id: parentId },
-        select: { id: true, postId: true },
+        select: { id: true, postId: true, authorId: true },
       })
       if (!parent || parent.postId !== postId) {
         throw new BadRequestException("invalid parent comment")
@@ -29,7 +45,7 @@ export class CommentService {
       normalizedParentId = parentId
     }
 
-    return this.prisma.comment.create({
+    const comment = await this.prisma.comment.create({
       data: {
         content,
         postId,
@@ -46,6 +62,29 @@ export class CommentService {
         },
       },
     })
+
+    if (parent) {
+      await this.notificationService.sendReplyNotification({
+        recipientId: parent.authorId,
+        actorId: authorId,
+        actorNickname: actor.nickname,
+        postId,
+        commentId: comment.id,
+        parentCommentId: parent.id,
+        content,
+      })
+    } else {
+      await this.notificationService.sendCommentNotification({
+        recipientId: post.authorId,
+        actorId: authorId,
+        actorNickname: actor.nickname,
+        postId,
+        commentId: comment.id,
+        content,
+      })
+    }
+
+    return comment
   }
 
   async getPostComments(postId: string, userId: string, cursor?: string | null, take = 20) {

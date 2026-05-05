@@ -4,9 +4,10 @@ import { CatPostController, PostController, UserPostController } from "./post.co
 import { PrismaModule } from "@app/prisma/prisma.module"
 import { StorageModule } from "@app/storage/storage.module"
 import { AuthModule } from "@app/auth/auth.module"
+import { NotificationModule } from "@app/notification/notification.module"
 
 @Module({
-  imports: [PrismaModule, StorageModule, AuthModule],
+  imports: [PrismaModule, StorageModule, AuthModule, NotificationModule],
   controllers: [PostController, UserPostController, CatPostController],
   providers: [PostService],
 })
