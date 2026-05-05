@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common"
 import { PrismaService } from "@app/prisma/prisma.service"
-import type { PushPlatform } from "@prisma/client"
+import { Prisma, type PushPlatform } from "@prisma/client"
 import Expo, { type ExpoPushMessage, type ExpoPushTicket } from "expo-server-sdk"
 
-type PushNotificationPayload = Omit<ExpoPushMessage, "to">
+type PushNotificationPayload = Omit<ExpoPushMessage, "to" | "badge">
 
 @Injectable()
 export class NotificationService {
@@ -82,6 +82,44 @@ export class NotificationService {
     }
   }
 
+  async getNotifications(userId: string, cursor?: string | null, take = 20) {
+    const readAt = new Date()
+    const pagination = this.prisma.getPaginator(cursor ?? null)
+
+    const [notifications] = await this.prisma.$transaction([
+      this.prisma.notification.findMany({
+        ...pagination,
+        take,
+        where: {
+          userId,
+          createdAt: {
+            lte: readAt,
+          },
+        },
+        orderBy: {
+          id: "desc",
+        },
+      }),
+      this.prisma.notification.updateMany({
+        where: {
+          userId,
+          readAt: null,
+          createdAt: {
+            lte: readAt,
+          },
+        },
+        data: {
+          readAt,
+        },
+      }),
+    ])
+
+    return notifications.map((notification) => ({
+      ...notification,
+      readAt: notification.readAt ?? readAt,
+    }))
+  }
+
   async sendPushNotificationToUser(userId: string, message: PushNotificationPayload) {
     return this.sendPushNotificationToUsers([userId], message)
   }
@@ -91,28 +129,76 @@ export class NotificationService {
 
     if (normalizedUserIds.length === 0) {
       return {
+        notificationCount: 0,
         tokenCount: 0,
         validTokenCount: 0,
         tickets: [],
       }
     }
 
-    const pushTokens = await this.prisma.pushToken.findMany({
-      where: {
-        userId: {
-          in: normalizedUserIds,
-        },
-        enabled: true,
-      },
-      select: {
-        token: true,
-      },
+    const notificationData = message.data
+      ? (message.data as Prisma.InputJsonValue)
+      : undefined
+
+    await this.prisma.notification.createMany({
+      data: normalizedUserIds.map((userId) => ({
+        userId,
+        title: message.title ?? null,
+        body: message.body ?? null,
+        data: notificationData,
+      })),
     })
 
-    return this.sendPushNotificationToTokens(
-      pushTokens.map(({ token }) => token),
-      message,
+    const [pushTokens, unreadCounts] = await Promise.all([
+      this.prisma.pushToken.findMany({
+        where: {
+          userId: {
+            in: normalizedUserIds,
+          },
+          enabled: true,
+        },
+        select: {
+          userId: true,
+          token: true,
+        },
+      }),
+      this.prisma.notification.groupBy({
+        by: ["userId"],
+        where: {
+          userId: {
+            in: normalizedUserIds,
+          },
+          readAt: null,
+        },
+        _count: {
+          _all: true,
+        },
+      }),
+    ])
+
+    const unreadCountByUserId = new Map(
+      unreadCounts.map((item) => [item.userId, item._count._all]),
     )
+
+    const messages = pushTokens
+      .filter(({ token }) => Expo.isExpoPushToken(token))
+      .map(
+        ({ userId, token }): ExpoPushMessage => ({
+          sound: "default",
+          ...message,
+          badge: unreadCountByUserId.get(userId) ?? 0,
+          to: token,
+        }),
+      )
+
+    const tickets = await this.sendExpoMessages(messages)
+
+    return {
+      notificationCount: normalizedUserIds.length,
+      tokenCount: pushTokens.length,
+      validTokenCount: messages.length,
+      tickets,
+    }
   }
 
   async sendDevTestNotificationToAllTokens() {
@@ -125,40 +211,32 @@ export class NotificationService {
       },
     })
 
-    return this.sendPushNotificationToTokens(
-      pushTokens.map(({ token }) => token),
-      {
-        sound: "default",
-        title: "개발 테스트 알림",
-        body: "Expo Push Service 테스트 알림입니다.",
-        data: {
-          type: "DEV_TEST_NOTIFICATION",
-        },
-      },
-    )
-  }
-
-  private async sendPushNotificationToTokens(
-    tokens: string[],
-    message: PushNotificationPayload,
-  ) {
-    const normalizedTokens = [...new Set(tokens)]
-    const messages = normalizedTokens
-      .filter((token) => Expo.isExpoPushToken(token))
+    const messages = pushTokens
+      .filter(({ token }) => Expo.isExpoPushToken(token))
       .map(
-        (token): ExpoPushMessage => ({
-          sound: "default",
-          ...message,
+        ({ token }): ExpoPushMessage => ({
           to: token,
+          sound: "default",
+          title: "개발 테스트 알림",
+          body: "Expo Push Service 테스트 알림입니다.",
+          data: {
+            type: "DEV_TEST_NOTIFICATION",
+          },
         }),
       )
 
+    const tickets = await this.sendExpoMessages(messages)
+
+    return {
+      tokenCount: pushTokens.length,
+      validTokenCount: messages.length,
+      tickets,
+    }
+  }
+
+  private async sendExpoMessages(messages: ExpoPushMessage[]) {
     if (messages.length === 0) {
-      return {
-        tokenCount: normalizedTokens.length,
-        validTokenCount: 0,
-        tickets: [],
-      }
+      return []
     }
 
     const chunks = this.expo.chunkPushNotifications(messages)
@@ -169,10 +247,6 @@ export class NotificationService {
       tickets.push(...result)
     }
 
-    return {
-      tokenCount: normalizedTokens.length,
-      validTokenCount: messages.length,
-      tickets,
-    }
+    return tickets
   }
 }

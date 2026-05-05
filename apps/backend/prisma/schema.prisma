@@ -35,6 +35,7 @@ model User {
   refreshTokens         RefreshToken[]
   Report                Report[]
   PushToken             PushToken[]
+  notifications         Notification[]
 
   @@map("user")
 }
@@ -249,6 +250,22 @@ model PushToken {
 
   @@index([userId])
   @@map("push_token")
+}
+
+model Notification {
+  id        String    @id @default(uuid(7))
+  userId    String    @map("user_id")
+  title     String?
+  body      String?
+  data      Json?
+  readAt    DateTime? @map("read_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, id])
+  @@index([userId, readAt])
+  @@map("notification")
 }
 
 enum PushPlatform {

@@ -1,4 +1,16 @@
-import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from "@nestjs/common"
+import {
+  Body,
+  Controller,
+  DefaultValuePipe,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from "@nestjs/common"
 import { JwtAuthGuard } from "@app/auth/guards/jwt-auth.guard"
 import type { AuthenticatedRequest } from "@app/auth/authenticated-request.interface"
 import { RegisterPushTokenDto } from "./dto/register-push-token.dto"
@@ -16,6 +28,15 @@ export class NotificationController {
     @Body() dto: RegisterPushTokenDto,
   ) {
     return this.notificationService.registerPushToken(req.user.id!, dto.token, dto.platform)
+  }
+
+  @Get()
+  getNotifications(
+    @Req() req: AuthenticatedRequest,
+    @Query("cursor") cursor?: string,
+    @Query("take", new DefaultValuePipe(20), ParseIntPipe) take?: number,
+  ) {
+    return this.notificationService.getNotifications(req.user.id!, cursor ?? null, take)
   }
 
   @Get("push-token/:token")
