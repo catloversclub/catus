@@ -11,8 +11,16 @@ import { uuidv7 } from "uuidv7"
 export class CatService {
   private readonly bucket: string
   private readonly catProfileInclude = {
-    appearances: true,
-    personalities: true,
+    appearances: {
+      select: {
+        id: true,
+      },
+    },
+    personalities: {
+      select: {
+        id: true,
+      },
+    },
   } as const
 
   constructor(
@@ -23,10 +31,34 @@ export class CatService {
     this.bucket = this.config.get<string>("S3_BUCKET") ?? "catus-media"
   }
 
-  create(userId: string, createCatDto: CreateCatDto) {
+  private formatCatProfile<
+    T extends {
+      appearances: Array<{ id: number }>
+      personalities: Array<{ id: number }>
+    },
+  >(cat: T) {
+    const { appearances, personalities, ...rest } = cat
+
+    return {
+      ...rest,
+      appearances: appearances.map(({ id }) => id),
+      personalities: personalities.map(({ id }) => id),
+    }
+  }
+
+  private formatCatProfileList<
+    T extends {
+      appearances: Array<{ id: number }>
+      personalities: Array<{ id: number }>
+    },
+  >(cats: T[]) {
+    return cats.map((cat) => this.formatCatProfile(cat))
+  }
+
+  async create(userId: string, createCatDto: CreateCatDto) {
     const { appearances, personalities, ...rest } = createCatDto
 
-    return this.prisma.cat.create({
+    const cat = await this.prisma.cat.create({
       data: {
         ...rest,
         appearances: appearances?.length
@@ -37,28 +69,38 @@ export class CatService {
           : undefined,
         butlerId: userId,
       },
+      include: this.catProfileInclude,
     })
+
+    return this.formatCatProfile(cat)
   }
 
-  getMyCats(userId: string) {
-    return this.prisma.cat.findMany({
+  async getMyCats(userId: string) {
+    const cats = await this.prisma.cat.findMany({
       where: { butlerId: userId },
+      include: this.catProfileInclude,
     })
+
+    return this.formatCatProfileList(cats)
   }
 
-  getUserCats(userId: string) {
-    return this.prisma.cat.findMany({
+  async getUserCats(userId: string) {
+    const cats = await this.prisma.cat.findMany({
       where: { butlerId: userId },
       orderBy: { id: "desc" },
       include: this.catProfileInclude,
     })
+
+    return this.formatCatProfileList(cats)
   }
 
-  findOne(id: string) {
-    return this.prisma.cat.findUniqueOrThrow({
+  async findOne(id: string) {
+    const cat = await this.prisma.cat.findUniqueOrThrow({
       where: { id },
       include: this.catProfileInclude,
     })
+
+    return this.formatCatProfile(cat)
   }
 
   async update(id: string, userId: string, updateCatDto: UpdateCatDto) {
@@ -66,7 +108,7 @@ export class CatService {
 
     const { appearances, personalities, ...rest } = updateCatDto
 
-    return this.prisma.cat.update({
+    const cat = await this.prisma.cat.update({
       where: { id },
       data: {
         ...rest,
@@ -81,7 +123,10 @@ export class CatService {
           },
         }),
       },
+      include: this.catProfileInclude,
     })
+
+    return this.formatCatProfile(cat)
   }
 
   async delete(id: string, userId: string) {
